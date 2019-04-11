@@ -1,0 +1,91 @@
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
+import random
+import requests
+import tornado
+import ujson
+from .log_utils import LOG as log
+_SKIP_REREGISTER = 'Skipping re-registration for client %s'
+_REGISTER = 'Registering client %s'
+_REGISTER_COMPETITION = 'Registering competition %s from %s'
+_REGISTER_SUBMISSION = 'New Submission %s from %s'
+_FORBIDDEN = 'Forbidden'
+_CLIENT_NO_ID = 'Client did not provide id'
+_CLIENT_NOT_REGISTERED = 'Client not registered'
+_CLIENT_MALFORMED = 'Client Malformed'
+_COMPETITION_NO_ID = 'Client did not provide competition id'
+_COMPETITION_NOT_REGISTERED = 'Competition not registered/active'
+_COMPETITION_MALFORMED = 'Client provided malformed competition'
+_NO_SUBMISSION = 'Client provided no submission'
+_SUBMISSION_MALFORMED = 'Client provided malformed submission'
+
+try:
+    ConnectionRefusedError
+    unicode = str
+except NameError:
+    ConnectionRefusedError = OSError
+
+
+def parse_args(argv):
+    args = []
+    kwargs = {}
+    for arg in argv:
+        if '--' not in arg and '-' not in arg:
+            log.debug('ignoring argument: %s', arg)
+            continue
+        if '=' in arg:
+            k, v = arg.replace('-', '').split('=')
+            kwargs[k] = v
+        else:
+            args.append(arg.replace('-', ''))
+    return args, kwargs
+
+
+def parse_body(req, **fields):
+    try:
+        data = tornado.escape.json_decode(req.body)
+    except ValueError:
+        data = {}
+    return data
+
+
+def _genrand(values, x=10000):
+    id = random.randint(0, x)
+    while id in values:
+        id = random.randint(0, x)
+    return id
+
+
+def safe_get(path, data=None, cookies=None, proxies=None):
+    try:
+        resp = requests.get(path, data=data, cookies=cookies, proxies=proxies).text
+        return ujson.loads(resp)
+    except ConnectionRefusedError:
+        return {}
+
+
+def safe_post(path, data=None, cookies=None, proxies=None):
+    try:
+        resp = requests.post(path, data=data, cookies=cookies, proxies=proxies).text
+        return ujson.loads(resp)
+    except ConnectionRefusedError:
+        return {}
+
+
+def safe_post_cookies(path, data=None, cookies=None, proxies=None):
+    try:
+        resp = requests.post(path, data=data, cookies=cookies, proxies=proxies)
+        return ujson.loads(resp.text), resp.cookies
+    except ConnectionRefusedError:
+        return {}, None
+
+
+def construct_path(host, method):
+    return urljoin(host, method)
+
+
+def str_or_unicode(x):
+
+    return isinstance(x, str) or isinstance(x, unicode)

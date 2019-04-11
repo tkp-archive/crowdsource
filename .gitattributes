@@ -1,0 +1,5 @@
+crowdsource/assets/vendor/* linguist-vendored
+crowdsource/assets/vendor/asmjs/* linguist-vendored
+crowdsource/assets/vendor/wasm_async/* linguist-vendored
+crowdsource/assets/vendor/wasm_sync/* linguist-vendored
+docs/* linguist-vendored

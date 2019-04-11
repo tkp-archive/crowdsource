@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block header %}
+<link href='{{basepath + "static/css/submissions.css"}}' rel="stylesheet">
+{% endblock %}
+
+{% block main %}
+    <table id="submissions" class="tablesorter-blackice">
+        <thead>
+            <th>Submission ID</th>
+            <th>Competition ID</th>
+            <th>Competition Type</th>
+            <th>Client ID</th>
+            <th>Answer</th>
+            <th>Score</th>
+            <th>Metric</th>
+            <th>Submission Time</th>
+            <th>Competition End</th>
+            <th>Active</th>
+        </thead>
+        <tbody id="submissions_body"></tbody>
+    </table>
+{% endblock %}
+
+{% block script %}
+<script>
+function ValidURL(str) {
+    // TODO
+    if (str.substring(0,4) == 'http'){
+        return true;
+    }
+    return false;
+}
+
+$(function(){
+    $("#submissions").tablesorter({sortList:[[2,0], [4,0]]});
+})
+function fetch() {
+    console.log('fetching data...');
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{{basepath}}api/submission' + window.location.search, true);
+    xhr.onload = function (e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            var res = JSON.parse(xhr.responseText);
+            var body = document.getElementById('submissions_body');
+
+            while (body.hasChildNodes()) {
+                body.removeChild(body.lastChild);
+            }
+
+            for(var i = 0; i<res.length; i++){
+                row = document.createElement('tr');
+                c1 = document.createElement('td');
+                c2 = document.createElement('td');
+                c3 = document.createElement('td');
+                c4 = document.createElement('td');
+                c5 = document.createElement('td');
+                c6 = document.createElement('td');
+                c7 = document.createElement('td');
+                c8 = document.createElement('td');
+                c9 = document.createElement('td');
+                c10 = document.createElement('td');
+
+                c1.innerHTML = res[i]['id'];
+                c2.innerHTML = res[i]['competitionId'];
+                c3.innerHTML = res[i]['type'];
+                c4.innerHTML = res[i]['clientId'];
+
+                a = document.createElement('a');
+                a.download  = res[i]['id'] + '.json';
+                a.innerHTML = 'download';
+
+                if (typeof(res[i]['answer']) === 'string' && ValidURL(res[i]['answer'])){
+                    a.href = res[i]['answer'];
+                } else {
+                    a.href = 'data:text/json,' + res[i]['answer'];
+                }
+
+                c5.appendChild(a); 
+
+                c6.innerHTML = res[i]['score'];
+                c7.innerHTML = res[i]['metric'];
+                c8.innerHTML = res[i]['timestamp'];
+                c9.innerHTML = res[i]['expiration'];
+                c10.innerHTML = res[i]['active'];
+                if(c10.innerHTML === 'true'){
+                    c10.style.color = 'var(--light)';
+                }
+                else{
+                    c10.style.color = 'var(--mag)';
+                }
+
+                row.appendChild(c1);
+                row.appendChild(c2);
+                row.appendChild(c3);
+                row.appendChild(c4);
+                row.appendChild(c5);
+                row.appendChild(c6);
+                row.appendChild(c7);
+                row.appendChild(c8);
+                row.appendChild(c9);
+                row.appendChild(c10);
+                body.appendChild(row);
+            }
+            $("#submissions").trigger("update", [ true, function(){console.log('table updated');}]);
+
+        } else {
+          console.error(xhr.statusText);
+        }
+      }
+    };
+    xhr.onerror = function (e) {
+      console.error(xhr.statusText);
+    };
+    xhr.send(null);
+};
+fetch();
+setInterval(function(){fetch()}.bind(this), 2000);
+</script>
+{% endblock %}
