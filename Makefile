@@ -14,10 +14,10 @@ bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
 tests: clean install ## Clean and Make unit tests
-	python3 -m nose -v tests --with-coverage --cover-erase --cover-package=`find crowdsource -name "*.py" | sed "s=\./==g" | sed "s=/=.=g" | sed "s/.py//g" | tr '\n' ',' | rev | cut -c2- | rev`
+	python3 -m pytest -v tests/ --cov=crowdsource
 
 test: clean install ## run the tests for travis CI
-	@ python3 -m nose -v tests --with-coverage --cover-erase --cover-package=`find crowdsource -name "*.py" | sed "s=\./==g" | sed "s=/=.=g" | sed "s/.py//g" | tr '\n' ',' | rev | cut -c2- | rev`
+	python3 -m pytest -v tests/ --cov=crowdsource
 
 annotate: ## MyPy type annotation check
 	mypy -s crowdsource  

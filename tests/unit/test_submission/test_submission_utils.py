@@ -1,5 +1,6 @@
 from mock import patch, MagicMock
 import pandas as pd
+import numpy as np
 import cufflinks as cf
 from crowdsource.submission.utils import validateSpec, _metric, checkAnswer
 from crowdsource.structs import CompetitionStruct, SubmissionStruct
@@ -37,7 +38,8 @@ def foo3(competitionSpec, *args, **kwargs):
         y = data[col].values.reshape(len(data[col]), 1)
         reg.fit(x, y)
 
-        answers.append(reg.predict(when)[0][0])
+        print('******************')
+        answers.append(reg.predict([[when]])[0][0])
 
     answers.append(when)
     return pandas.DataFrame([answers], columns=targets+['when']).set_index(['when'])
