@@ -1,7 +1,6 @@
 from mock import patch, MagicMock
 import pandas as pd
-import numpy as np
-import cufflinks as cf
+import lantern as l
 from crowdsource.submission.utils import validateSpec, _metric, checkAnswer
 from crowdsource.structs import CompetitionStruct, SubmissionStruct
 from datetime import datetime, timedelta
@@ -91,7 +90,7 @@ class TestUtils:
         checkAnswer(s)
 
     def test_checkAnswer2(self):
-        dataset = cf.datagen.ohlcv()
+        dataset = l.ohlcv()
         competition = CompetitionSpec(title='',
                                       type=CompetitionType.PREDICT,
                                       expiration=datetime.now() + timedelta(minutes=1),

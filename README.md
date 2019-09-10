@@ -1,15 +1,14 @@
 # crowdsource
 Crowdsourcing answers
 
-[![Version](https://img.shields.io/badge/version-0.0.9-lightgrey.svg)](https://img.shields.io/badge/version-0.0.9-lightgrey.svg)
+[![Build Status](https://travis-ci.org/timkpaine/crowdsource.svg?branch=master)](https://travis-ci.org/timkpaine/crowdsource)
 [![GitHub issues](https://img.shields.io/github/issues/timkpaine/crowdsource.svg)]()
 [![codecov](https://codecov.io/gh/timkpaine/crowdsource/branch/master/graph/badge.svg?token=fQFntZ90kS)](https://codecov.io/gh/timkpaine/crowdsource)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/crowd_source/Lobby)
+[![PyPI](https://img.shields.io/pypi/l/jupyterlab_autoversion.svg)](https://pypi.python.org/pypi/jupyterlab_autoversion)
+[![PyPI](https://img.shields.io/pypi/v/jupyterlab_autoversion.svg)](https://pypi.python.org/pypi/jupyterlab_autoversion)
+[![npm](https://img.shields.io/npm/v/jupyterlab_autoversion.svg)](https://www.npmjs.com/package/jupyterlab_autoversion)
 [![Docs](https://readthedocs.org/projects/crowdsource/badge/?version=latest)](http://crowdsource.readthedocs.io/en/latest/?badge=latest)
-<!-- [![GitHub release](https://img.shields.io/github/release/timkpaine/crowdsource.svg)]() -->
-<!-- [![License](https://img.shields.io/github/license/timkpaine/crowdsource.svg)]() -->
-<!-- [![Site](https://img.shields.io/badge/Site--grey.svg?colorB=FFFFFF)](http://paine.nyc/crowdsource) -->
-<!-- [![Live](https://img.shields.io/badge/Live--grey.svg?colorB=00F000)](http://csny.herokuapp.com/leaderboard.html) -->
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/crowd_source/Lobby)
 
 ## Installation
 `python setup.py install`

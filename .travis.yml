@@ -7,6 +7,7 @@ python:
 
 install:
     - pip install -r requirements.txt
+    - pip install pytest pytest-cov mock numpy scipy pandas matplotlib pylantern sphinx
     # - pip install coveralls
     - pip install codecov
 
@@ -20,7 +21,6 @@ after_success:
     - docker tag $Image "$DOCKER_USERNAME"/crowdsourcedev:latest
     - echo $Image
     - docker push "$DOCKER_USERNAME"/crowdsourcedev
-    # - coveralls
 
 # deploy:
 #   provider: heroku

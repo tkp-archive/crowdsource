@@ -5,7 +5,7 @@ from crowdsource.utils.enums import CompetitionType, CompetitionMetric, DatasetF
 from crowdsource.utils.exceptions import MalformedDataType, MalformedMetric, MalformedCompetition, MalformedTargets, MalformedDataset
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
-import cufflinks as cf
+import lantern as l
 import pandas as pd
 import numpy as np
 
@@ -157,7 +157,7 @@ class TestUtils:
 
     def test_answerPrototype6(self):
         # AnswerType.SIX
-        dataset = cf.datagen.ohlcv().reset_index()
+        dataset = l.ohlcv().reset_index()
         exp = datetime.utcfromtimestamp(dataset[-1:]['index'].values[0].astype(datetime)/1000000000)
         competition = CompetitionSpec(title='',
                                       type=CompetitionType.PREDICT,
@@ -200,7 +200,7 @@ class TestUtils:
 
     def test_answerPrototype7(self):
         # AnswerType.SEVEN
-        dataset = cf.datagen.ohlcv().reset_index()
+        dataset = l.ohlcv().reset_index()
         competition = CompetitionSpec(title='',
                                       type=CompetitionType.PREDICT,
                                       expiration=datetime.now() + timedelta(minutes=1),
@@ -219,7 +219,7 @@ class TestUtils:
 
     def test_answerPrototype8(self):
         # AnswerType.EIGHT
-        dataset = cf.datagen.ohlcv()
+        dataset = l.ohlcv()
         exp = datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000)
         competition = CompetitionSpec(title='',
                                       type=CompetitionType.PREDICT,
@@ -239,7 +239,7 @@ class TestUtils:
 
     def test_answerPrototype9(self):
         # AnswerType.NINE
-        dataset = cf.datagen.ohlcv()
+        dataset = l.ohlcv()
         competition = CompetitionSpec(title='',
                                       type=CompetitionType.PREDICT,
                                       expiration=datetime.now() + timedelta(minutes=1),
