@@ -75,7 +75,7 @@ def answerPredict1(competitionSpec, *args, **kwargs):
     from crowdsource.competition.utils import fetchDataset
     from sklearn import linear_model
 
-    data = fetchDataset(competitionSpec, **competitionSpec.dataset_kwargs)
+    data = fetchDataset(competitionSpec)
 
     ans = answerPrototype(competitionSpec, data)
     when = competitionSpec.when
@@ -92,7 +92,7 @@ def answerPredict1(competitionSpec, *args, **kwargs):
         y = data[col].values.reshape(len(data[col]), 1)
         reg.fit(x, y)
 
-        ans.loc[when, col] = reg.predict(when.timestamp() if hasattr(when, 'timestamp') else float((time.mktime(when.timetuple())+when.microsecond/1000000.0)))
+        ans.loc[when, col] = reg.predict([[when.timestamp() if hasattr(when, 'timestamp') else float((time.mktime(when.timetuple())+when.microsecond/1000000.0))]])
 
     return ans
 
@@ -116,7 +116,7 @@ def answerPredictCorporateBonds(competitionSpec, *args, **kwargs):
     from crowdsource.competition.utils import answerPrototype
     from crowdsource.competition.utils import fetchDataset
 
-    dataset = fetchDataset(competitionSpec, **competitionSpec.dataset_kwargs)
+    dataset = fetchDataset(competitionSpec)
     answer = answerPrototype(competitionSpec, dataset)
 
     if competitionSpec.when or not competitionSpec.dataset_key:
@@ -155,7 +155,7 @@ def answerPredictCitibike(competitionSpec, *args, **kwargs):
     from crowdsource.competition.utils import answerPrototype
     from crowdsource.competition.utils import fetchDataset
 
-    dataset = fetchDataset(competitionSpec, **competitionSpec.dataset_kwargs)
+    dataset = fetchDataset(competitionSpec)
     answer = answerPrototype(competitionSpec, dataset)
 
     when = competitionSpec.when
