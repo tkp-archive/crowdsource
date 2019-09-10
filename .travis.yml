@@ -17,12 +17,12 @@ script: make test
 
 after_success:
     - codecov --token f87444f1-1c2d-4f8d-9f54-14089c09c18c
-    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    - docker build -t "$DOCKER_USERNAME"/crowdsourcedev:latest .
-    - Image="$(docker images | grep "^crowdsourcedev" | grep -v grep | awk '{print $3}')"
-    - docker tag $Image "$DOCKER_USERNAME"/crowdsourcedev:latest
-    - echo $Image
-    - docker push "$DOCKER_USERNAME"/crowdsourcedev
+    # - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    # - docker build -t "$DOCKER_USERNAME"/crowdsourcedev:latest .
+    # - Image="$(docker images | grep "^crowdsourcedev" | grep -v grep | awk '{print $3}')"
+    # - docker tag $Image "$DOCKER_USERNAME"/crowdsourcedev:latest
+    # - echo $Image
+    # - docker push "$DOCKER_USERNAME"/crowdsourcedev
 
 # deploy:
 #   provider: heroku
