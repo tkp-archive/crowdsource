@@ -2,6 +2,8 @@ language: python
 sudo: required
 services:
   - docker
+
+dist: xenial
 python:
   - "3.7"
 
