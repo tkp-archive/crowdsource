@@ -2,7 +2,6 @@
 Crowdsourcing answers
 
 [![Version](https://img.shields.io/badge/version-0.0.9-lightgrey.svg)](https://img.shields.io/badge/version-0.0.9-lightgrey.svg)
-[![Build Status](http://jenkins.paine.nyc/buildStatus/icon?job=crowdsource/master)](http://jenkins.paine.nyc/job/crowdsource/job/master/)
 [![GitHub issues](https://img.shields.io/github/issues/timkpaine/crowdsource.svg)]()
 [![codecov](https://codecov.io/gh/timkpaine/crowdsource/branch/master/graph/badge.svg?token=fQFntZ90kS)](https://codecov.io/gh/timkpaine/crowdsource)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/crowd_source/Lobby)
