@@ -6,7 +6,7 @@
 crowdsource
 ===================================
 
-|version| |build-status| |waffle| |codecov| |gitter| |docs|
+|version| |build-status| |codecov| |gitter| |docs|
 
 
 .. toctree::
@@ -32,11 +32,6 @@ Introduction
     :alt: Build Status
     :scale: 100%
     :target: https://travis-ci.org/timkpaine/crowdsource
-
-.. |waffle| image:: https://badge.waffle.io/timkpaine/crowdsource.svg?label=ready&title=Ready
-    :alt: Waffle
-    :scale: 100%
-    :target: http://waffle.io/timkpaine/crowdsource
 
 .. |codecov| image:: https://codecov.io/gh/timkpaine/crowdsource/branch/master/graph/badge.svg
     :alt: Codecov
