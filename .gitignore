@@ -103,3 +103,9 @@ ENV/
 .DS_Store
 logfile
 db
+
+.DS_Store
+node_modules
+package-lock.json
+bundle.js
+coverage

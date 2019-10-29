@@ -82,7 +82,7 @@ class ServerApplication(tornado.web.Application):
 def main(*args, **kwargs):
     port = kwargs.get('port', 8080)
 
-    if 'sql' in args:
+    if '-sql' in args:
         log.info('Using SQL auth')
 
         # defer sqlalchemy import

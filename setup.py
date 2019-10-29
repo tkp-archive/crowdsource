@@ -34,6 +34,12 @@ setup(
     zip_safe=False,
     packages=find_packages(exclude=[]),
     include_package_data=True,
+    extras_require={
+        'dev': ['bumpversion',
+                'pytest-cov >=2.6.1',
+                'codecov',
+                'mock']
+    },
     entry_points={
         'console_scripts': [
             'server=crowdsource.server:main',

@@ -1,4 +1,4 @@
-import lantern as l
+import cufflinks.datagen as cfdg
 import pandas
 import time
 import ujson
@@ -41,7 +41,7 @@ def answerClassify3(competitionSpec, *args, **kwargs):
 
 
 def predict1(host, id, cookies=None, proxies=None):
-    dataset = l.ohlcv()
+    dataset = cfdg.ohlcv()
     competition = CompetitionSpec(title='Predict next day volume',
                                   type=CompetitionType.PREDICT,
                                   expiration=datetime.now() + timedelta(minutes=1),
@@ -56,7 +56,7 @@ def predict1(host, id, cookies=None, proxies=None):
 
 
 def predict2(host, id, cookies=None, proxies=None):
-    dataset = l.line()
+    dataset = cfdg.lines()
     competition = CompetitionSpec(title='Predict future value',
                                   type=CompetitionType.PREDICT,
                                   expiration=datetime.now() + timedelta(minutes=1),

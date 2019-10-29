@@ -2,7 +2,7 @@ server:  ## run server
 	python3 -m crowdsource.server --debug
 
 sqlserver:  ## run server
-	python3 app.py -sql
+	python3 -m crowdsource.server -sql
 
 questions:  ## run example questions
 	python3 examples/local/sample_questions.py
@@ -13,11 +13,12 @@ answers:  ## run example answers
 bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
-tests: clean install ## Clean and Make unit tests
+tests: ## Clean and Make unit tests
 	python3 -m pytest -v tests/ --cov=crowdsource
 
-test: clean install ## run the tests for travis CI
+test: clean lint ## run the tests for travis CI
 	python3 -m pytest -v tests/ --cov=crowdsource
+	yarn test
 
 annotate: ## MyPy type annotation check
 	mypy -s crowdsource  
@@ -25,6 +26,13 @@ annotate: ## MyPy type annotation check
 annotate_l: ## MyPy type annotation check - count only
 	mypy -s crowdsource | wc -l 
 
+lint: ## run linter
+	flake8 hedgeme
+	yarn lint
+
+js:  ## build the js
+	yarn
+	yarn build
 
 db:  ## Remake the db
 	echo crowdsource > tmppw
