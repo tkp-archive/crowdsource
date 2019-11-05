@@ -3,12 +3,13 @@ import ujson
 import time
 import validators
 from datetime import datetime
+from traitlets import HasTraits
 from ..utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
 from ..utils import str_or_unicode
 from .utils import validateSpec
 
 
-class CompetitionSpec(object):
+class CompetitionSpec(HasTraits):
     def __init__(self,
                  title,
                  type,

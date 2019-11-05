@@ -2,6 +2,7 @@ import pandas as pd
 import threading
 import time
 import ujson
+from traitlets import HasTraits
 from .samples import SamplesMixin
 from ..competition import CompetitionSpec
 from ..submission import SubmissionSpec
@@ -32,7 +33,7 @@ class Thread(threading.Thread):
         return self._return
 
 
-class Client(SamplesMixin, object):
+class Client(SamplesMixin, HasTraits):
     def __init__(self, serverHost, id=None, cookies=None, proxies=None):
         '''Constructor for client object
 

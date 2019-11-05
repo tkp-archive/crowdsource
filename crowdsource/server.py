@@ -2,12 +2,13 @@ import sys
 import os.path
 import tornado.ioloop
 import tornado.web
+from perspective import Table, PerspectiveManager, PerspectiveTornadoHandler
 from .utils import log, parse_args
 from .handlers import HTMLHandler, HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 
 
 class ServerApplication(tornado.web.Application):
-    def __init__(self, login, register, persist, basepath='/', handlers=None, cookie_secret=None, proxies=None, debug=False):
+    def __init__(self, login, register, persist, basepath='/', wspath='ws:localhost:8080/', handlers=None, cookie_secret=None, proxies=None, debug=False):
         self._login = login
         self._register = register
         self._persist = persist
@@ -20,6 +21,11 @@ class ServerApplication(tornado.web.Application):
 
         self._proxies = proxies
         self._basepath = basepath
+        self._wspath = wspath
+
+        self._manager = PerspectiveManager()
+        self._table = Table([{"a": 1, "b": 2}])
+        self._manager.host_table("data_source_one", self._table)
 
         root = os.path.join(os.path.dirname(__file__), 'assets')
         static = os.path.join(root, 'static')
@@ -33,14 +39,13 @@ class ServerApplication(tornado.web.Application):
                    'register': self._register,
                    'persist': self._persist,
                    'basepath': self._basepath,
+                   'wspath': self._wspath,
                    'proxies': 'test'}
 
         default_handlers = [
             (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
-            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context,
-                                               'template_kwargs': {}}),
-            # Old UI
-            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
+            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
+            (r"/home", HTMLOpenHandler, {'template': 'home.html',  'context': context}),
             (r"/login", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/register", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/logout", HTMLOpenHandler, {'template': 'logout.html',  'context': context}),
@@ -54,6 +59,7 @@ class ServerApplication(tornado.web.Application):
             (r"/api/logout", LogoutHandler, context),
             (r"/api/register", RegisterHandler, context),
             (r"/api/competition", CompetitionHandler, context),
+            (r"/api/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
             (r"/api/submission", SubmissionHandler, context),
             (r"/api/leaderboard", LeaderboardHandler, context),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": static}),
@@ -102,6 +108,7 @@ def main(*args, **kwargs):
         login = null_login
         register = null_register
         persist = null_persist
+
     application = ServerApplication(login, register, persist, debug='debug' in args)
     log.critical('LISTENING: %s', port)
     application.listen(port)

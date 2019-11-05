@@ -1,12 +1,13 @@
 import pandas
 import ujson
 import validators
+from traitlets import HasTraits
 from ..utils.enums import DatasetFormat
 from ..utils import str_or_unicode
 from .utils import validateSpec
 
 
-class SubmissionSpec(object):
+class SubmissionSpec(HasTraits):
     def __init__(self,
                  competitionId,
                  answer,

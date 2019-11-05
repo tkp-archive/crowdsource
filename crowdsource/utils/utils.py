@@ -6,6 +6,7 @@ import random
 import requests
 import tornado
 import ujson
+import six
 from .log_utils import LOG as log
 _SKIP_REREGISTER = 'Skipping re-registration for client %s'
 _REGISTER = 'Registering client %s'
@@ -87,5 +88,4 @@ def construct_path(host, method):
 
 
 def str_or_unicode(x):
-
-    return isinstance(x, str) or isinstance(x, unicode)
+    return isinstance(x, six.string_types)
