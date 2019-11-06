@@ -1,14 +1,15 @@
 from mock import patch, MagicMock
 import cufflinks.datagen as cfdg
 import pandas as pd
-from crowdsource.submission.utils import validateSpec, _metric, checkAnswer
+from crowdsource.types.validate_submission import validateSpec
+from crowdsource.types.utils import _metric, checkAnswer
 from crowdsource.structs import CompetitionStruct, SubmissionStruct
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
-from crowdsource.competition import CompetitionSpec
+from crowdsource.types.competition import CompetitionSpec
 from crowdsource.utils import str_or_unicode
 from crowdsource.utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
-from crowdsource.competition.utils import fetchDataset, answerPrototype
+from crowdsource.types.utils import fetchDataset, answerPrototype
 
 
 def foo3(competitionSpec, *args, **kwargs):

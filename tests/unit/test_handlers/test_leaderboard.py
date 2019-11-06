@@ -1,8 +1,5 @@
 import tornado.web
 from crowdsource.handlers import LeaderboardHandler
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 from crowdsource.utils.enums import CompetitionType
 from mock import MagicMock
 
@@ -20,9 +17,7 @@ class TestLeaderboard:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
 
         x = LeaderboardHandler(self.app, req, **context)
         x._transforms = []
@@ -70,9 +65,7 @@ class TestLeaderboard:
                    'leaderboards': {0: x},
                    'submissions': {0: x},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
 
         x = LeaderboardHandler(self.app, req, **context)
         x._transforms = []

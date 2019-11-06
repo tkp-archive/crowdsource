@@ -1,6 +1,6 @@
 from .utils import parse_body, log
 from .enums import CompetitionType
-from .utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED, _SUBMISSION_MALFORMED, str_or_unicode
+from .utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED, str_or_unicode
 
 
 def validate_competition_get(handler):

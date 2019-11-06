@@ -64,7 +64,7 @@ class SubmissionHandler(ServerHandler):
         competitionId = data['competition_id']
 
         with self.session() as session:
-            competition = session.query(Competition).filter_by(id=int(competitionId))
+            competition = session.query(Competition).filter_by(id=int(competitionId)).first()
         if not competition:
             self._set_400(_COMPETITION_NOT_REGISTERED)
             return
@@ -117,9 +117,8 @@ class SubmissionHandler(ServerHandler):
         score = checkAnswer(submission)
         submission.score = score
         with self.session() as session:
-            submissionSql = session.query(Submission).filter_by(id=int(submission.id))
+            submissionSql = session.query(Submission).filter_by(id=int(submission.id)).first()
             submissionSql.score = score
-            session.add(submissionSql)
         return submission.to_json()
 
     def score_later(self, submission):
@@ -149,10 +148,11 @@ class SubmissionHandler(ServerHandler):
                 competition.answer = df[df.index == df.index[-1]]
                 ret.append(self.score(s))
 
-                # persist updated submission
-                # self._persist(s, update=True)  # TODO
-
+                with self.session() as session:
+                    submissionSql = session.query(Submission).filter_by(id=int(s.id)).first()
+                    submissionSql.score = s.score
                 self._to_score_later.remove(s)
+
             else:
                 log.info('SKIPPING %d', s.id)
 

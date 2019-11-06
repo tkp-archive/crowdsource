@@ -4,8 +4,8 @@ import time
 import ujson
 from traitlets import HasTraits
 from .samples import SamplesMixin
-from ..competition import CompetitionSpec
-from ..submission import SubmissionSpec
+from ..types.competition import CompetitionSpec
+from ..types.submission import SubmissionSpec
 from ..utils import safe_get, safe_post, safe_post_cookies, construct_path
 from ..utils.enums import DatasetFormat
 from ..utils.exceptions import MalformedCompetitionSpec
@@ -199,7 +199,10 @@ class Client(SamplesMixin, HasTraits):
             submission_format = DatasetFormat.JSON
         if not isinstance(submission, SubmissionSpec):
             submission = SubmissionSpec(competitionId, submission, submission_format)
-        resp = safe_post(construct_path(self._host, 'api/submission'), data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp = safe_post(construct_path(self._host, 'api/submission'),
+                         data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
+                         cookies=self._cookies,
+                         proxies=self._proxies)
         return resp
 
     def users(self):

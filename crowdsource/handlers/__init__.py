@@ -1,7 +1,7 @@
-from .html import HTMLHandler, HTMLOpenHandler
-from .login import LoginHandler
-from .logout import LogoutHandler
-from .client import RegisterHandler
-from .competition import CompetitionHandler
-from .submission import SubmissionHandler
-from .leaderboard import LeaderboardHandler
+from .html import HTMLHandler, HTMLOpenHandler  # noqa: F401
+from .login import LoginHandler  # noqa: F401
+from .logout import LogoutHandler  # noqa: F401
+from .client import RegisterHandler  # noqa: F401
+from .competition import CompetitionHandler  # noqa: F401
+from .submission import SubmissionHandler  # noqa: F401
+from .leaderboard import LeaderboardHandler  # noqa: F401

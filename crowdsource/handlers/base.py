@@ -3,7 +3,6 @@ import tornado.web
 from contextlib import contextmanager
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from ..utils import log
-from ..structs import ClientStruct
 
 
 class ServerHandler(tornado.web.RequestHandler):
@@ -62,7 +61,7 @@ class ServerHandler(tornado.web.RequestHandler):
         try:
             yield session
             session.commit()
-        except:
+        except:  # noqa: E722
             session.rollback()
             raise
         finally:

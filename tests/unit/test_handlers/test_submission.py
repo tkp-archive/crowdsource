@@ -1,9 +1,6 @@
 import tornado.web
 from datetime import datetime
 from crowdsource.handlers import SubmissionHandler
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 from crowdsource.utils.enums import CompetitionType
 from mock import MagicMock
 from tornado.web import HTTPError
@@ -20,14 +17,15 @@ class TestSubmissions:
 
         z = MagicMock()
         z.expiration = datetime(2020, 1, 1)
+        sessionmaker = MagicMock()
+        sessionmaker.return_value.query.return_value.filter_by.return_value.first.return_value = z
+
         context = {'clients': {1234: ''},
                    'competitions': {1234: z},
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': sessionmaker}
 
         x = SubmissionHandler(self.app, req, **context)
         x._transforms = []
@@ -145,9 +143,7 @@ class TestSubmissions:
                    'leaderboards': {},
                    'submissions': {0: x},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
 
         x = SubmissionHandler(self.app, req, **context)
         x._transforms = []

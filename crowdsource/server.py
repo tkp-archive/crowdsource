@@ -57,7 +57,6 @@ class Crowdsource(Application):
         clients = session.query(Client).all()
 
         self._clients = {c.id: c for c in clients}
-
         self._manager = PerspectiveManager()
 
         self._competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
@@ -127,6 +126,7 @@ class Crowdsource(Application):
         log.critical('LISTENING: %s', self.port)
         application.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
+
 
 if __name__ == "__main__":
     Crowdsource.launch_instance(sys.argv)

@@ -4,7 +4,7 @@ import time
 import ujson
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
-from .competition import CompetitionSpec
+from .types.competition import CompetitionSpec
 from .utils import safe_post, construct_path
 from .utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
 

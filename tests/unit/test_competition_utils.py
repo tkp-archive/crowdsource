@@ -1,6 +1,7 @@
 from mock import MagicMock, patch
-from crowdsource.competition import CompetitionSpec
-from crowdsource.competition.utils import validateSpec, fetchDataset, _fetchDataset, answerPrototype
+from crowdsource.types.competition import CompetitionSpec
+from crowdsource.types.validate_competition import validateSpec
+from crowdsource.types.utils import fetchDataset, _fetchDataset, answerPrototype
 from crowdsource.utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
 from crowdsource.utils.exceptions import MalformedDataType, MalformedMetric, MalformedCompetition, MalformedTargets, MalformedDataset
 from datetime import datetime, timedelta

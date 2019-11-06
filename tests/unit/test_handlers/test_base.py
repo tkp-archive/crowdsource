@@ -1,6 +1,3 @@
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 from crowdsource.handlers.base import ServerHandler
 from mock import MagicMock
 from tornado.web import HTTPError
@@ -19,29 +16,12 @@ class TestBase:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
         x.get_secure_cookie = MagicMock(return_value=5)
         assert x.get_current_user() == 5
-
-    def test_authenticate(self):
-        req = MagicMock()
-        req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
-        x = ServerHandler(self.app, req, **context)
-        x._transforms = []
-        x._authenticate(None)
-        x._authenticate(lambda x: x)
 
     def test_set_401(self):
         req = MagicMock()
@@ -51,9 +31,8 @@ class TestBase:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
         try:
@@ -70,9 +49,8 @@ class TestBase:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
         try:
@@ -80,36 +58,6 @@ class TestBase:
             assert False
         except HTTPError:
             pass
-
-    def test_login(self):
-        req = MagicMock()
-        req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
-        x = ServerHandler(self.app, req, **context)
-        x._transforms = []
-        x._login(-1)
-
-    def test_register(self):
-        req = MagicMock()
-        req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
-        x = ServerHandler(self.app, req, **context)
-        x._transforms = []
-        x._register(-1)
 
     def test_validate(self):
         req = MagicMock()
@@ -119,9 +67,8 @@ class TestBase:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
         x._validate(None)
@@ -134,9 +81,8 @@ class TestBase:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
         x._writeout('test', 'test')

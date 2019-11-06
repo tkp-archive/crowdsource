@@ -1,9 +1,6 @@
 import tornado.web
 import os.path
 import crowdsource
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 from crowdsource.handlers import LoginHandler
 from mock import MagicMock
 
@@ -27,9 +24,8 @@ class TestLogin:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = LoginHandler(self.app, req, **context)
         x._transforms = []
         x._validate = lambda *args: True

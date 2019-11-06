@@ -3,7 +3,7 @@ from mock import patch, MagicMock
 import pandas
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
-from crowdsource.competition import CompetitionSpec
+from crowdsource.types.competition import CompetitionSpec
 from crowdsource.utils.enums import CompetitionType, CompetitionMetric
 
 

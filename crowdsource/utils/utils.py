@@ -7,7 +7,8 @@ import requests
 import tornado
 import ujson
 import six
-from .log_utils import LOG as log
+from .log_utils import LOG as log  # noqa: F401
+
 _SKIP_REREGISTER = 'Skipping re-registration for client %s'
 _REGISTER = 'Registering client %s'
 _REGISTER_COMPETITION = 'Registering competition %s from %s'

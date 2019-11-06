@@ -8,17 +8,17 @@
  */
 
 import perspective from "@finos/perspective";
-import {PerspectiveWorkspace, PerspectiveWidget} from "@finos/perspective-phosphor";
+import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {Widget} from "@phosphor/widgets";
 
-import "@finos/perspective-viewer-hypergrid";
 import "@finos/perspective-viewer-d3fc";
+import "@finos/perspective-viewer-hypergrid";
 
 export
 async function main() {
-    const websocket = (perspective as any).websocket((window as any).CONNECTION_CONFIG.wspath + 'api/wscompetition');
-    const table1 = websocket.open_table('competitions');
-    const table2 = websocket.open_table('submissions');
+    const websocket = (perspective as any).websocket((window as any).CONNECTION_CONFIG.wspath + "api/wscompetition");
+    const table1 = websocket.open_table("competitions");
+    const table2 = websocket.open_table("submissions");
 
     const workspace = new PerspectiveWorkspace();
     const widget1 = new PerspectiveWidget("Competitions");

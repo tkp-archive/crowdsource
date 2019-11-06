@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 from six import StringIO
 from pandas.io.json import json_normalize
+from ..types.validate_submission import _metric
 from ..utils import str_or_unicode
 from ..utils.enums import CompetitionType, DatasetFormat
 from ..utils.exceptions import MalformedDataType, MalformedDataset
@@ -193,9 +194,10 @@ def answerPrototype(spec, dataset=None):
 
     elif type == CompetitionType.CLUSTER:
         # AnswerType.TEN
-        raise NotImplemented()
+        raise NotImplementedError()
 
     return df
+
 
 def checkAnswer(submission):
     competition = submission.competition

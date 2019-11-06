@@ -24,7 +24,7 @@ annotate_l: ## MyPy type annotation check - count only
 	mypy -s crowdsource | wc -l 
 
 lint: ## run linter
-	flake8 hedgeme
+	flake8 crowdsource
 	yarn lint
 
 js:  ## build the js

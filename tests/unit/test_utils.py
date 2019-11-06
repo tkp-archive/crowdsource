@@ -1,5 +1,5 @@
 from mock import MagicMock, patch
-from crowdsource.utils import _genrand, parse_body, construct_path, parse_args, safe_get, safe_post, safe_post_cookies
+from crowdsource.utils import _genrand, parse_body, construct_path, safe_get, safe_post, safe_post_cookies
 
 
 def foo(*args, **kwargs):
@@ -25,9 +25,6 @@ class TestUtils:
 
     def test_constructPath(self):
         assert(construct_path('test', 'test') == 'test')
-
-    def test_parse_args(self):
-        print(parse_args(['test', '--debug', '--test=test']))
 
     def test_safe_get(self):
         with patch('requests.get') as m:

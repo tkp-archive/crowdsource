@@ -71,7 +71,11 @@ class CompetitionStruct(Struct):
         self.num_classes = self.spec.num_classes
         self.targets = self.spec.targets
         self.when = self.spec.when
-        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) else '' if not self.spec.answer else pd.DataFrame(ujson.loads(self.spec.answer))
+        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) \
+            else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) \
+            else '' if not self.spec.answer \
+            else pd.DataFrame(ujson.loads(self.spec.answer))
+
         self.answer_type = self.spec.dataset_type if self.spec.answer_type == DatasetFormat.NONE else self.spec.answer_type
         self.answer_delay = self.spec.answer_delay
         ##########################
@@ -161,7 +165,11 @@ class SubmissionStruct(Struct):
         ##########################
         # load spec
         self.spec = SubmissionSpec.from_dict(spec)
-        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) else '' if not self.spec.answer else pd.DataFrame(ujson.loads(self.spec.answer))
+        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) \
+            else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) \
+            else '' if not self.spec.answer \
+            else pd.DataFrame(ujson.loads(self.spec.answer))
+
         self.answer_type = self.spec.answer_type
         ##########################
 

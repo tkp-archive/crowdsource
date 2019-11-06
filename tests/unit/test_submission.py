@@ -1,4 +1,4 @@
-from crowdsource.submission import SubmissionSpec
+from crowdsource.types.submission import SubmissionSpec
 
 
 class TestSubmissionSpec:

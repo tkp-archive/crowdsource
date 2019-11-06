@@ -10,8 +10,6 @@ class LeaderboardHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):  # TODO make coroutine
         '''Get the current list of competition ids'''
-        self._authenticate()
-
         data = self._validate(validate_leaderboard_get)
 
         res = []

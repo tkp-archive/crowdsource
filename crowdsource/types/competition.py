@@ -3,8 +3,7 @@ import ujson
 import time
 import validators
 from datetime import datetime
-from traitlets import HasTraits, Unicode, Instance, Float
-from ..persistence.models import Competition
+from traitlets import HasTraits
 from ..utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
 from ..utils import str_or_unicode
 from .validate_competition import validateSpec

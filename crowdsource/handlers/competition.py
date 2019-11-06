@@ -34,7 +34,7 @@ class CompetitionHandler(ServerHandler):
                 if datetime.now() > c.expiration:
                     c.active = False
 
-                    if self.get_argument('current', False) == True:
+                    if self.get_argument('current', False):
                         continue
 
                 res.append(c.to_dict())
@@ -60,8 +60,8 @@ class CompetitionHandler(ServerHandler):
             session.commit()
             session.refresh(competitionSql)
 
-        # put in perspective
-        self._competitions.update([competitionSql.to_dict()])
+            # put in perspective
+            self._competitions.update([competitionSql.to_dict()])
 
         if comp.id:
             self._competitions.update(comp.to_dict())

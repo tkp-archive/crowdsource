@@ -4,18 +4,13 @@ import crowdsource
 from crowdsource.handlers import HTMLHandler, HTMLOpenHandler
 from mock import MagicMock
 from tornado.web import HTTPError
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 
 context = {'clients': {},
            'competitions': {},
            'leaderboards': {},
            'submissions': {},
            'stash': [],
-           'login': null_login,
-           'register': null_register,
-           'persist': null_persist}
+           'sessionmaker': MagicMock()}
 
 
 class TestHTML:
