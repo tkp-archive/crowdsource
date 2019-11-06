@@ -1,14 +1,13 @@
-import heapq
 import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
+from ..persistence.models import Submission, Competition
 from ..structs import SubmissionStruct
+from ..types.utils import fetchDataset, checkAnswer
 from ..utils import log, str_or_unicode
-from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED
+from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED, _COMPETITION_NOT_REGISTERED
 from ..utils.enums import CompetitionType
-from ..competition.utils import fetchDataset
-from ..submission.utils import checkAnswer
 from ..utils.validate import validate_submission_get, validate_submission_post
 
 
@@ -16,15 +15,15 @@ class SubmissionHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):  # TODO make coroutine
         '''Get the current list of competition ids'''
-        self._authenticate()
-
         data = self._validate(validate_submission_get)
 
         # first, grade any pending submissions that are now available
         self.score_laters()
 
         res = []
-        for x in self._submissions.values():
+        with self.session() as session:
+            submissions = session.query(Submission).all()
+        for x in submissions:
             for c in x:
                 id = data.get('id', ())
                 cpid = data.get('competition_id', ())
@@ -58,13 +57,17 @@ class SubmissionHandler(ServerHandler):
     @tornado.web.authenticated
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
-        self._authenticate()
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
         clientId = data['id']
         competitionId = data['competition_id']
-        competition = self._competitions[competitionId]
+
+        with self.session() as session:
+            competition = session.query(Competition).filter_by(id=int(competitionId))
+        if not competition:
+            self._set_400(_COMPETITION_NOT_REGISTERED)
+            return
 
         if datetime.now() > competition.expiration:
             competition.active = False
@@ -82,14 +85,22 @@ class SubmissionHandler(ServerHandler):
             self._set_400(_SUBMISSION_MALFORMED)
 
         # persist
-        self._persist(submission)
+        with self.session() as session:
+            submissionSql = submission.spec.to_sql()
+            session.add(submissionSql)
+            session.commit()
+            session.refresh(submissionSql)
+
+        # put in perspective
+        self._submissions.update([submissionSql.to_dict()])
+
+        submission.id = submissionSql.id
 
         if not submission.id:
             self._set_400(_SUBMISSION_MALFORMED)
 
         id = submission.id
         competitionId = submission.competitionId
-        competition = self._competitions[competitionId]
 
         # calculate result if immediate
         if competition.answer_delay <= 0:
@@ -99,22 +110,16 @@ class SubmissionHandler(ServerHandler):
             self.score_later(submission)
             score = {'id': id}
 
-        # persist submission
-        self._persist(submission)
-
         self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.clientId)
 
     def score(self, submission):
         log.info("SCORING %s FOR %s", str(submission.id), submission.competitionId)
         score = checkAnswer(submission)
         submission.score = score
-
-        # update leaderboard
-        if not self._submissions.get(submission.competitionId):
-            self._submissions[submission.competitionId] = [submission]
-        else:
-            heapq.heappush(self._submissions[submission.competitionId], submission)
-
+        with self.session() as session:
+            submissionSql = session.query(Submission).filter_by(id=int(submission.id))
+            submissionSql.score = score
+            session.add(submissionSql)
         return submission.to_json()
 
     def score_later(self, submission):
@@ -145,7 +150,7 @@ class SubmissionHandler(ServerHandler):
                 ret.append(self.score(s))
 
                 # persist updated submission
-                self._persist(s, update=True)
+                # self._persist(s, update=True)  # TODO
 
                 self._to_score_later.remove(s)
             else:

@@ -2,43 +2,10 @@ import numpy as np
 import pandas as pd
 import requests
 from six import StringIO
-import validators
 from pandas.io.json import json_normalize
 from ..utils import str_or_unicode
-from ..utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
-from ..utils.exceptions import MalformedDataType, MalformedCompetition, MalformedMetric, MalformedDataset, MalformedTargets
-
-
-def validateSpec(title,
-                 subtitle,
-                 type,
-                 expiration,
-                 prize,
-                 metric,
-                 dataset,
-                 targets,
-                 dataset_type,
-                 dataset_kwargs,
-                 dataset_key,
-                 num_classes,
-                 when,
-                 answer,
-                 answer_type,
-                 answer_delay):
-
-    if not isinstance(type, CompetitionType):
-        raise MalformedCompetition()
-
-    if not isinstance(metric, CompetitionMetric):
-        raise MalformedMetric()
-
-    if str_or_unicode(dataset) and validators.url(dataset):
-        if not isinstance(dataset_type, DatasetFormat):
-            raise MalformedDataset()
-
-    if type == CompetitionType.PREDICT:
-        if targets is None:
-            raise MalformedTargets()
+from ..utils.enums import CompetitionType, DatasetFormat
+from ..utils.exceptions import MalformedDataType, MalformedDataset
 
 
 def _fetchDataset(data, data_type, record_column='', cookies=None, proxies=None, **kwargs):
@@ -229,3 +196,55 @@ def answerPrototype(spec, dataset=None):
         raise NotImplemented()
 
     return df
+
+def checkAnswer(submission):
+    competition = submission.competition
+
+    # Competition answer #
+    answer = competition.answer
+    answer_type = competition.answer_type
+    dataset_kwargs = competition.dataset_kwargs
+
+    # grab answer if possible
+    if str_or_unicode(answer):
+        real_answer = _fetchDataset(answer, answer_type, **dataset_kwargs)
+    else:
+        real_answer = pd.DataFrame(answer)
+    ####
+
+    # user answer #
+    user_answer = submission.answer
+    user_answer_type = submission.answer_type
+
+    # grab user answer if possible
+    if str_or_unicode(user_answer):
+        real_user_answer = _fetchDataset(user_answer, user_answer_type, **dataset_kwargs)
+    else:
+        real_user_answer = pd.DataFrame(user_answer)
+    ####
+
+    if competition.type == CompetitionType.CLASSIFY:
+        return _metric(competition.metric, real_answer, real_user_answer, eps=1e-15)
+
+    elif competition.type == CompetitionType.PREDICT:
+        if isinstance(competition.targets, list):
+            real_answer = real_answer[competition.targets]
+            real_user_answer = real_user_answer[competition.targets]
+        elif isinstance(competition.targets, dict):
+            keyfield = competition.dataset_key
+            keys = list(set(competition.targets.keys()))  # TODO more than 1 key?
+            columns = list(set([v for x in competition.targets.values() for v in x]))
+            real_answer = real_answer[real_answer[keyfield].isin(keys)][columns]
+            real_user_answer = real_user_answer[real_user_answer[keyfield].isin(keys)][columns]
+        elif isinstance(competition.targets, list):
+            real_answer = real_answer[competition.targets]
+            real_user_answer = real_user_answer[competition.targets]
+        else:
+            real_answer = real_answer[[competition.targets]]
+            real_user_answer = real_user_answer[[competition.targets]]
+        return _metric(competition.metric, real_answer, real_user_answer, eps=1e-15)
+
+    elif competition.type == CompetitionType.CLUSTER:
+        return _metric(competition.metric, real_answer, real_user_answer, eps=1e-15)
+
+    return 0.0

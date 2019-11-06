@@ -1,9 +1,6 @@
 server:  ## run server
 	python3 -m crowdsource.server --debug
 
-sqlserver:  ## run server
-	python3 -m crowdsource.server -sql
-
 questions:  ## run example questions
 	python3 examples/local/sample_questions.py
 

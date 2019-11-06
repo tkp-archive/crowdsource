@@ -53,6 +53,14 @@ class Competition(Base):
     def __repr__(self):
         return "<Competition(id='%s', clientId='%s')>" % (self.id, self.clientId)
 
+    def to_dict(self):
+        ret = {}
+        for item in ("id", "clientId", "type", "expiration", "prize", "metric", "targets", "dataset",
+                     "dataset_url", "dataset_type", "num_classes", "when", "answer", "answer_url", "answer_type",
+                     "timestamp"):
+            ret[item] = getattr(self, item)
+        return ret
+
 
 class Submission(Base):
     __tablename__ = 'submissions'
@@ -74,3 +82,9 @@ class Submission(Base):
 
     def __repr__(self):
         return "<Submission(id='%s', clientId='%s', competitionId='%s')>" % (self.id, self.clientId, self.competitionId)
+
+    def to_dict(self):
+        ret = {}
+        for item in ("id", "clientId", "competitionId", "score", "answer", "answer_url", "answer_type", "timestamp"):
+            ret[item] = getattr(self, item)
+        return ret

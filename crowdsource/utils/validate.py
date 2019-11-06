@@ -3,30 +3,6 @@ from .enums import CompetitionType
 from .utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED, _SUBMISSION_MALFORMED, str_or_unicode
 
 
-def validate_login_get(handler):
-    pass
-
-
-def validate_login_post(handler):
-    '''Register a client. Client will be assigned a session id'''
-    data = parse_body(handler.request)
-    log.info("POST LOGIN %s", handler.current_user)
-    return data
-
-
-def validate_register_get(handler):
-    data = parse_body(handler.request)
-    log.info("GET CLIENTS")
-    return data
-
-
-def validate_register_post(handler):
-    '''Register a client. Client will be assigned a session id'''
-    data = parse_body(handler.request)
-    log.info("POST CLIENTS %s", handler.current_user)
-    return data
-
-
 def validate_competition_get(handler):
     data = parse_body(handler.request)
 

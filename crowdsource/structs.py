@@ -4,8 +4,9 @@ import validators
 from six import with_metaclass
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta
-from .competition import CompetitionSpec
-from .submission import SubmissionSpec
+from .persistence.models import Submission, Competition
+from .types.competition import CompetitionSpec
+from .types.submission import SubmissionSpec
 from .utils import str_or_unicode
 from .utils.enums import DatasetFormat
 
@@ -17,6 +18,10 @@ class Struct(with_metaclass(ABCMeta)):
 
     def to_json(self):
         return ujson.dumps(self.to_dict())
+
+    @abstractmethod
+    def to_sql(self):
+        pass
 
     def __repr__(self):
         return self.to_json()
@@ -33,6 +38,9 @@ class ClientStruct(Struct):
 
     def to_dict(self):
         return {'id': self.id}
+
+    def to_sql(self):
+        raise NotImplementedError()
 
 
 class CompetitionStruct(Struct):
@@ -92,6 +100,46 @@ class CompetitionStruct(Struct):
             x['answer'] = 'hidden'
         return x
 
+    def to_sql(self):
+        c = Competition()
+        c.clientId = self.clientId
+        # client = relationship('Client', back_populates="competitions")
+
+        c.type = self.type.value
+        c.expiration = self.expiration
+        c.prize = self.prize
+        c.metric = self.metric.value
+        c.targets = ujson.dumps(self.targets)
+
+        if isinstance(self.dataset, pd.DataFrame):
+            c.dataset = self.dataset.to_json()
+        elif validators.url(self.dataset):
+            c.dataset_url = self.dataset
+        else:
+            raise Exception()  # TODO
+
+        c.dataset_type = self.dataset_type.value
+        c.dataset_kwargs = self.dataset_kwargs
+        c.dataset_key = self.dataset_key
+
+        c.num_classes = self.num_classes
+        c.when = self.when
+
+        if isinstance(self.answer, pd.DataFrame):
+            c.answer = self.answer.to_json()
+        elif validators.url(self.answer):
+            c.answer_url = self.answer  # TODO
+        else:
+            raise Exception()  # TODO
+
+        c.answer_type = self.answer_type.value
+
+        # c.answer_delay = 0 # TODO competition.answer_delay
+
+        # timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+        # submissions = relationship('Submission', back_populates='competition')
+        return c
+
     def __lt__(self, other):
         return self.expiration < other.expiration
 
@@ -144,6 +192,27 @@ class SubmissionStruct(Struct):
             x['answer'] = 'hidden'
 
         return x
+
+    def to_sql(self):
+        s = Submission()
+        s.clientId = self.clientId
+        # client = relationship(Client, back_populates='submissions')
+
+        s.competitionId = self.competitionId
+        # competition = relationship('Competition', back_populates='submissions')
+
+        s.score = self.score
+        if isinstance(self.answer, pd.DataFrame):
+            s.answer = self.answer.to_json()
+        elif validators.url(self.answer):
+            s.answer_url = self.answer_url
+        else:
+            raise Exception()  # TODO
+
+        s.answer_type = self.answer_type
+
+        # timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
+        return s
 
     def __lt__(self, other):
         return abs(self.score) < abs(other.score)

@@ -2,9 +2,10 @@ import pandas
 import ujson
 import validators
 from traitlets import HasTraits
+from ..persistence.models import Submission
 from ..utils.enums import DatasetFormat
 from ..utils import str_or_unicode
-from .utils import validateSpec
+from .validate_submission import validateSpec
 
 
 class SubmissionSpec(HasTraits):

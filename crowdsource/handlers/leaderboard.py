@@ -1,6 +1,7 @@
 import tornado.web
 import ujson
 from .base import ServerHandler
+from ..persistence.models import Submission
 from ..utils.enums import CompetitionType
 from ..utils.validate import validate_leaderboard_get
 
@@ -14,7 +15,9 @@ class LeaderboardHandler(ServerHandler):
         data = self._validate(validate_leaderboard_get)
 
         res = []
-        for x in self._submissions.values():
+        session = self._sessionmaker()
+        submissions = session.query(Submission).all()
+        for x in submissions:
             for c in x:
                 id = data.get('id', ())
                 cpid = data.get('competition_id', ())

@@ -1,7 +1,8 @@
 import tornado.web
 import copy
 from .base import ServerHandler
-from ..utils.validate import validate_login_post, validate_register_post
+from ..persistence.models import Client
+from ..structs import ClientStruct
 
 
 def get_kwargs(handler, template_kwargs):
@@ -34,21 +35,24 @@ class HTMLOpenHandler(ServerHandler):
             self.write(template)
 
     def post(self, *args):
+        session = self._sessionmaker()
         if 'login' in self.request.path:
-            self._validate(validate_login_post)
-            user = self.get_argument('id', '') or self.current_user.decode('utf-8') or ''
-            client = self._login(user)
-            ret = self._login_post(client)
-            if not ret:
+            user = self.get_argument('id', '') or self.current_user.decode('utf-8') or -1
+            ret = session.query(Client).filter_by(id=int(user)).first()
+            if not ret.id:
                 self.redirect(self.basepath + 'login')
                 return
-
+            self._login_post(ret)
         elif 'register' in self.request.path:
-            data = self._validate(validate_register_post)
-            ret = self._register_or_known(data)
+            session = self._sessionmaker()
+            c = Client()
+            session.add(c)
+            session.commit()
+            ret = ClientStruct(str(c.id))
             if not ret:
                 self.redirect(self.basepath + 'login')
                 return
+            self._login_post(ret)
         self.redirect(self.get_argument('next', self.basepath))
 
 
