@@ -86,7 +86,7 @@ class DataHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.set_header('Content-Type', 'application/json')
-    
+
     def get(self):
         '''Get the current list of client ids'''
         for c in P:

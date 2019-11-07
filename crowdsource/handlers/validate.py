@@ -31,7 +31,7 @@ def validate_competition_post(handler):
     if not data.get('id'):
         handler._set_401(_CLIENT_NO_ID)
 
-    if data.get('id', '') not in handler._clients:
+    if int(data.get('id', '-1')) not in handler._clients:
         handler._set_401(_CLIENT_NOT_REGISTERED)
 
     if data.get('spec', None) is None:
@@ -69,7 +69,7 @@ def validate_submission_post(handler):
     if not data.get('id'):
         handler._set_401(_CLIENT_NO_ID)
 
-    if data.get('id') not in handler._clients:
+    if int(data.get('id', '-1')) not in handler._clients:
         handler._set_401(_CLIENT_NOT_REGISTERED)
 
     if not data.get('competition_id'):

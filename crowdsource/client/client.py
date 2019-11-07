@@ -84,7 +84,7 @@ class Client(SamplesMixin, HasTraits):
             raise MalformedCompetitionSpec()
 
         self.register()
-        resp = safe_post(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):
@@ -199,10 +199,10 @@ class Client(SamplesMixin, HasTraits):
             submission_format = DatasetFormat.JSON
         if not isinstance(submission, SubmissionSpec):
             submission = SubmissionSpec(competitionId, submission, submission_format)
-        resp = safe_post(construct_path(self._host, 'api/v1/submission'),
-                         data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
-                         cookies=self._cookies,
-                         proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/submission'),
+                                    data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
+                                    cookies=self._cookies,
+                                    proxies=self._proxies)
         return resp
 
     def users(self):

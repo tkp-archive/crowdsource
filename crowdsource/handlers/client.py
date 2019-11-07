@@ -2,7 +2,6 @@ import tornado.web
 import ujson
 from .base import ServerHandler
 from ..persistence.models import Client
-from ..structs import ClientStruct
 from ..utils import _REGISTER, _CLIENT_MALFORMED
 
 
@@ -24,7 +23,7 @@ class RegisterHandler(ServerHandler):
             session.add(c)
             session.commit()
             session.refresh(c)
-            ret = self._login_post(ClientStruct(str(c.id)))
+            ret = self._login_post(c)
 
         if ret:
             self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])

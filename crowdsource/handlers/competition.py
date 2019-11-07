@@ -3,8 +3,8 @@ import ujson
 from datetime import datetime
 from .base import ServerHandler
 from .validate import validate_competition_get, validate_competition_post
+from ..types.competition import CompetitionSpec
 from ..persistence.models import Competition
-from ..structs import CompetitionStruct
 from ..utils import _REGISTER_COMPETITION, _COMPETITION_MALFORMED
 
 
@@ -41,7 +41,6 @@ class CompetitionHandler(ServerHandler):
         page = int(data.get('page', 0))
         self.write(ujson.dumps(res[page*100:(page+1)*100]))  # return top 100
 
-    @tornado.web.authenticated
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
         data = self._validate(validate_competition_post)
@@ -49,20 +48,18 @@ class CompetitionHandler(ServerHandler):
         # generate a new ID
         client_id = data['id']
         try:
-            comp = CompetitionStruct(id=-1, clientId=client_id, spec=data['spec'])
+            spec = CompetitionSpec.from_dict(data["spec"])
+            comp = Competition.from_spec(client_id=client_id, spec=spec)
         except (KeyError, ValueError):
             self._set_400(_COMPETITION_MALFORMED)
 
         with self.session() as session:
-            competitionSql = comp.to_sql()
-            session.add(competitionSql)
+            session.add(comp)
             session.commit()
-            session.refresh(competitionSql)
-
-            # put in perspective
-            self._competitions.update([competitionSql.to_dict()])
+            session.refresh(comp)
 
         if comp.id:
+            # put in perspective
             self._competitions.update(comp.to_dict())
             self._writeout(ujson.dumps({'id': str(comp.id)}), _REGISTER_COMPETITION, comp.id, comp.clientId)
         else:

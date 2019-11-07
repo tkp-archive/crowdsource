@@ -6,7 +6,7 @@ from datetime import datetime
 from .base import ServerHandler
 from .validate import validate_submission_get, validate_submission_post
 from ..persistence.models import Submission, Competition
-from ..structs import SubmissionStruct
+from ..types.submission import SubmissionSpec
 from ..types.utils import fetchDataset, checkAnswer
 from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED, _COMPETITION_NOT_REGISTERED
 from ..enums import CompetitionType
@@ -61,7 +61,7 @@ class SubmissionHandler(ServerHandler):
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
-        clientId = data['id']
+        client_id = data['id']
         competitionId = data['competition_id']
 
         with self.session() as session:
@@ -76,29 +76,26 @@ class SubmissionHandler(ServerHandler):
                 return
 
             try:
-                submission = SubmissionStruct(id=-1,
-                                              clientId=clientId,
-                                              competitionId=competitionId,
-                                              competition=competition,
-                                              spec=submission,
-                                              score=-1.0)
+                spec = SubmissionSpec.from_dict(submission)
+                submission = Submission.from_spec(client_id=client_id,
+                                                  competitionId=competitionId,
+                                                  competition=competition,
+                                                  spec=spec,
+                                                  score=-1.0)
             except (KeyError, ValueError, AttributeError):
                 self._set_400(_SUBMISSION_MALFORMED)
 
             # persist
             with self.session() as session:
-                submissionSql = submission.spec.to_sql()
-                session.add(submissionSql)
+                session.add(submission)
                 session.commit()
-                session.refresh(submissionSql)
-
-            # put in perspective
-            self._submissions.update([submissionSql.to_dict()])
-
-            submission.id = submissionSql.id
+                session.refresh(submission)
 
             if not submission.id:
                 self._set_400(_SUBMISSION_MALFORMED)
+
+            # put in perspective
+            self._submissions.update([submission.to_dict()])
 
             id = submission.id
             competitionId = submission.competitionId
@@ -118,8 +115,8 @@ class SubmissionHandler(ServerHandler):
         score = checkAnswer(submission)
         submission.score = score
         with self.session() as session:
-            submissionSql = session.query(Submission).filter_by(id=int(submission.id)).first()
-            submissionSql.score = score
+            submission.score = score
+            session.commit()
         return submission.to_json()
 
     def score_later(self, submission):
@@ -150,8 +147,8 @@ class SubmissionHandler(ServerHandler):
                 ret.append(self.score(s))
 
                 with self.session() as session:
-                    submissionSql = session.query(Submission).filter_by(id=int(s.id)).first()
-                    submissionSql.score = s.score
+                    s.score = s.score
+                    session.commit()
                 self._to_score_later.remove(s)
 
             else:

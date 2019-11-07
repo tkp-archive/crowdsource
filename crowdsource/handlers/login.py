@@ -1,7 +1,7 @@
 import ujson
 from .base import ServerHandler
 from ..utils import _CLIENT_NOT_REGISTERED, _REGISTER
-from ..structs import ClientStruct
+from ..persistence.models import Client
 
 
 class LoginHandler(ServerHandler):
@@ -17,12 +17,14 @@ class LoginHandler(ServerHandler):
         user = self.get_argument('id', '')
         if not user and self.current_user:
             user = self.current_user.decode('utf-8')
-
-        ret = self._login_post(ClientStruct(id=user))
-        if ret:
-            self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
-        else:
-            self._set_401(_CLIENT_NOT_REGISTERED)
+        with self.session() as session:
+            client = session.query(Client).filter_by(id=int(user)).first()
+            if client:
+                ret = self._login_post(client)
+                self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
+            else:
+                import ipdb; ipdb.set_trace()
+                self._set_401(_CLIENT_NOT_REGISTERED)
 
 
 class LogoutHandler(ServerHandler):

@@ -2,41 +2,41 @@ import time
 import pandas as pd
 from datetime import datetime
 import crowdsource.client as ac
-from crowdsource.utils import log
+import logging
 
 c = ac.Client('http://0.0.0.0:8080')
 
 c._sampleClassify1()
 
 time.sleep(1)
-log.debug(c.leaderboards())
+logging.debug(c.leaderboards())
 
 c._sampleClassify1()
 time.sleep(1)
-log.debug(c.leaderboards())
+logging.debug(c.leaderboards())
 
 
 c._samplePredict1()
 time.sleep(1)
-log.debug(c.leaderboards())
+logging.debug(c.leaderboards())
 
 c._samplePredict2()
 time.sleep(1)
-log.debug(c.leaderboards())
+logging.debug(c.leaderboards())
 
 time.sleep(4)
 c._samplePredictCorporateBonds()
 df = pd.read_json('https://bonds.paine.nyc')
 tim = df[df['Name'] == 'ABC Corp'].Time.iloc[-1]
 cur = datetime.strptime(tim, '%H:%M:%S')
-log.debug('Submitting new competition')
+logging.debug('Submitting new competition')
 
 time.sleep(4)
 c._samplePredictCitibike()
 
 while True:
     time.sleep(15)
-    log.debug(c.leaderboards())
+    logging.debug(c.leaderboards())
 
     # df = pd.read_json('https://bonds.paine.nyc')
 
