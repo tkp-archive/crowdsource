@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
 from traitlets import Unicode, List, Bool
-from .utils import log
 from .handlers import HTMLHandler, HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
@@ -43,7 +42,7 @@ class Crowdsource(Application):
 
     def start(self):
         if self.debug:
-            log.setLevel(logging.DEBUG)
+            logging.getLogger().setLevel(logging.DEBUG)
 
         self.port = os.environ.get('PORT', self.port)
         self.wspath = self.wspath.format(self.port)
@@ -120,7 +119,7 @@ class Crowdsource(Application):
 
         application = tornado.web.Application(default_handlers, **settings)
 
-        log.critical('LISTENING: %s', self.port)
+        logging.critical('LISTENING: %s', self.port)
         application.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 

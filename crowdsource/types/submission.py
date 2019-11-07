@@ -1,10 +1,9 @@
+import six
 import pandas
 import ujson
 import validators
 from traitlets import HasTraits
-from ..utils.enums import DatasetFormat
-from ..utils import str_or_unicode
-from .validate_submission import validateSpec
+from ..enums import DatasetFormat
 
 
 class SubmissionSpec(HasTraits):
@@ -12,10 +11,10 @@ class SubmissionSpec(HasTraits):
                  competitionId,
                  answer,
                  answer_type):
-        validateSpec(competitionId, answer, answer_type)
+        SubmissionSpec.validate(competitionId, answer, answer_type)
         self.competitionId = competitionId
         self.answer = answer
-        if str_or_unicode(answer_type):
+        if isinstance(answer_type, six.string_types):
             answer_type = DatasetFormat(answer_type)
         self.answer_type = answer_type
 
@@ -51,3 +50,7 @@ class SubmissionSpec(HasTraits):
     def from_json(cls, json):
         val = ujson.loads(json)
         return SubmissionSpec.from_dict(val)
+
+    @staticmethod
+    def validate(competitionId, answer, answer_type):
+        pass

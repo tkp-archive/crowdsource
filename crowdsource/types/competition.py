@@ -1,12 +1,12 @@
+import six
 import pandas
 import ujson
 import time
 import validators
 from datetime import datetime
 from traitlets import HasTraits
-from ..utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
-from ..utils import str_or_unicode
-from .validate_competition import validateSpec
+from ..enums import CompetitionType, CompetitionMetric, DatasetFormat
+from ..exceptions import MalformedCompetition, MalformedMetric, MalformedDataset, MalformedTargets
 
 
 class CompetitionSpec(HasTraits):
@@ -27,7 +27,7 @@ class CompetitionSpec(HasTraits):
                  answer=None,
                  answer_type=DatasetFormat.NONE,
                  answer_delay=0):
-        validateSpec(title, subtitle, type, expiration, prize, metric, dataset, targets, dataset_type, dataset_kwargs, dataset_key, num_classes, when, answer, answer_type, answer_delay)
+        CompetitionSpec.validate(title, subtitle, type, expiration, prize, metric, dataset, targets, dataset_type, dataset_kwargs, dataset_key, num_classes, when, answer, answer_type, answer_delay)
         self.title = title
         self.subtitle = subtitle
         self.type = type
@@ -38,7 +38,7 @@ class CompetitionSpec(HasTraits):
         # provide dataset if available
         self.dataset = dataset
 
-        if str_or_unicode(dataset) and validators.url(dataset):
+        if isinstance(dataset, six.string_types) and validators.url(dataset):
             self.dataset_type = dataset_type
         else:
             self.dataset_type = DatasetFormat.NONE
@@ -56,7 +56,7 @@ class CompetitionSpec(HasTraits):
         self.when = when
 
         self.answer = answer
-        if str_or_unicode(answer) and validators.url(answer):
+        if isinstance(answer, six.string_types) and validators.url(answer):
             self.answer_type = self.dataset_type if answer_type == DatasetFormat.NONE else answer_type
         else:
             self.answer_type = DatasetFormat.NONE
@@ -71,14 +71,14 @@ class CompetitionSpec(HasTraits):
         ret['expiration'] = self.expiration.timestamp() if hasattr(self.expiration, 'timestamp') else float((time.mktime(self.expiration.timetuple())+self.expiration.microsecond/1000000.0))
         ret['prize'] = self.prize
         ret['metric'] = self.metric.value
-        ret['dataset'] = self.dataset if str_or_unicode(self.dataset) else self.dataset.to_json()
+        ret['dataset'] = self.dataset if isinstance(self.dataset, six.string_types) else self.dataset.to_json()
         ret['dataset_type'] = self.dataset_type.value
         ret['dataset_kwargs'] = self.dataset_kwargs
         ret['dataset_key'] = self.dataset_key
         ret['num_classes'] = self.num_classes
         ret['targets'] = self.targets
         ret['when'] = '' if self.when is None else self.when.timestamp() if hasattr(self.when, 'timestamp') else float((time.mktime(self.when.timetuple())+self.when.microsecond/1000000.0))
-        ret['answer'] = self.answer if str_or_unicode(self.answer) else self.answer.to_json() if isinstance(self.answer, pandas.DataFrame) else self.dataset
+        ret['answer'] = self.answer if isinstance(self.answer, six.string_types) else self.answer.to_json() if isinstance(self.answer, pandas.DataFrame) else self.dataset
         ret['answer_delay'] = self.answer_delay
         return ret
 
@@ -101,7 +101,7 @@ class CompetitionSpec(HasTraits):
                 else:
                     d[k] = pandas.DataFrame(ujson.loads(v))
             elif k == 'expiration' or k == 'when':
-                if str_or_unicode(v):
+                if isinstance(v, six.string_types):
                     if not v:
                         d[k] = None
                     else:
@@ -117,6 +117,37 @@ class CompetitionSpec(HasTraits):
     def from_json(cls, json):
         val = ujson.loads(json)
         return CompetitionSpec.from_dict(val)
+
+    @staticmethod
+    def validate(title,
+                 subtitle,
+                 type,
+                 expiration,
+                 prize,
+                 metric,
+                 dataset,
+                 targets,
+                 dataset_type,
+                 dataset_kwargs,
+                 dataset_key,
+                 num_classes,
+                 when,
+                 answer,
+                 answer_type,
+                 answer_delay):
+        if not isinstance(type, CompetitionType):
+            raise MalformedCompetition()
+
+        if not isinstance(metric, CompetitionMetric):
+            raise MalformedMetric()
+
+        if isinstance(dataset, six.string_types) and validators.url(dataset):
+            if not isinstance(dataset_type, DatasetFormat):
+                raise MalformedDataset()
+
+        if type == CompetitionType.PREDICT:
+            if targets is None:
+                raise MalformedTargets()
 
     def __repr__(self):
         return '<title- ' + str(self.title) + \

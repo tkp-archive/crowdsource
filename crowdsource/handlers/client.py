@@ -3,7 +3,7 @@ import ujson
 from .base import ServerHandler
 from ..persistence.models import Client
 from ..structs import ClientStruct
-from ..utils.utils import _REGISTER, _CLIENT_MALFORMED
+from ..utils import _REGISTER, _CLIENT_MALFORMED
 
 
 class RegisterHandler(ServerHandler):

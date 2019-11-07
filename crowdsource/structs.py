@@ -1,14 +1,13 @@
 import ujson
 import pandas as pd
 import validators
-from six import with_metaclass
+from six import with_metaclass, string_types
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, timedelta
 from .persistence.models import Submission, Competition
 from .types.competition import CompetitionSpec
 from .types.submission import SubmissionSpec
-from .utils import str_or_unicode
-from .utils.enums import DatasetFormat
+from .enums import DatasetFormat
 
 
 class Struct(with_metaclass(ABCMeta)):
@@ -71,7 +70,7 @@ class CompetitionStruct(Struct):
         self.num_classes = self.spec.num_classes
         self.targets = self.spec.targets
         self.when = self.spec.when
-        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) \
+        self.answer = self.spec.answer if isinstance(self.spec.answer, string_types) and validators.url(self.spec.answer) \
             else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) \
             else '' if not self.spec.answer \
             else pd.DataFrame(ujson.loads(self.spec.answer))
@@ -99,7 +98,7 @@ class CompetitionStruct(Struct):
 
         # hide if private
         if private:
-            x['answer'] = self.answer if str_or_unicode(self.answer) else self.answer.to_json()
+            x['answer'] = self.answer if isinstance(self.answer, string_types) else self.answer.to_json()
         else:
             x['answer'] = 'hidden'
         return x
@@ -166,7 +165,7 @@ class SubmissionStruct(Struct):
         ##########################
         # load spec
         self.spec = SubmissionSpec.from_dict(spec)
-        self.answer = self.spec.answer if str_or_unicode(self.spec.answer) and validators.url(self.spec.answer) \
+        self.answer = self.spec.answer if isinstance(self.spec.answer, string_types) and validators.url(self.spec.answer) \
             else self.spec.answer if isinstance(self.spec.answer, pd.DataFrame) \
             else '' if not self.spec.answer \
             else pd.DataFrame(ujson.loads(self.spec.answer))
@@ -196,7 +195,7 @@ class SubmissionStruct(Struct):
 
         # hide if private
         if private:
-            x['answer'] = self.answer if str_or_unicode(self.answer) else self.answer.to_json()
+            x['answer'] = self.answer if isinstance(self.answer, string_types) else self.answer.to_json()
         else:
             x['answer'] = 'hidden'
 

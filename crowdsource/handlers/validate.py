@@ -1,7 +1,9 @@
-from .utils import parse_body, log
-from .enums import CompetitionType
+import logging
+import six
+from ..utils import parse_body
+from ..enums import CompetitionType
 from ..persistence.models import Competition
-from .utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED, str_or_unicode
+from ..utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED
 
 
 def validate_competition_get(handler):
@@ -11,16 +13,16 @@ def validate_competition_get(handler):
     data['client_id'] = data.get('client_id', handler.get_argument('client_id', ()))
     data['type'] = data.get('type', handler.get_argument('type', ()))
 
-    if str_or_unicode(data['id']):
+    if isinstance(data['id'], six.string_types):
         data['id'] = str(data['id']).split(',')
 
-    if str_or_unicode(data['client_id']):
+    if isinstance(data['client_id'], six.string_types):
         data['client_id'] = str(data['client_id']).split(',')
 
-    if str_or_unicode(data['type']):
+    if isinstance(data['type']):
         data['type'] = list(map(lambda x: CompetitionType(x), str(data['type']).split(',')))
 
-    log.info("GET COMPETITIONS")
+    logging.info("GET COMPETITIONS")
     return data
 
 
@@ -45,19 +47,19 @@ def validate_submission_get(handler):
     data['competition_id'] = data.get('competition_id', handler.get_argument('competition_id', ()))
     data['type'] = data.get('type', handler.get_argument('type', ()))
 
-    if str_or_unicode(data['id']):
+    if isinstance(data['id'], six.string_types):
         data['id'] = str(data['id']).split(',')
 
-    if str_or_unicode(data['client_id']):
+    if isinstance(data['client_id'], six.string_types):
         data['client_id'] = str(data['client_id']).split(',')
 
-    if str_or_unicode(data['competition_id']):
+    if isinstance(data['competition_id'], six.string_types):
         data['competition_id'] = str(data['competition_id']).split(',')
 
-    if str_or_unicode(data['type']):
+    if isinstance(data['type'], six.string_types):
         data['type'] = list(map(lambda x: CompetitionType(x), str(data['type']).split(',')))
 
-    log.info("GET SUBMISSIONS")
+    logging.info("GET SUBMISSIONS")
     return data
 
 
@@ -81,7 +83,7 @@ def validate_submission_post(handler):
     if not data.get('submission'):
         handler._set_400(_NO_SUBMISSION)
 
-    log.info("POST SUBMISSION %s", data.get('id'))
+    logging.info("POST SUBMISSION %s", data.get('id'))
     return data
 
 
@@ -93,17 +95,17 @@ def validate_leaderboard_get(handler):
     data['competition_id'] = data.get('competition_id', handler.get_argument('competition_id', ()))
     data['type'] = data.get('type', handler.get_argument('type', ()))
 
-    if str_or_unicode(data['id']):
+    if isinstance(data['id'], six.string_types):
         data['id'] = str(data['id']).split(',')
 
-    if str_or_unicode(data['client_id']):
+    if isinstance(data['client_id'], six.string_types):
         data['client_id'] = str(data['client_id']).split(',')
 
-    if str_or_unicode(data['competition_id']):
+    if isinstance(data['competition_id'], six.string_types):
         data['competition_id'] = str(data['competition_id']).split(',')
 
-    if str_or_unicode(data['type']):
+    if isinstance(data['type'], six.string_types):
         data['type'] = list(map(lambda x: CompetitionType(x), str(data['type']).split(',')))
 
-    log.info("GET SUBMISSIONS")
+    logging.info("GET SUBMISSIONS")
     return data

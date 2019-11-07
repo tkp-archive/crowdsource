@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
 import requests
-from six import StringIO
+from sklearn.metrics import log_loss
+from six import StringIO, string_types
 from pandas.io.json import json_normalize
-from ..types.validate_submission import _metric
-from ..utils import str_or_unicode
-from ..utils.enums import CompetitionType, DatasetFormat
-from ..utils.exceptions import MalformedDataType, MalformedDataset
+from ..enums import CompetitionMetric, CompetitionType, DatasetFormat
+from ..exceptions import MalformedDataType, MalformedDataset
 
 
 def _fetchDataset(data, data_type, record_column='', cookies=None, proxies=None, **kwargs):
@@ -39,7 +38,7 @@ def fetchDataset(spec):
 
 
 def answerPrototype(spec, dataset=None):
-    if dataset is None or str_or_unicode(dataset):
+    if dataset is None or isinstance(dataset, string_types):
         dataset = fetchDataset(spec)
 
     type = spec.type
@@ -166,7 +165,7 @@ def answerPrototype(spec, dataset=None):
                     df = pd.DataFrame([{v: np.nan for v in vals} for _ in keys], index=keys)
 
         else:
-            if str_or_unicode(targets):
+            if isinstance(targets, string_types):
                 targets = [targets]
 
             if not isinstance(targets, list):
@@ -208,7 +207,7 @@ def checkAnswer(submission):
     dataset_kwargs = competition.dataset_kwargs
 
     # grab answer if possible
-    if str_or_unicode(answer):
+    if isinstance(answer, string_types):
         real_answer = _fetchDataset(answer, answer_type, **dataset_kwargs)
     else:
         real_answer = pd.DataFrame(answer)
@@ -219,7 +218,7 @@ def checkAnswer(submission):
     user_answer_type = submission.answer_type
 
     # grab user answer if possible
-    if str_or_unicode(user_answer):
+    if isinstance(user_answer, string_types):
         real_user_answer = _fetchDataset(user_answer, user_answer_type, **dataset_kwargs)
     else:
         real_user_answer = pd.DataFrame(user_answer)
@@ -250,3 +249,10 @@ def checkAnswer(submission):
         return _metric(competition.metric, real_answer, real_user_answer, eps=1e-15)
 
     return 0.0
+
+
+def _metric(metric, x, y, **kwargs):
+    if metric == CompetitionMetric.LOGLOSS:
+        return log_loss(x.values, y.values, **kwargs)
+    else:
+        return (x.values-y.values).sum(1)[0]

@@ -3,12 +3,12 @@ import threading
 import time
 import ujson
 from traitlets import HasTraits
-from .samples import SamplesMixin
+from .samples_mixin import SamplesMixin
 from ..types.competition import CompetitionSpec
 from ..types.submission import SubmissionSpec
 from ..utils import safe_get, safe_post, safe_post_cookies, construct_path
-from ..utils.enums import DatasetFormat
-from ..utils.exceptions import MalformedCompetitionSpec
+from ..enums import DatasetFormat
+from ..exceptions import MalformedCompetitionSpec
 
 
 class Thread(threading.Thread):

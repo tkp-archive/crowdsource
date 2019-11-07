@@ -1,6 +1,6 @@
 import ujson
 from .base import ServerHandler
-from ..utils.utils import _CLIENT_NOT_REGISTERED, _REGISTER
+from ..utils import _CLIENT_NOT_REGISTERED, _REGISTER
 from ..structs import ClientStruct
 
 
@@ -23,3 +23,9 @@ class LoginHandler(ServerHandler):
             self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
         else:
             self._set_401(_CLIENT_NOT_REGISTERED)
+
+
+class LogoutHandler(ServerHandler):
+    def get(self):
+        '''Get the logout page'''
+        self.clear_cookie("user")

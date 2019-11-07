@@ -2,9 +2,9 @@ import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
+from .validate import validate_competition_get, validate_competition_post
 from ..persistence.models import Competition
 from ..structs import CompetitionStruct
-from ..utils.validate import validate_competition_get, validate_competition_post
 from ..utils import _REGISTER_COMPETITION, _COMPETITION_MALFORMED
 
 

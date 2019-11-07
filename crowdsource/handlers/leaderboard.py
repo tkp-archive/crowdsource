@@ -1,8 +1,8 @@
 import ujson
 from .base import ServerHandler
+from .validate import validate_leaderboard_get
 from ..persistence.models import Submission
-from ..utils.enums import CompetitionType
-from ..utils.validate import validate_leaderboard_get
+from ..enums import CompetitionType
 
 
 class LeaderboardHandler(ServerHandler):

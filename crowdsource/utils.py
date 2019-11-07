@@ -2,12 +2,13 @@ try:
     from urllib.parse import urljoin
 except ImportError:
     from urlparse import urljoin
+    ConnectionRefusedError = OSError
+import logging
 import random
 import requests
 import tornado
 import ujson
 import six
-from .log_utils import LOG as log  # noqa: F401
 
 _SKIP_REREGISTER = 'Skipping re-registration for client %s'
 _REGISTER = 'Registering client %s'
@@ -22,12 +23,6 @@ _COMPETITION_NOT_REGISTERED = 'Competition not registered/active'
 _COMPETITION_MALFORMED = 'Client provided malformed competition'
 _NO_SUBMISSION = 'Client provided no submission'
 _SUBMISSION_MALFORMED = 'Client provided malformed submission'
-
-try:
-    ConnectionRefusedError
-    unicode = str
-except NameError:
-    ConnectionRefusedError = OSError
 
 
 def parse_body(req, **fields):
@@ -52,7 +47,7 @@ def safe_get(path, data=None, cookies=None, proxies=None):
     except ConnectionRefusedError:
         return {}
     except ValueError:
-        log.critical("route:{}\terror code: {}\t{}".format(path, resp.status_code, resp.text))
+        logging.critical("route:{}\terror code: {}\t{}".format(path, resp.status_code, resp.text))
         raise
 
 
@@ -63,7 +58,7 @@ def safe_post(path, data=None, cookies=None, proxies=None):
     except ConnectionRefusedError:
         return {}
     except ValueError:
-        log.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
+        logging.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
         raise
 
 
@@ -74,13 +69,9 @@ def safe_post_cookies(path, data=None, cookies=None, proxies=None):
     except ConnectionRefusedError:
         return {}, None
     except ValueError:
-        log.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
+        logging.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
         raise
 
 
 def construct_path(host, method):
     return urljoin(host, method)
-
-
-def str_or_unicode(x):
-    return isinstance(x, six.string_types)

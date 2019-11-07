@@ -1,14 +1,15 @@
+import logging
+import six
 import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
+from .validate import validate_submission_get, validate_submission_post
 from ..persistence.models import Submission, Competition
 from ..structs import SubmissionStruct
 from ..types.utils import fetchDataset, checkAnswer
-from ..utils import log, str_or_unicode
 from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED, _COMPETITION_NOT_REGISTERED
-from ..utils.enums import CompetitionType
-from ..utils.validate import validate_submission_get, validate_submission_post
+from ..enums import CompetitionType
 
 
 class SubmissionHandler(ServerHandler):
@@ -113,7 +114,7 @@ class SubmissionHandler(ServerHandler):
         self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.clientId)
 
     def score(self, submission):
-        log.info("SCORING %s FOR %s", str(submission.id), submission.competitionId)
+        logging.info("SCORING %s FOR %s", str(submission.id), submission.competitionId)
         score = checkAnswer(submission)
         submission.score = score
         with self.session() as session:
@@ -122,12 +123,12 @@ class SubmissionHandler(ServerHandler):
         return submission.to_json()
 
     def score_later(self, submission):
-        log.info("Stashing submission %s for competition %s to score later", submission.id, submission.competitionId)
+        logging.info("Stashing submission %s for competition %s to score later", submission.id, submission.competitionId)
         self._to_score_later.append(submission)
 
     def score_laters(self):
         to_score_now = [s for s in self._to_score_later if datetime.now() > s.competition.expiration]
-        log.info('Scoring %s submissions now', len(to_score_now))
+        logging.info('Scoring %s submissions now', len(to_score_now))
 
         ret = []
 
@@ -140,7 +141,7 @@ class SubmissionHandler(ServerHandler):
                 df = df[df[competition.dataset_key].isin(list(set(competition.current_state[competition.dataset_key].values)))][competition.current_state.columns]
             elif isinstance(competition.targets, list):
                 df = df[competition.spec.targets][competition.current_state.columns]
-            elif str_or_unicode(competition.targets):
+            elif isinstance(competition.targets, six.string_types):
                 df = df[[competition.spec.targets]][competition.current_state.columns]
 
             cur = len(competition.current_state.index)
@@ -154,7 +155,7 @@ class SubmissionHandler(ServerHandler):
                 self._to_score_later.remove(s)
 
             else:
-                log.info('SKIPPING %d', s.id)
+                logging.info('SKIPPING %d', s.id)
 
-        log.info('%s left to score', len(self._to_score_later))
+        logging.info('%s left to score', len(self._to_score_later))
         return ret

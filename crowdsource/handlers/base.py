@@ -1,8 +1,8 @@
+import logging
 import tornado.ioloop
 import tornado.web
 from contextlib import contextmanager
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
-from ..utils import log
 
 
 class ServerHandler(tornado.web.RequestHandler):
@@ -11,28 +11,28 @@ class ServerHandler(tornado.web.RequestHandler):
         return self.get_secure_cookie('user')
 
     def _set_400(self, log_message, *args):
-        log.info(log_message, *args)
+        logging.info(log_message, *args)
         self.clear()
         self.set_status(400)
         self.finish('{"error":"400"}')
         raise tornado.web.HTTPError(400)
 
     def _set_401(self, log_message, *args):
-        log.info(log_message, *args)
+        logging.info(log_message, *args)
         self.clear()
         self.set_status(401)
         self.finish('{"error":"401"}')
         raise tornado.web.HTTPError(401)
 
     def _set_403(self, log_message, *args):
-        log.info(log_message, *args)
+        logging.info(log_message, *args)
         self.clear()
         self.set_status(403)
         self.finish('{"error":"403"}')
         raise tornado.web.HTTPError(403)
 
     def _writeout(self, message, log_message, *args):
-        log.info(log_message, *args)
+        logging.info(log_message, *args)
         self.set_header("Content-Type", "text/plain")
         self.write(message)
 

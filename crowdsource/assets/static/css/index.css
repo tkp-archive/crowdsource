@@ -1,6 +1,6 @@
 html {
     background-color: black;
-    font-family: "Ubuntu";
+    font-family: "Roboto Mono";
 }
 
 body {
@@ -55,7 +55,7 @@ div.subs a {
     flex: 1;
     text-align: center;
     text-decoration: none;
-    font-family: "Ubuntu";
+    font-family: "Roboto Mono";
     color: var(--light2);
 
     display:flex;
