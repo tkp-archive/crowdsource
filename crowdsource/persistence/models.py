@@ -20,6 +20,7 @@ class Client(Base):
 class Competition(Base):
     __tablename__ = 'competitions'
     id = Column(Integer, primary_key=True)
+    title = Column(String(500), nullable=False)
 
     clientId = Column(Integer, ForeignKey('clients.id', ondelete='cascade'))
     client = relationship('Client', back_populates="competitions")
@@ -55,7 +56,7 @@ class Competition(Base):
 
     def to_dict(self):
         ret = {}
-        for item in ("id", "clientId", "type", "expiration", "prize", "metric", "targets", "dataset",
+        for item in ("id", "title", "clientId", "type", "expiration", "prize", "metric", "targets", "dataset",
                      "dataset_url", "dataset_type", "num_classes", "when", "answer", "answer_url", "answer_type",
                      "timestamp"):
             ret[item] = getattr(self, item)

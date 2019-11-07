@@ -1,5 +1,3 @@
-@import "../variables.less";
-
 .p-TabBar-tab.p-mod-closable > .p-TabBar-tabCloseIcon:before {
     content: "\E14C";
     font-family: "Material Icons";
@@ -126,7 +124,6 @@
 }
 
 .p-TabBar-content {
-    padding: 0px 5px;
     overflow: hidden;
     margin: 0px 0px -1px 0px;
     border-bottom: 0px solid #fff !important;
@@ -191,7 +188,7 @@
     }
     .divider {
         height: 1px;
-        background-color: @blue800;
+        background-color: inherit;
         margin-bottom: 0px;
         left: 18px;
         right: 18px;
@@ -227,7 +224,7 @@
         font-family: "Material Icons";
         transition: color 0.2s;
         &:hover {
-            color: @blue800;
+            color: inherit;
         }
     }
     .p-TabBar-tabLinkIcon {

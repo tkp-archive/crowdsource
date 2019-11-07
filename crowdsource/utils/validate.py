@@ -1,5 +1,6 @@
 from .utils import parse_body, log
 from .enums import CompetitionType
+from ..persistence.models import Competition
 from .utils import _CLIENT_NO_ID, _CLIENT_NOT_REGISTERED, _COMPETITION_NO_ID, _COMPETITION_NOT_REGISTERED, _NO_SUBMISSION, _COMPETITION_MALFORMED, str_or_unicode
 
 
@@ -72,8 +73,10 @@ def validate_submission_post(handler):
     if not data.get('competition_id'):
         handler._set_401(_COMPETITION_NO_ID)
 
-    if data.get('competition_id') not in handler._competitions:
-        handler._set_401(_COMPETITION_NOT_REGISTERED)
+    with handler.session() as session:
+        competition = session.query(Competition).filter_by(id=int(data.get('competition_id'))).first()
+        if competition is None:
+            handler._set_401(_COMPETITION_NOT_REGISTERED)
 
     if not data.get('submission'):
         handler._set_400(_NO_SUBMISSION)

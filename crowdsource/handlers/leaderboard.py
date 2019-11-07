@@ -1,4 +1,3 @@
-import tornado.web
 import ujson
 from .base import ServerHandler
 from ..persistence.models import Submission
@@ -7,7 +6,6 @@ from ..utils.validate import validate_leaderboard_get
 
 
 class LeaderboardHandler(ServerHandler):
-    @tornado.web.authenticated
     def get(self):  # TODO make coroutine
         '''Get the current list of competition ids'''
         data = self._validate(validate_leaderboard_get)

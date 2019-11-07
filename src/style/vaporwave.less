@@ -1,5 +1,4 @@
 @import "./material/material-phosphor.less";
-@import "variables";
 
 @import (css) url("https://fonts.googleapis.com/css?family=Material+Icons");
 @import (css) url("https://fonts.googleapis.com/css?family=Roboto+Mono");
@@ -7,18 +6,18 @@
 @import (css) url("https://fonts.googleapis.com/css?family=Open+Sans");
 
 .p-DockPanel {
-    background-color: var(--dark);
-    border-color: var(--dark);
+    background-color: var(--darkest);
+    border-color: var(--dark2);
 }
 
 .p-TabBar-content > .p-TabBar-tab.p-mod-current {
     border: none;
-    color: #cfd8dc !important;
-    background: none;
+    color: white !important;
+    background: var(--dark2);
 }
 
 .p-SplitPanel-handle:after {
-    background-color: #0e0611;
+    background-color: var(--dark2);
 }
 
 
@@ -29,13 +28,12 @@ div.PSPContainer perspective-viewer[settings] {
 div.PSPContainer {
     perspective-viewer {
         padding: 0px;
-        --hypergrid-header--background: var(--dark);
-        --hypergrid--background: var(--dark);
-        --plugin--background: var(--dark);
-        --plugin--border: 0px solid var(--dark);
+        --hypergrid-header--background: var(--darkest);
+        --hypergrid--background: var(--darkest);
+        --plugin--background: var(--darkest);
+        --plugin--border: 0px solid var(--dark2);
         --plugin--box-shadow: none;
         --hypergrid--padding: 0px;
-
         --settings-button--content: "";
     }
 }
@@ -43,16 +41,16 @@ div.PSPContainer {
 div.PSPContainer-dark {
     perspective-viewer {
         padding: 0px;
-        --plugin--border: 0px solid #0e0611;
-        --hypergrid-header--background: #0e0611;
-        --hypergrid--background: #0e0611;
-        --plugin--background: #0e0611;
-        --plugin--border: 0px solid #0e0611;
+        --plugin--border: 0px solid var(--light);
+        --hypergrid-header--background: var(--darkest2);
+        --hypergrid--background: var(--darkest2);
+        --plugin--background: var(--darkest2);
+        --plugin--border: 1px solid var(--dark2);
         --plugin--box-shadow: none;
         --settings-button--content: "";
-        --integer--hypergrid--background: #0e0611;
-        --hypergrid-tree-header--background: #0e0611;
-        background-color: #0e0611;
+        --integer--hypergrid--background: var(--darkest2);
+        --hypergrid-tree-header--background: var(--darkest2);
+        background-color: var(--darkest2);
     }
 }
 
@@ -62,14 +60,14 @@ perspective-viewer[settings] {
 
 perspective-viewer {
     padding: 24px;
-    background-color: var(--dark);
-    color: black;
+    background-color: var(--dark2);
+    color: var(--light);
     font-family: "Orbitron";
 
-    --active--color: #F4D676;
-    --active--border: 1px solid #F4D676;
-    --active--background: rgba(244, 214, 118,0.7);
-    --inactive--color: #5C2686;
+    --active--color: var(--color10);
+    --active--border: 1px solid var(--color11);
+    --active--background: var(--darkest);
+    --inactive--color: var(--color13);
 
     --settings-button--content: "check_box_outline_blank";
     
@@ -79,33 +77,33 @@ perspective-viewer {
     ////
 
     --float--column-type--content: "DBL";
-    --float--column-type--color: #36CDC4;
+    --float--column-type--color: var(--color14);
 
     --float--hypergrid--font-family: "Roboto Mono";
     --float--hypergrid--font-size: 12px;
-    --float--hypergrid--background: hsl(256, 87%, 14%);
-    --float--hypergrid--color: rgb(60,51,94);
+    --float--hypergrid--background: var(--darkest);
+    --float--hypergrid--color: var(--color14);
     --float--hypergrid-positive--color: white;
-    --float--hypergrid-positive--background: rgb(54, 205, 196);
+    --float--hypergrid-positive--background: var(--darkest);
     --float--hypergrid-negative--color: white;
-    --float--hypergrid-negative--background: rgb(255, 22, 144);
-    --float--hypergrid-positive--border-bottom-color: rgb(36, 146, 139);
-    --float--hypergrid-positive--border-right-color: rgb(36, 146, 139);
-    --float--hypergrid-negative--border-bottom-color: rgb(219, 18, 122);
-    --float--hypergrid-negative--border-right-color: rgb(219, 18, 122);
+    --float--hypergrid-negative--background: var(--darkest);
+    --float--hypergrid-positive--border-bottom-color: var(--color11);
+    --float--hypergrid-positive--border-right-color: var(--color11);
+    --float--hypergrid-negative--border-bottom-color: var(--color10);
+    --float--hypergrid-negative--border-right-color: var(--color10);
     
     --integer--column-type--content: "INT";
-    --integer--column-type--color: #36CDC4;
+    --integer--column-type--color: var(--color1);
 
     --integer--hypergrid--font-family: "Roboto Mono";
     --integer--hypergrid--font-size: 12px;
-    --integer--hypergrid--background: hsl(256, 87%, 14%);
-    --integer--hypergrid--color: rgb(60,51,94);
-    --integer--hypergrid-positive--color: #8bde8b;
-    --integer--hypergrid-negative--color: #ff6a8b;
+    --integer--hypergrid--background: var(--darkest);
+    --integer--hypergrid--color: var(--color14);
+    --integer--hypergrid-positive--color: var(--color2);
+    --integer--hypergrid-negative--color: var(--color3);
 
     --string--column-type--content: "STR";
-    --string--column-type--color: #FF1690;
+    --string--column-type--color: var(-light2);
 
     --date--column-type--content: "MDY";
     --datetime--column-type--content: "MDY";
@@ -120,47 +118,63 @@ perspective-viewer {
     --hypergrid--font-family: "Open Sans";
 
     --d3fc-full--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 10%,
-        #f9247e 20%,
-        #ae1357 30%,
-        #661246 40%,
-        #222222 50%,
-        #392682 60%, #7a3a9a 70%, #3f86bc 80%, #28ada8 90%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color2) 10%,
+        var(--color3) 20%,
+        var(--color4) 30%,
+        var(--color5) 40%,
+        var(--color6) 50%,
+        var(--color7) 60%,
+        var(--color8) 70%,
+        var(--color9) 80%,
+        var(--color10) 90%,
+        var(--color11) 100%
     );
 
     --d3fc-positive--gradient: linear-gradient(
-        #392682 0%, #7a3a9a 25%, #3f86bc 50%, #28ada8 75%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --d3fc-negative--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 25%,
-        #f9247e 50%,
-        #ae1357 75%,
-        #661246 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --highcharts-full--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 10%,
-        #f9247e 20%,
-        #ae1357 30%,
-        #661246 40%,
-        #222222 50%,
-        #392682 60%, #7a3a9a 70%, #3f86bc 80%, #28ada8 90%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color2) 10%,
+        var(--color3) 20%,
+        var(--color4) 30%,
+        var(--color5) 40%,
+        var(--color6) 50%,
+        var(--color7) 60%,
+        var(--color8) 70%,
+        var(--color9) 80%,
+        var(--color10) 90%,
+        var(--color11) 100%
     );
 
     --highcharts-positive--gradient: linear-gradient(
-        #392682 0%, #7a3a9a 25%, #3f86bc 50%, #28ada8 75%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --highcharts-negative--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 25%,
-        #f9247e 50%,
-        #ae1357 75%,
-        #661246 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     ////////////////////////////////////////////////////////////////////////////
@@ -170,24 +184,24 @@ perspective-viewer {
 
     --hypergrid-gridline--color: #cfd8dc;
 
-    --active-column-selector--content: "check";
+    --active-column-selector--content: "\25CF";
     --hypergrid-header--font-family: "Open Sans";
     --hypergrid--padding: 24px;
 
-    --hypergrid--background: #1C0658;
+    --hypergrid--background: var(--darkest);
     --hypergrid-tree-header--background: #1C0658;
     --hypergrid-tree-header--color: #eee;
-    --hypergrid-header--background:#1C0658;
+    --hypergrid-header--background: var(--darkest);
     --hypergrid-separator--color: #8BC4EE;
     --hypergrid-header--color: #eee;
 
     --hypergrid--font-size: 12px;
     --hypergrid-header--font-size: 12px;
 
-    --highcharts-label--fill: @coolgrey200;
+    --highcharts-label--fill: grey;
     --highcharts-rect--opacity: 0.85;
     
-    --highcharts-tooltip--background: @coolgrey800;
+    --highcharts-tooltip--background: grey;
 
     --d3fc-gridline--color: #5C2686;
     --d3fc-legend--text: rgb(187, 187, 187);
@@ -198,60 +212,76 @@ perspective-viewer {
     --d3fc-tooltip--background: #333333;
     --d3fc-tooltip--color: rgb(207, 216, 220);
 
-    --d3fc-series: #36CDC4;
-    --d3fc-series-1: #FF1690;
-    --d3fc-series-2: #36CDC4;
-    --d3fc-series-3: #F4D676;
-    --d3fc-series-4: #966bff;
-    --d3fc-series-5: #C774E8;
-    --d3fc-series-6: #FF6AD5;
-    --d3fc-series-7: #ff8b8b;
-    --d3fc-series-8: #ffde8b;
-    --d3fc-series-9: #8bde8b;
-    --d3fc-series-10: #20de8b;
+    --d3fc-series: var(--color1);
+    --d3fc-series-1: var(--color2);
+    --d3fc-series-2: var(--color3);
+    --d3fc-series-3: var(--color4);
+    --d3fc-series-4: var(--color5);
+    --d3fc-series-5: var(--color6);
+    --d3fc-series-6: var(--color7);
+    --d3fc-series-7: var(--color8);
+    --d3fc-series-8: var(--color9);
+    --d3fc-series-9: var(--color10);
+    --d3fc-series-10: var(--color11);
 
     --d3fc-full--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 10%,
-        #f9247e 20%,
-        #ae1357 30%,
-        #661246 40%,
-        #222222 50%,
-        #392682 60%, #7a3a9a 70%, #3f86bc 80%, #28ada8 90%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color2) 10%,
+        var(--color3) 20%,
+        var(--color4) 30%,
+        var(--color5) 40%,
+        var(--color6) 50%,
+        var(--color7) 60%,
+        var(--color8) 70%,
+        var(--color9) 80%,
+        var(--color10) 90%,
+        var(--color11) 100%
     );
 
     --d3fc-positive--gradient: linear-gradient(
-        #392682 0%, #7a3a9a 25%, #3f86bc 50%, #28ada8 75%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --d3fc-negative--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 25%,
-        #f9247e 50%,
-        #ae1357 75%,
-        #661246 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --highcharts-full--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 10%,
-        #f9247e 20%,
-        #ae1357 30%,
-        #661246 40%,
-        #222222 50%,
-        #392682 60%, #7a3a9a 70%, #3f86bc 80%, #28ada8 90%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color2) 10%,
+        var(--color3) 20%,
+        var(--color4) 30%,
+        var(--color5) 40%,
+        var(--color6) 50%,
+        var(--color7) 60%,
+        var(--color8) 70%,
+        var(--color9) 80%,
+        var(--color10) 90%,
+        var(--color11) 100%
     );
 
     --highcharts-positive--gradient: linear-gradient(
-        #392682 0%, #7a3a9a 25%, #3f86bc 50%, #28ada8 75%, #83dde0 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
 
     --highcharts-negative--gradient: linear-gradient(
-        #f9897b 0%,
-        #d7509f 25%,
-        #f9247e 50%,
-        #ae1357 75%,
-        #661246 100%
+        var(--color1) 0%,
+        var(--color3) 25%,
+        var(--color5) 50%,
+        var(--color7) 75%,
+        var(--color9) 100%
     );
-    --warning--color: #333;
+    --warning--color: var(--mag);
 }

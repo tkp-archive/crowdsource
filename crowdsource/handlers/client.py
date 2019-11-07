@@ -19,11 +19,13 @@ class RegisterHandler(ServerHandler):
 
     def post(self):
         '''Register a client. Client will be assigned a session id'''
-        session = self._sessionmaker()
-        c = Client()
-        session.add(c)
-        session.commit()
-        ret = self._login_post(ClientStruct(str(c.id)))
+        with self.session() as session:
+            c = Client()
+            session.add(c)
+            session.commit()
+            session.refresh(c)
+            ret = self._login_post(ClientStruct(str(c.id)))
+
         if ret:
             self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
         else:

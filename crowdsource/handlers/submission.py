@@ -65,50 +65,50 @@ class SubmissionHandler(ServerHandler):
 
         with self.session() as session:
             competition = session.query(Competition).filter_by(id=int(competitionId)).first()
-        if not competition:
-            self._set_400(_COMPETITION_NOT_REGISTERED)
-            return
+            if not competition:
+                self._set_400(_COMPETITION_NOT_REGISTERED)
+                return
 
-        if datetime.now() > competition.expiration:
-            competition.active = False
-            self.write('{}')
-            return
+            if datetime.now() > competition.expiration:
+                competition.active = False
+                self.write('{}')
+                return
 
-        try:
-            submission = SubmissionStruct(id=-1,
-                                          clientId=clientId,
-                                          competitionId=competitionId,
-                                          competition=competition,
-                                          spec=submission,
-                                          score=-1.0)
-        except (KeyError, ValueError, AttributeError):
-            self._set_400(_SUBMISSION_MALFORMED)
+            try:
+                submission = SubmissionStruct(id=-1,
+                                              clientId=clientId,
+                                              competitionId=competitionId,
+                                              competition=competition,
+                                              spec=submission,
+                                              score=-1.0)
+            except (KeyError, ValueError, AttributeError):
+                self._set_400(_SUBMISSION_MALFORMED)
 
-        # persist
-        with self.session() as session:
-            submissionSql = submission.spec.to_sql()
-            session.add(submissionSql)
-            session.commit()
-            session.refresh(submissionSql)
+            # persist
+            with self.session() as session:
+                submissionSql = submission.spec.to_sql()
+                session.add(submissionSql)
+                session.commit()
+                session.refresh(submissionSql)
 
-        # put in perspective
-        self._submissions.update([submissionSql.to_dict()])
+            # put in perspective
+            self._submissions.update([submissionSql.to_dict()])
 
-        submission.id = submissionSql.id
+            submission.id = submissionSql.id
 
-        if not submission.id:
-            self._set_400(_SUBMISSION_MALFORMED)
+            if not submission.id:
+                self._set_400(_SUBMISSION_MALFORMED)
 
-        id = submission.id
-        competitionId = submission.competitionId
+            id = submission.id
+            competitionId = submission.competitionId
 
-        # calculate result if immediate
-        if competition.answer_delay <= 0:
-            score = self.score(submission)
+            # calculate result if immediate
+            if competition.answer_delay <= 0:
+                score = self.score(submission)
 
-        else:
-            self.score_later(submission)
-            score = {'id': id}
+            else:
+                self.score_later(submission)
+                score = {'id': id}
 
         self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.clientId)
 

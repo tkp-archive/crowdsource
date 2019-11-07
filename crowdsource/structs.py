@@ -107,6 +107,7 @@ class CompetitionStruct(Struct):
     def to_sql(self):
         c = Competition()
         c.clientId = self.clientId
+        c.title = self.title
         # client = relationship('Client', back_populates="competitions")
 
         c.type = self.type.value

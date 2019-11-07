@@ -20,22 +20,62 @@ body {
   overflow: hidden;
 }
 
-#menuBar {
-  flex: 0 0 auto;
+div.header {
+  height: 50px;
+}
+
+div.header > * {
+  height:50px;
+}
+
+div.header > a > img {
+  height:50px;
+}
+
+div.topmenu {
+  position: absolute;
+  right:50px;
+  height:50px;
+  padding: 0px;
+}
+
+div.topmenu.p-mod-active {
+  background-color: var(--darkest2);
+}
+
+div.topmenu div.p-MenuBar-itemLabel {
+  color: #c0c0c0;
+}
+
+div.topmenu ul.p-MenuBar-content {
+  height: 100%;
+}
+
+div.topmenu ul.p-MenuBar.p-mod-active {
+  background-color: var(--darkest) !important;
+}
+
+div.topmenu li.p-MenuBar-item.p-mod-active {
+  background-color: var(--dark2) !important;
 }
 
 
-#main {
-  flex: 1 1 auto;
+div.settings {
+  background-color: var(--darkest2) !important;
 }
 
-
-#palette {
-  min-width: 300px;
-  border-right: 1px solid #DDDDDD;
+div.settings {
+  border: 1px solid #c0c0c0;
 }
 
+div.settings > ul > li > div.p-Menu-itemIcon::before {
+  font-family: "fontawesome" !important;
+}
 
-#dock {
-  padding: 4px;
+div.settings li.p-Menu-item {
+  color: #c0c0c0;
+}
+
+div.settings li.p-Menu-item.p-mod-disabled {
+  color: #737373;
 }

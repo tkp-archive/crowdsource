@@ -47,18 +47,24 @@ def _genrand(values, x=10000):
 
 def safe_get(path, data=None, cookies=None, proxies=None):
     try:
-        resp = requests.get(path, data=data, cookies=cookies, proxies=proxies).text
-        return ujson.loads(resp)
+        resp = requests.get(path, data=data, cookies=cookies, proxies=proxies)
+        return ujson.loads(resp.text)
     except ConnectionRefusedError:
         return {}
+    except ValueError:
+        log.critical("route:{}\terror code: {}\t{}".format(path, resp.status_code, resp.text))
+        raise
 
 
 def safe_post(path, data=None, cookies=None, proxies=None):
     try:
-        resp = requests.post(path, data=data, cookies=cookies, proxies=proxies).text
-        return ujson.loads(resp)
+        resp = requests.post(path, data=data, cookies=cookies, proxies=proxies)
+        return ujson.loads(resp.text)
     except ConnectionRefusedError:
         return {}
+    except ValueError:
+        log.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
+        raise
 
 
 def safe_post_cookies(path, data=None, cookies=None, proxies=None):
@@ -67,6 +73,9 @@ def safe_post_cookies(path, data=None, cookies=None, proxies=None):
         return ujson.loads(resp.text), resp.cookies
     except ConnectionRefusedError:
         return {}, None
+    except ValueError:
+        log.critical("route:{}\nerror code: {}\t{}".format(path, resp.status_code, resp.text))
+        raise
 
 
 def construct_path(host, method):

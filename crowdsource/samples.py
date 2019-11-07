@@ -18,7 +18,7 @@ def classify1(host, id, cookies=None, proxies=None):
                                   dataset=pandas.DataFrame(dataset[0]),
                                   metric=CompetitionMetric.LOGLOSS,
                                   answer=pandas.DataFrame(dataset[1]))
-    resp = safe_post(construct_path(host, 'api/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
@@ -51,7 +51,7 @@ def predict1(host, id, cookies=None, proxies=None):
                                   targets=dataset.columns[-1],
                                   answer=dataset.iloc[-1:],
                                   when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
-    resp = safe_post(construct_path(host, 'api/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
@@ -66,13 +66,12 @@ def predict2(host, id, cookies=None, proxies=None):
                                   answer=dataset.iloc[-1:],
                                   targets=dataset.columns,
                                   when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
-    resp = safe_post(construct_path(host, 'api/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
 def answerPredict1(competitionSpec, *args, **kwargs):
-    from crowdsource.competition.utils import answerPrototype
-    from crowdsource.competition.utils import fetchDataset
+    from crowdsource.types.utils import answerPrototype, fetchDataset
     from sklearn import linear_model
 
     data = fetchDataset(competitionSpec)
@@ -107,14 +106,13 @@ def predictCorporateBonds(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   dataset_key='Name',
                                   targets={'ABC Corp': ['Price']})
-    resp = safe_post(construct_path(host, 'api/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
 def answerPredictCorporateBonds(competitionSpec, *args, **kwargs):
     from random import normalvariate
-    from crowdsource.competition.utils import answerPrototype
-    from crowdsource.competition.utils import fetchDataset
+    from crowdsource.types.utils import answerPrototype, fetchDataset
 
     dataset = fetchDataset(competitionSpec)
     answer = answerPrototype(competitionSpec, dataset)
@@ -146,14 +144,13 @@ def predictCitibike(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   targets=['availableBikes', 'availableDocks'],
                                   expiration=exp)
-    resp = safe_post(construct_path(host, 'api/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
 def answerPredictCitibike(competitionSpec, *args, **kwargs):
     from random import randint
-    from crowdsource.competition.utils import answerPrototype
-    from crowdsource.competition.utils import fetchDataset
+    from crowdsource.types.utils import answerPrototype, fetchDataset
 
     dataset = fetchDataset(competitionSpec)
     answer = answerPrototype(competitionSpec, dataset)

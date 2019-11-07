@@ -8,7 +8,7 @@ class LoginHandler(ServerHandler):
     def get(self):
         '''Get the login page'''
         if self.current_user:
-            self.redirect('api/register')
+            self.redirect('api/v1/register')
         else:
             self.redirect('login')
 

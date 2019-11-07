@@ -45,14 +45,14 @@ img.main {
     }
 }
 
-div.subs{
+div.subs {
     display:flex;
     flex-direction: row;
     width:100%;
 }
 
 div.subs a {
-    width:50%;
+    flex: 1;
     text-align: center;
     text-decoration: none;
     font-family: "Ubuntu";

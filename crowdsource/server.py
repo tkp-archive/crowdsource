@@ -89,19 +89,16 @@ class Crowdsource(Application):
             (r"/login", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/register", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/logout", HTMLOpenHandler, {'template': 'logout.html',  'context': context}),
-            (r"/competitions", HTMLHandler, {'template': 'competitions.html', 'template_kwargs': {'title': 'Competitions'},  'context': context}),
-            (r"/submissions", HTMLHandler, {'template': 'submissions.html', 'template_kwargs': {'title': 'Submissions'},  'context': context}),
-            (r"/leaderboard", HTMLHandler, {'template': 'leaderboard.html', 'template_kwargs': {'title': 'Leaderboard'},  'context': context}),
         ]
 
         default_handlers.extend([
-            (r"/api/login", LoginHandler, context),
-            (r"/api/logout", LogoutHandler, context),
-            (r"/api/register", RegisterHandler, context),
-            (r"/api/competition", CompetitionHandler, context),
-            (r"/api/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
-            (r"/api/submission", SubmissionHandler, context),
-            (r"/api/leaderboard", LeaderboardHandler, context),
+            (r"/api/v1/login", LoginHandler, context),
+            (r"/api/v1/logout", LogoutHandler, context),
+            (r"/api/v1/register", RegisterHandler, context),
+            (r"/api/v1/competition", CompetitionHandler, context),
+            (r"/api/v1/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
+            (r"/api/v1/submission", SubmissionHandler, context),
+            (r"/api/v1/leaderboard", LeaderboardHandler, context),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": static}),
             (r"/(.*)", HTMLOpenHandler, {'template': '404.html', 'context': context})
         ])

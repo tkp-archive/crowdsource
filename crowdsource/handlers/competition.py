@@ -9,7 +9,6 @@ from ..utils import _REGISTER_COMPETITION, _COMPETITION_MALFORMED
 
 
 class CompetitionHandler(ServerHandler):
-    @tornado.web.authenticated
     def get(self, *args, **kwargs):
         '''Get the current list of competition ids'''
         data = self._validate(validate_competition_get)
