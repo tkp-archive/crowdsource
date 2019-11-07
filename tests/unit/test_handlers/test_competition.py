@@ -1,6 +1,6 @@
 import tornado.web
 from crowdsource.handlers import CompetitionHandler
-from crowdsource.utils.enums import CompetitionType
+from crowdsource.enums import CompetitionType
 from datetime import datetime
 from mock import MagicMock
 from tornado.web import HTTPError

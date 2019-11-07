@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
 from traitlets import Unicode, List, Bool
-from .handlers import HTMLHandler, HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
 

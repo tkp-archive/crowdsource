@@ -1,7 +1,7 @@
 import tornado.web
 from datetime import datetime
 from crowdsource.handlers import SubmissionHandler
-from crowdsource.utils.enums import CompetitionType
+from crowdsource.enums import CompetitionType
 from mock import MagicMock
 from tornado.web import HTTPError
 

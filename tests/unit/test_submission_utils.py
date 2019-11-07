@@ -1,21 +1,18 @@
 from mock import patch, MagicMock
+import six
 import cufflinks.datagen as cfdg
 import pandas as pd
-from crowdsource.types.validate_submission import validateSpec
-from crowdsource.types.utils import _metric, checkAnswer
-from crowdsource.structs import CompetitionStruct, SubmissionStruct
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
+
+from crowdsource.types.submission import SubmissionSpec
+from crowdsource.types.utils import _metric, checkAnswer, fetchDataset, answerPrototype
+from crowdsource.structs import CompetitionStruct, SubmissionStruct
 from crowdsource.types.competition import CompetitionSpec
-from crowdsource.utils import str_or_unicode
-from crowdsource.utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
-from crowdsource.types.utils import fetchDataset, answerPrototype
+from crowdsource.enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 
 def foo3(competitionSpec, *args, **kwargs):
-    from crowdsource.utils import log
-    log.debug('Answering')
-
     import pandas
     # import time
     from sklearn import linear_model
@@ -25,7 +22,7 @@ def foo3(competitionSpec, *args, **kwargs):
 
     if isinstance(competitionSpec.targets, dict):
         return
-    targets = [competitionSpec.targets] if str_or_unicode(competitionSpec.targets) else data.columns if competitionSpec.targets is None else competitionSpec.targets
+    targets = [competitionSpec.targets] if isinstance(competitionSpec.targets, six.string_types) else data.columns if competitionSpec.targets is None else competitionSpec.targets
 
     val = competitionSpec.when
     when = val.timestamp()
@@ -46,10 +43,7 @@ def foo3(competitionSpec, *args, **kwargs):
 
 
 def foo5(competitionSpec, *args, **kwargs):
-    from crowdsource.utils import log
-    log.debug('Answering')
-
-    if str_or_unicode(competitionSpec.dataset):
+    if isinstance(competitionSpec.dataset, six.string_types):
         dataset = fetchDataset(competitionSpec)
     else:
         return
@@ -60,7 +54,7 @@ def foo5(competitionSpec, *args, **kwargs):
 
 class TestUtils:
     def test_validateSpec(self):
-        validateSpec(None, None, None)
+        SubmissionSpec.validate(None, None, None)
 
     def test_metric1(self):
         x = _metric(CompetitionMetric.LOGLOSS, pd.Series([1, 2]), pd.Series([2, 3]))

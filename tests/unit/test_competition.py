@@ -2,7 +2,7 @@ import pandas
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
 from crowdsource.types.competition import CompetitionSpec
-from crowdsource.utils.enums import CompetitionType, CompetitionMetric
+from crowdsource.enums import CompetitionType, CompetitionMetric
 
 
 class TestCompetitionSpec:

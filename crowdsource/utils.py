@@ -8,7 +8,6 @@ import random
 import requests
 import tornado
 import ujson
-import six
 
 _SKIP_REREGISTER = 'Skipping re-registration for client %s'
 _REGISTER = 'Registering client %s'

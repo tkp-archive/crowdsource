@@ -19,7 +19,7 @@ def validate_competition_get(handler):
     if isinstance(data['client_id'], six.string_types):
         data['client_id'] = str(data['client_id']).split(',')
 
-    if isinstance(data['type']):
+    if isinstance(data['type'], six.string_types):
         data['type'] = list(map(lambda x: CompetitionType(x), str(data['type']).split(',')))
 
     logging.info("GET COMPETITIONS")

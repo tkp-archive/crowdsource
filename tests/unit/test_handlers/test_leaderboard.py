@@ -1,6 +1,6 @@
 import tornado.web
 from crowdsource.handlers import LeaderboardHandler
-from crowdsource.utils.enums import CompetitionType
+from crowdsource.enums import CompetitionType
 from mock import MagicMock
 
 

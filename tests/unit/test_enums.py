@@ -1,4 +1,4 @@
-from crowdsource.utils.enums import DatasetType, DatasetFormat, CompetitionType, CompetitionMetric
+from crowdsource.enums import DatasetType, DatasetFormat, CompetitionType, CompetitionMetric
 
 
 class TestEnums:

@@ -1,4 +1,4 @@
-from crowdsource.utils.exceptions import MalformedCompetition, MalformedCompetitionSpec, MalformedMetric, MalformedDataset, MalformedTargets, MalformedDataType
+from crowdsource.exceptions import MalformedCompetition, MalformedCompetitionSpec, MalformedMetric, MalformedDataset, MalformedTargets, MalformedDataType
 
 
 class TestException:

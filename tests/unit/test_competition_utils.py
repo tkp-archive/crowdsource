@@ -1,9 +1,8 @@
 from mock import MagicMock, patch
 from crowdsource.types.competition import CompetitionSpec
-from crowdsource.types.validate_competition import validateSpec
 from crowdsource.types.utils import fetchDataset, _fetchDataset, answerPrototype
-from crowdsource.utils.enums import CompetitionType, CompetitionMetric, DatasetFormat
-from crowdsource.utils.exceptions import MalformedDataType, MalformedMetric, MalformedCompetition, MalformedTargets, MalformedDataset
+from crowdsource.enums import CompetitionType, CompetitionMetric, DatasetFormat
+from crowdsource.exceptions import MalformedDataType, MalformedMetric, MalformedCompetition, MalformedTargets, MalformedDataset
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
 import cufflinks.datagen as cfdg
@@ -13,28 +12,28 @@ import numpy as np
 
 class TestUtils:
     def test_validateSpec(self):
-        validateSpec('', '', CompetitionType.CLASSIFY, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
+        CompetitionSpec.validate('', '', CompetitionType.CLASSIFY, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
 
         try:
-            validateSpec('', '', None, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
+            CompetitionSpec.validate('', '', None, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
             assert False
         except MalformedCompetition:
             pass
 
         try:
-            validateSpec('', '', CompetitionType.CLASSIFY, None, 1.0, None, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
+            CompetitionSpec.validate('', '', CompetitionType.CLASSIFY, None, 1.0, None, 'http://test.com', 'test', DatasetFormat.JSON, None, None, 2, None, '', None, '')
             assert False
         except MalformedMetric:
             pass
 
         try:
-            validateSpec('', '', CompetitionType.CLASSIFY, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', None, None, None, 2, None, '', None, '')
+            CompetitionSpec.validate('', '', CompetitionType.CLASSIFY, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', 'test', None, None, None, 2, None, '', None, '')
             assert False
         except MalformedDataset:
             pass
 
         try:
-            validateSpec('', '', CompetitionType.PREDICT, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', None, DatasetFormat.JSON, None, None, 2, None, '', None, '')
+            CompetitionSpec.validate('', '', CompetitionType.PREDICT, None, 1.0, CompetitionMetric.LOGLOSS, 'http://test.com', None, DatasetFormat.JSON, None, None, 2, None, '', None, '')
             assert False
         except MalformedTargets:
             pass

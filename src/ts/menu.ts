@@ -3,7 +3,7 @@ import {Menu, MenuBar} from "@phosphor/widgets";
 
 export const commands = new CommandRegistry();
 
-
+// tslint:disable: no-empty
 export
 function buildMenubar(bar: MenuBar) {
     const menu = new Menu({commands});
@@ -14,7 +14,7 @@ function buildMenubar(bar: MenuBar) {
     commands.addCommand("register", {
         execute: () => {},
         iconClass: "fa fa-plus",
-        isEnabled: () => {return false;},
+        isEnabled: () => false,
         label: "Register",
         mnemonic: 2,
     });
@@ -22,7 +22,7 @@ function buildMenubar(bar: MenuBar) {
     commands.addCommand("login", {
         execute: () => {},
         iconClass: "fa fa-sign-in",
-        isEnabled: () => {return false;},
+        isEnabled: () => false,
         label: "Login",
         mnemonic: 2,
     });
@@ -30,7 +30,7 @@ function buildMenubar(bar: MenuBar) {
     commands.addCommand("logout", {
         execute: () => {},
         iconClass: "fa fa-sign-out",
-        isEnabled: () => {return false;},
+        isEnabled: () => false,
         label: "Logout",
         mnemonic: 2,
     });
@@ -38,7 +38,7 @@ function buildMenubar(bar: MenuBar) {
     commands.addCommand("apikeys", {
         execute: () => {},
         iconClass: "fa fa-cog",
-        isEnabled: () => {return true;},
+        isEnabled: () => true,
         label: "API Keys",
         mnemonic: 2,
     });
@@ -46,11 +46,11 @@ function buildMenubar(bar: MenuBar) {
     commands.addCommand("submissions", {
         execute: () => {},
         iconClass: "fa fa-paper-plane",
-        isEnabled: () => {return true;},
+        isEnabled: () => true,
         label: "Submissions",
         mnemonic: 2,
     });
- 
+
     menu.addItem({ command: "apikeys"});
     menu.addItem({ command: "submissions"});
     menu.addItem({ command: "register"});
