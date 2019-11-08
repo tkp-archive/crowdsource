@@ -8,11 +8,11 @@ from ..enums import DatasetFormat
 
 class SubmissionSpec(HasTraits):
     def __init__(self,
-                 competitionId,
+                 competition_id,
                  answer,
                  answer_type):
-        SubmissionSpec.validate(competitionId, answer, answer_type)
-        self.competitionId = competitionId
+        SubmissionSpec.validate(competition_id, answer, answer_type)
+        self.competition_id = competition_id
         self.answer = answer
         if isinstance(answer_type, six.string_types):
             answer_type = DatasetFormat(answer_type)
@@ -20,7 +20,7 @@ class SubmissionSpec(HasTraits):
 
     def to_dict(self):
         ret = {}
-        ret['competitionId'] = self.competitionId
+        ret['competition_id'] = self.competition_id
         if isinstance(self.answer, pandas.DataFrame):
             ret['answer'] = self.answer.to_json()
         else:

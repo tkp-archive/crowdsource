@@ -88,7 +88,7 @@ class Client(SamplesMixin, HasTraits):
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):
-        '''Ping server for competitionId, on update call callback'''
+        '''Ping server for competition_id, on update call callback'''
         if not self._competitions.get(competitionType):
             self._competitions[competitionType] = []
 

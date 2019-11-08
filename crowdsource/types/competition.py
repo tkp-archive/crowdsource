@@ -96,10 +96,17 @@ class CompetitionSpec(HasTraits):
             elif k == 'dataset_type' or k == 'answer_type':
                 d[k] = DatasetFormat(v)
             elif k == 'dataset' or k == 'answer':
-                if not v or validators.url(v) or v == 'hidden':
-                    d[k] = v
+                if isinstance(v, six.string_types):
+                    if v in ("", "hidden") or validators.url(v):
+                        d[k] = v
+                    else:
+                        v = ujson.loads(v)
+
+                if isinstance(v, dict) or isinstance(v, list):
+                    d[k] = pandas.DataFrame(v)
                 else:
-                    d[k] = pandas.DataFrame(ujson.loads(v))
+                    d[k] = v
+
             elif k == 'expiration' or k == 'when':
                 if isinstance(v, six.string_types):
                     if not v:

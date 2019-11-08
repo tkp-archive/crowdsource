@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import requests
+import ujson
+import validators
 from sklearn.metrics import log_loss
 from six import StringIO, string_types
 from pandas.io.json import json_normalize
@@ -10,8 +12,17 @@ from ..exceptions import MalformedDataType, MalformedDataset
 
 def _fetchDataset(data, data_type, record_column='', cookies=None, proxies=None, **kwargs):
     '''Must be pandas readable'''
+    if isinstance(data, string_types):
+        if data in ("", "hidden") or validators.url(data):
+            pass
+        else:
+            data = ujson.loads(data)
+    if isinstance(data, list) or isinstance(data, dict):
+        data = pd.DataFrame(data)
     if isinstance(data, pd.DataFrame):
         return data
+    if isinstance(data_type, string_types):
+        data_type = DatasetFormat(data_type)
     if data_type == DatasetFormat.CSV:
         resp = requests.get(data, cookies=cookies, proxies=proxies)
         if resp.status_code != 200:

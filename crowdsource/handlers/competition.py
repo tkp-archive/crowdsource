@@ -58,9 +58,9 @@ class CompetitionHandler(ServerHandler):
             session.commit()
             session.refresh(comp)
 
-        if comp.id:
-            # put in perspective
-            self._competitions.update(comp.to_dict())
-            self._writeout(ujson.dumps({'id': str(comp.id)}), _REGISTER_COMPETITION, comp.id, comp.clientId)
-        else:
-            self._set_400(_COMPETITION_MALFORMED)
+            if comp.id:
+                # put in perspective
+                self._competitions.update([comp.to_dict()])
+                self._writeout(ujson.dumps({'id': str(comp.id)}), _REGISTER_COMPETITION, comp.id, comp.client_id)
+            else:
+                self._set_400(_COMPETITION_MALFORMED)

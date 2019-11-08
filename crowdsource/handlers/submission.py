@@ -18,14 +18,13 @@ class SubmissionHandler(ServerHandler):
         '''Get the current list of competition ids'''
         data = self._validate(validate_submission_get)
 
-        # first, grade any pending submissions that are now available
-        self.score_laters()
-
         res = []
         with self.session() as session:
+            # first, grade any pending submissions that are now available
+            self.score_laters(session)
             submissions = session.query(Submission).all()
-        for x in submissions:
-            for c in x:
+
+            for c in submissions:
                 id = data.get('id', ())
                 cpid = data.get('competition_id', ())
                 clid = data.get('client_id', ())
@@ -33,15 +32,15 @@ class SubmissionHandler(ServerHandler):
 
                 if id and c.id not in id:
                     continue
-                if cpid and c.competitionId not in cpid:
+                if cpid and c.competition_id not in cpid:
                     continue
-                if clid and c.clientId not in clid:
+                if clid and c.client_id not in clid:
                     continue
                 if t and CompetitionType(t) != c.competition.spec.type:
                     continue
 
                 # only allow if im the submitter or the competition owner
-                if (self.current_user != c.clientId) and (self.current_user != c.competition.clientId):
+                if (self.current_user != c.client_id) and (self.current_user != c.competition.client_id):
                     continue
 
                 # check if expired and turn off if necessary
@@ -62,10 +61,10 @@ class SubmissionHandler(ServerHandler):
 
         submission = data['submission']
         client_id = data['id']
-        competitionId = data['competition_id']
+        competition_id = data['competition_id']
 
         with self.session() as session:
-            competition = session.query(Competition).filter_by(id=int(competitionId)).first()
+            competition = session.query(Competition).filter_by(id=int(competition_id)).first()
             if not competition:
                 self._set_400(_COMPETITION_NOT_REGISTERED)
                 return
@@ -78,18 +77,15 @@ class SubmissionHandler(ServerHandler):
             try:
                 spec = SubmissionSpec.from_dict(submission)
                 submission = Submission.from_spec(client_id=client_id,
-                                                  competitionId=competitionId,
+                                                  competition_id=competition_id,
                                                   competition=competition,
-                                                  spec=spec,
-                                                  score=-1.0)
+                                                  spec=spec)
             except (KeyError, ValueError, AttributeError):
                 self._set_400(_SUBMISSION_MALFORMED)
 
             # persist
-            with self.session() as session:
-                session.add(submission)
-                session.commit()
-                session.refresh(submission)
+            session.commit()
+            session.refresh(submission)
 
             if not submission.id:
                 self._set_400(_SUBMISSION_MALFORMED)
@@ -98,32 +94,28 @@ class SubmissionHandler(ServerHandler):
             self._submissions.update([submission.to_dict()])
 
             id = submission.id
-            competitionId = submission.competitionId
 
             # calculate result if immediate
             if competition.answer_delay <= 0:
-                score = self.score(submission)
-
+                score = self.score(submission, session)
             else:
                 self.score_later(submission)
                 score = {'id': id}
 
-        self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.clientId)
+            self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.client_id)
 
-    def score(self, submission):
-        logging.info("SCORING %s FOR %s", str(submission.id), submission.competitionId)
+    def score(self, submission, session):
+        logging.info("SCORING %s FOR %s", str(submission.id), submission.competition_id)
         score = checkAnswer(submission)
         submission.score = score
-        with self.session() as session:
-            submission.score = score
-            session.commit()
-        return submission.to_json()
+        session.commit()
+        return submission.to_dict()
 
     def score_later(self, submission):
-        logging.info("Stashing submission %s for competition %s to score later", submission.id, submission.competitionId)
+        logging.info("Stashing submission %s for competition %s to score later", submission.id, submission.competition_id)
         self._to_score_later.append(submission)
 
-    def score_laters(self):
+    def score_laters(self, session):
         to_score_now = [s for s in self._to_score_later if datetime.now() > s.competition.expiration]
         logging.info('Scoring %s submissions now', len(to_score_now))
 
@@ -144,11 +136,7 @@ class SubmissionHandler(ServerHandler):
             cur = len(competition.current_state.index)
             if len(df.index) > cur:
                 competition.answer = df[df.index == df.index[-1]]
-                ret.append(self.score(s))
-
-                with self.session() as session:
-                    s.score = s.score
-                    session.commit()
+                ret.append(self.score(s, session))
                 self._to_score_later.remove(s)
 
             else:
