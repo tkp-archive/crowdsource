@@ -31,6 +31,7 @@ class Crowdsource(Application):
     aliases = {
         'port': 'Crowdsource.port',
         'basepath': 'Crowdsource.basepath',
+        'wspath': 'Crowdsource.wspath',
         'debug': 'Crowdsource.debug',
     }
 
