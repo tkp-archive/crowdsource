@@ -9,6 +9,7 @@ export class SidebarPanel extends DockPanel {
         super({mode: "single-document"});
         widget.title.closable = true;
         widget.title.label = name;
+        widget.addClass("sidebar");
         this._closeCallback = closeCallback;
         this.addWidget(widget);
         each(this.tabBars(), (t) => {

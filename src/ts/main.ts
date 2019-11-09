@@ -3,6 +3,7 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
+import {AboutWidget} from "./widgets";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
 
@@ -34,6 +35,7 @@ async function main() {
     const register = new BoxPanel();
     const apikeys = new BoxPanel();
     const submissions = new PerspectiveWidget("Submissions");
+    const about = new AboutWidget();
 
     // main container
     const main = new SplitPanel({orientation: "horizontal"});
@@ -61,20 +63,25 @@ async function main() {
     /* 
      *  Commands
      */
+    commands.addCommand("about", {
+        execute: () => {setSidePanel("About", about)},
+        iconClass: "fa fa-question",
+        isEnabled: () => true,
+        label: "About",
+    });
+
     commands.addCommand("register", {
         execute: () => {setSidePanel("Register", register)},
         iconClass: "fa fa-plus",
-        isEnabled: () => false,
+        isEnabled: () => true,
         label: "Register",
-        mnemonic: 2,
     });
 
     commands.addCommand("login", {
         execute: () => {setSidePanel("Login", login)},
         iconClass: "fa fa-sign-in",
-        isEnabled: () => false,
+        isEnabled: () => true,
         label: "Login",
-        mnemonic: 2,
     });
 
     commands.addCommand("logout", {
@@ -82,23 +89,20 @@ async function main() {
         iconClass: "fa fa-sign-out",
         isEnabled: () => false,
         label: "Logout",
-        mnemonic: 2,
     });
 
     commands.addCommand("apikeys", {
         execute: () => {setSidePanel("API Keys", apikeys)},
         iconClass: "fa fa-cog",
-        isEnabled: () => true,
+        isEnabled: () => false,
         label: "API Keys",
-        mnemonic: 2,
     });
 
     commands.addCommand("submissions", {
         execute: () => {setSidePanel("Submissions", submissions)},
         iconClass: "fa fa-paper-plane",
-        isEnabled: () => true,
+        isEnabled: () => false,
         label: "Submissions",
-        mnemonic: 2,
     });
 
     // Construct top menu
@@ -107,11 +111,12 @@ async function main() {
     menu.addClass("settings");
     menu.title.label = "Settings";
     menu.title.mnemonic = 0;
-    menu.addItem({ command: "apikeys"});
-    menu.addItem({ command: "submissions"});
+    menu.addItem({ command: "about"});
     menu.addItem({ command: "register"});
     menu.addItem({ command: "login"});
     menu.addItem({ command: "logout"});
+    menu.addItem({ command: "apikeys"});
+    menu.addItem({ command: "submissions"});
     menubar.addMenu(menu);
 
     // Add tables to workspace
