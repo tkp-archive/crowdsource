@@ -7,7 +7,7 @@ from perspective import Table, PerspectiveManager, PerspectiveTornadoHandler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
-from traitlets import Unicode, List, Bool
+from traitlets import Int, Unicode, List, Bool
 from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
@@ -15,7 +15,7 @@ from .persistence.models import Base, Client, Competition, Submission
 class Crowdsource(Application):
     name = 'crowdsource'
     description = 'crowdsource'
-    port = Unicode(default_value='8080', help="Port to run on").tag(config=True)
+    port = Int(default_value=8080, help="Port to run on").tag(config=True)
     basepath = Unicode(default_value='/', help="Base URL (for reverse proxies)").tag(config=True)
     apipath = Unicode(default_value='/api/v1/', help="API base URL (for reverse proxies)").tag(config=True)
     wspath = Unicode(default_value='ws:0.0.0.0:{}/', help="websocket url").tag(config=True)
@@ -44,7 +44,7 @@ class Crowdsource(Application):
         if self.debug:
             logging.getLogger().setLevel(logging.DEBUG)
 
-        self.port = os.environ.get('PORT', self.port)
+        self.port = int(os.environ.get('PORT', self.port))
         self.wspath = self.wspath.format(self.port)
 
         self._stash = []
@@ -119,7 +119,7 @@ class Crowdsource(Application):
 
         application = tornado.web.Application(default_handlers, **settings)
 
-        logging.critical('LISTENING: %s', self.port)
+        logging.critical('LISTENING: %d', self.port)
         application.listen(self.port)
         tornado.ioloop.IOLoop.current().start()
 
