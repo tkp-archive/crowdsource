@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
 from crowdsource.client import Client
 from mock import patch, MagicMock
-from crowdsource.competition import CompetitionSpec
-from crowdsource.utils.enums import CompetitionType, CompetitionMetric
+from crowdsource.types.competition import CompetitionSpec
+from crowdsource.enums import CompetitionType, CompetitionMetric
 
 
 dataset = make_classification()

@@ -1,7 +1,12 @@
-from datetime import datetime
+import pandas as pd
+import six
+import ujson
+import validators
+from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+
 
 Base = declarative_base()
 
@@ -20,8 +25,10 @@ class Client(Base):
 class Competition(Base):
     __tablename__ = 'competitions'
     id = Column(Integer, primary_key=True)
+    title = Column(String(500), nullable=False)
+    subtitle = Column(String(500), nullable=False)
 
-    clientId = Column(Integer, ForeignKey('clients.id', ondelete='cascade'))
+    client_id = Column(Integer, ForeignKey('clients.id', ondelete='cascade'))
     client = relationship('Client', back_populates="competitions")
 
     type = Column(String(10), nullable=False)
@@ -53,15 +60,49 @@ class Competition(Base):
     def __repr__(self):
         return "<Competition(id='%s', clientId='%s')>" % (self.id, self.clientId)
 
+    def to_dict(self):
+        ret = {}
+        for item in ("id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
+                     "dataset_url", "dataset_type", "num_classes", "when", "answer", "answer_url", "answer_type",
+                     "timestamp"):
+            ret[item] = getattr(self, item)
+        return ret
+
+    @staticmethod
+    def from_spec(client_id, spec):
+        c = Competition(client_id=client_id,
+                        title=spec.title,
+                        subtitle=spec.subtitle,
+                        expiration=spec.expiration + timedelta(seconds=spec.answer_delay),
+                        type=spec.type.value,
+                        prize=spec.prize,
+                        metric=spec.metric.value,
+                        dataset=spec.dataset if isinstance(spec.answer, six.string_types) and validators.url(spec.answer)
+                        else spec.dataset.to_dict() if isinstance(spec.dataset, pd.DataFrame)
+                        else '' if not spec.dataset else ujson.loads(spec.dataset),
+                        dataset_type=spec.dataset_type.value,
+                        dataset_kwargs=spec.dataset_kwargs,
+                        dataset_key=spec.dataset_key,
+                        num_classes=spec.num_classes,
+                        targets=spec.targets if isinstance(spec.targets, six.string_types) else ujson.dumps(spec.targets),
+                        when=spec.when,
+                        answer=spec.answer if isinstance(spec.answer, six.string_types) and validators.url(spec.answer)
+                        else spec.answer.to_dict() if isinstance(spec.answer, pd.DataFrame)
+                        else '' if not spec.answer else ujson.loads(spec.answer),
+                        answer_type=spec.answer_type.value,
+                        answer_delay=spec.answer_delay,
+                        timestamp=datetime.now())
+        return c
+
 
 class Submission(Base):
     __tablename__ = 'submissions'
     id = Column(Integer, primary_key=True)
 
-    clientId = Column(Integer, ForeignKey('clients.id', ondelete='cascade'), nullable=False, )
+    client_id = Column(Integer, ForeignKey('clients.id', ondelete='cascade'), nullable=False, )
     client = relationship(Client, back_populates='submissions')
 
-    competitionId = Column(Integer, ForeignKey('competitions.id', ondelete='cascade'), nullable=False, )
+    competition_id = Column(Integer, ForeignKey('competitions.id', ondelete='cascade'), nullable=False, )
     competition = relationship('Competition', back_populates='submissions')
 
     score = Column(Integer)
@@ -74,3 +115,23 @@ class Submission(Base):
 
     def __repr__(self):
         return "<Submission(id='%s', clientId='%s', competitionId='%s')>" % (self.id, self.clientId, self.competitionId)
+
+    def to_dict(self):
+        ret = {}
+        for item in ("id", "client_id", "competition_id", "score", "answer", "answer_url", "answer_type", "timestamp"):
+            ret[item] = getattr(self, item)
+        return ret
+
+    @staticmethod
+    def from_spec(client_id, competition_id, competition, spec):
+        c = Submission(client_id=client_id,
+                       competition_id=competition_id,
+                       score=-1,
+                       competition=competition,
+                       answer=spec.answer if isinstance(spec.answer, six.string_types) and validators.url(spec.answer)
+                       else spec.answer.to_json() if isinstance(spec.answer, pd.DataFrame)
+                       else '' if not spec.answer
+                       else ujson.loads(spec.answer),
+                       answer_type=spec.answer_type.value,
+                       timestamp=datetime.now())
+        return c

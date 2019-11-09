@@ -1,20 +1,19 @@
-import tornado.web
 import ujson
 from .base import ServerHandler
-from ..utils.enums import CompetitionType
-from ..utils.validate import validate_leaderboard_get
+from .validate import validate_leaderboard_get
+from ..persistence.models import Submission
+from ..enums import CompetitionType
 
 
 class LeaderboardHandler(ServerHandler):
-    @tornado.web.authenticated
     def get(self):  # TODO make coroutine
         '''Get the current list of competition ids'''
-        self._authenticate()
-
         data = self._validate(validate_leaderboard_get)
 
         res = []
-        for x in self._submissions.values():
+        session = self._sessionmaker()
+        submissions = session.query(Submission).all()
+        for x in submissions:
             for c in x:
                 id = data.get('id', ())
                 cpid = data.get('competition_id', ())

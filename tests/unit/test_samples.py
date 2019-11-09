@@ -1,10 +1,10 @@
-from crowdsource.samples import classify1, predict1, predict2, predictCorporateBonds, predictCitibike
+from crowdsource.client.samples import classify1, predict1, predict2, predictCorporateBonds, predictCitibike
 from mock import patch, MagicMock
 
 
 class TestClient:
     def test_all(self):
-        with patch('crowdsource.samples.safe_post') as m, \
+        with patch('crowdsource.client.samples.safe_post') as m, \
              patch('requests.get') as m2:
             m.return_value = '{}'
             m2.return_value = MagicMock()

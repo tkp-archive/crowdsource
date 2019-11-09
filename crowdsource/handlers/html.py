@@ -1,7 +1,7 @@
 import tornado.web
 import copy
 from .base import ServerHandler
-from ..utils.validate import validate_login_post, validate_register_post
+from ..persistence.models import Client
 
 
 def get_kwargs(handler, template_kwargs):
@@ -34,22 +34,24 @@ class HTMLOpenHandler(ServerHandler):
             self.write(template)
 
     def post(self, *args):
-        if 'login' in self.request.path:
-            self._validate(validate_login_post)
-            user = self.get_argument('id', '') or self.current_user.decode('utf-8') or ''
-            client = self._login(user)
-            ret = self._login_post(client)
-            if not ret:
-                self.redirect(self.basepath + 'login')
-                return
-
-        elif 'register' in self.request.path:
-            data = self._validate(validate_register_post)
-            ret = self._register_or_known(data)
-            if not ret:
-                self.redirect(self.basepath + 'login')
-                return
-        self.redirect(self.get_argument('next', self.basepath))
+        with self.session() as session:
+            if 'login' in self.request.path:
+                user = self.get_argument('id', '') or self.current_user.decode('utf-8') or -1
+                ret = session.query(Client).filter_by(id=int(user)).first()
+                if not ret.id:
+                    self.redirect(self.basepath + 'login')
+                    return
+                self._login_post(ret)
+            elif 'register' in self.request.path:
+                    c = Client()
+                    session.add(c)
+                    session.commit()
+                    session.refresh(c)
+                    if not ret:
+                        self.redirect(self.basepath + 'login')
+                        return
+                    self._login_post(c)
+            self.redirect(self.get_argument('next', self.basepath))
 
 
 class HTMLHandler(HTMLOpenHandler):

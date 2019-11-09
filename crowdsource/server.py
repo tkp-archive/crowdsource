@@ -1,67 +1,109 @@
 import sys
 import os.path
+import logging
 import tornado.ioloop
 import tornado.web
-from .utils import log, parse_args
-from .handlers import HTMLHandler, HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from perspective import Table, PerspectiveManager, PerspectiveTornadoHandler
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from traitlets.config.application import Application
+from traitlets import Int, Unicode, List, Bool
+from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from .persistence.models import Base, Client, Competition, Submission
 
 
-class ServerApplication(tornado.web.Application):
-    def __init__(self, login, register, persist, basepath='/', handlers=None, cookie_secret=None, proxies=None, debug=False):
-        self._login = login
-        self._register = register
-        self._persist = persist
+class Crowdsource(Application):
+    name = 'crowdsource'
+    description = 'crowdsource'
+    port = Int(default_value=8080, help="Port to run on").tag(config=True)
+    basepath = Unicode(default_value='/', help="Base URL (for reverse proxies)").tag(config=True)
+    apipath = Unicode(default_value='/api/v1/', help="API base URL (for reverse proxies)").tag(config=True)
+    wspath = Unicode(default_value='ws:0.0.0.0:{}/', help="websocket url").tag(config=True)
 
-        self._clients = {}
-        self._competitions = {}
-        self._submissions = {}
-        self._leaderboards = {}
+    sql_url = Unicode(default_value='sqlite:///crowdsource.db', help="SQL Alchemy url").tag(config=True)
+
+    proxies = List(default_value=[])
+    handlers = List(default_value=[])
+    debug = Bool(default_value=True).tag(config=True)
+    cookie_secret = Unicode(default_value="61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=")
+    sql = Bool(default_value=True).tag(config=True)
+
+    aliases = {
+        'port': 'Crowdsource.port',
+        'basepath': 'Crowdsource.basepath',
+        'wspath': 'Crowdsource.wspath',
+        'debug': 'Crowdsource.debug',
+    }
+
+    flags = {
+        "debug": ({"Crowdsource": {
+            "debug": True
+        }}, "run in debug mode")
+    }
+
+    def start(self):
+        if self.debug:
+            logging.getLogger().setLevel(logging.DEBUG)
+
+        self.port = int(os.environ.get('PORT', self.port))
+        self.wspath = self.wspath.format(self.port)
+
         self._stash = []
+        engine = create_engine(self.sql_url, echo=False)
+        Base.metadata.create_all(engine)
 
-        self._proxies = proxies
-        self._basepath = basepath
+        self.sessionmaker = sessionmaker(bind=engine)
+        session = self.sessionmaker()
+        clients = session.query(Client).all()
+
+        self._clients = {c.id: c for c in clients}
+        self._manager = PerspectiveManager()
+
+        self._competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
+        self._submissions = Table(list(s.to_dict() for s in session.query(Submission).all()))
+        self._leaderboards = Table({"a": int})
+        self._stash = []
+        self._table = Table([{"a": 1, "b": 2}])
+        self._manager.host_table("data_source_one", self._table)
+        self._manager.host_table("competitions", self._competitions)
+        self._manager.host_table("submissions", self._submissions)
+        self._manager.host_table("leaderboards", self._leaderboards)
 
         root = os.path.join(os.path.dirname(__file__), 'assets')
         static = os.path.join(root, 'static')
 
-        context = {'clients': self._clients,
+        context = {'sessionmaker': self.sessionmaker,
+                   'clients': self._clients,
                    'competitions': self._competitions,
                    'submissions': self._submissions,
                    'leaderboards': self._leaderboards,
                    'stash': self._stash,
-                   'login': self._login,
-                   'register': self._register,
-                   'persist': self._persist,
-                   'basepath': self._basepath,
+                   'basepath': self.basepath,
+                   'wspath': self.wspath,
                    'proxies': 'test'}
 
         default_handlers = [
             (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
-            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context,
-                                               'template_kwargs': {}}),
-            # Old UI
-            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
+            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
+            (r"/home", HTMLOpenHandler, {'template': 'home.html',  'context': context}),
             (r"/login", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/register", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
             (r"/logout", HTMLOpenHandler, {'template': 'logout.html',  'context': context}),
-            (r"/competitions", HTMLHandler, {'template': 'competitions.html', 'template_kwargs': {'title': 'Competitions'},  'context': context}),
-            (r"/submissions", HTMLHandler, {'template': 'submissions.html', 'template_kwargs': {'title': 'Submissions'},  'context': context}),
-            (r"/leaderboard", HTMLHandler, {'template': 'leaderboard.html', 'template_kwargs': {'title': 'Leaderboard'},  'context': context}),
         ]
 
         default_handlers.extend([
-            (r"/api/login", LoginHandler, context),
-            (r"/api/logout", LogoutHandler, context),
-            (r"/api/register", RegisterHandler, context),
-            (r"/api/competition", CompetitionHandler, context),
-            (r"/api/submission", SubmissionHandler, context),
-            (r"/api/leaderboard", LeaderboardHandler, context),
+            (r"/api/v1/login", LoginHandler, context),
+            (r"/api/v1/logout", LogoutHandler, context),
+            (r"/api/v1/register", RegisterHandler, context),
+            (r"/api/v1/competition", CompetitionHandler, context),
+            (r"/api/v1/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
+            (r"/api/v1/submission", SubmissionHandler, context),
+            (r"/api/v1/leaderboard", LeaderboardHandler, context),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": static}),
             (r"/(.*)", HTMLOpenHandler, {'template': '404.html', 'context': context})
         ])
 
-        handlers = handlers or []
-        for handler in handlers:
+        for handler in self.handlers:
             for i, default in enumerate(default_handlers):
                 if default[0] == handler[0]:
                     # override default handler
@@ -70,43 +112,18 @@ class ServerApplication(tornado.web.Application):
                     default_handlers[i] = (handler[0], handler[1], d)
 
         settings = {
-                "cookie_secret": cookie_secret or "61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
-                "login_url": self._basepath + "login",
-                "debug": debug,
+                "cookie_secret": self.cookie_secret,
+                "login_url": self.basepath + "login",
+                "debug": self.debug,
                 "template_path": os.path.join(root, 'templates'),
                 }
 
-        super(ServerApplication, self).__init__(default_handlers, **settings)
+        application = tornado.web.Application(default_handlers, **settings)
 
+        logging.critical('LISTENING: %d', self.port)
+        application.listen(self.port)
+        tornado.ioloop.IOLoop.current().start()
 
-def main(*args, **kwargs):
-    port = kwargs.get('port', 8080)
-
-    if '-sql' in args:
-        log.info('Using SQL auth')
-
-        # defer sqlalchemy import
-        from .login.sql import sqlalchemy_login
-        from .persistence.sql import sqlalchemy_persist
-        from .registration.sql import sqlalchemy_register
-
-        login = sqlalchemy_login
-        register = sqlalchemy_register
-        persist = sqlalchemy_persist
-
-    else:
-        log.debug('Using null auth')
-        from .login import null_login
-        from .persistence import null_persist
-        from .registration import null_register
-        login = null_login
-        register = null_register
-        persist = null_persist
-    application = ServerApplication(login, register, persist, debug='debug' in args)
-    log.critical('LISTENING: %s', port)
-    application.listen(port)
-    tornado.ioloop.IOLoop.current().start()
 
 if __name__ == "__main__":
-    args, kwargs = parse_args(sys.argv)
-    main(*args, **kwargs)
+    Crowdsource.launch_instance(sys.argv)

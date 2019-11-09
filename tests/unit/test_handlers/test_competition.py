@@ -1,9 +1,6 @@
 import tornado.web
 from crowdsource.handlers import CompetitionHandler
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
-from crowdsource.utils.enums import CompetitionType
+from crowdsource.enums import CompetitionType
 from datetime import datetime
 from mock import MagicMock
 from tornado.web import HTTPError
@@ -22,9 +19,8 @@ class TestCompetitions:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = CompetitionHandler(self.app, req, **context)
         x._transforms = []
         x.get_current_user = lambda: True
@@ -89,9 +85,8 @@ class TestCompetitions:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = CompetitionHandler(self.app, req, **context)
         x._transforms = []
         x.get_current_user = lambda: True

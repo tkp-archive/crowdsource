@@ -1,0 +1,94 @@
+/******************************************************************************
+ *
+ * Copyright (c) 2018, the Perspective Authors.
+ *
+ * This file is part of the Perspective library, distributed under the terms of
+ * the Apache License 2.0.  The full license can be found in the LICENSE file.
+ *
+ */
+ 
+body {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+div.header {
+  height: 50px;
+}
+
+div.header > * {
+  height:50px;
+}
+
+div.header > a > img {
+  height:50px;
+}
+
+div.topmenu {
+  position: absolute;
+  right:50px;
+  height:50px;
+  padding: 0px;
+}
+
+div.topmenu.p-mod-active {
+  background-color: var(--darkest2);
+}
+
+div.topmenu div.p-MenuBar-itemLabel {
+  color: #c0c0c0;
+}
+
+div.topmenu ul.p-MenuBar-content {
+  height: 100%;
+}
+
+div.topmenu ul.p-MenuBar.p-mod-active {
+  background-color: var(--darkest) !important;
+}
+
+div.topmenu li.p-MenuBar-item.p-mod-active {
+  background-color: var(--dark2) !important;
+}
+
+
+div.settings {
+  background-color: var(--darkest2) !important;
+}
+
+div.settings {
+  border: 1px solid #c0c0c0;
+}
+
+div.settings > ul > li > div.p-Menu-itemIcon::before {
+  font-family: "fontawesome" !important;
+}
+
+div.settings li.p-Menu-item {
+  color: #c0c0c0;
+}
+
+div.settings li.p-Menu-item.p-mod-disabled {
+  color: #737373;
+}
+
+div.sidebar {
+  margin: 0px;
+  color: #c0c0c0;
+}
+
+div.about {
+  padding: 10px;
+}
+div.about > div {
+  display: flex;
+  flex-direction: column;
+}

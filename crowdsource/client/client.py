@@ -2,12 +2,13 @@ import pandas as pd
 import threading
 import time
 import ujson
-from .samples import SamplesMixin
-from ..competition import CompetitionSpec
-from ..submission import SubmissionSpec
+from traitlets import HasTraits
+from .samples_mixin import SamplesMixin
+from ..types.competition import CompetitionSpec
+from ..types.submission import SubmissionSpec
 from ..utils import safe_get, safe_post, safe_post_cookies, construct_path
-from ..utils.enums import DatasetFormat
-from ..utils.exceptions import MalformedCompetitionSpec
+from ..enums import DatasetFormat
+from ..exceptions import MalformedCompetitionSpec
 
 
 class Thread(threading.Thread):
@@ -32,7 +33,7 @@ class Thread(threading.Thread):
         return self._return
 
 
-class Client(SamplesMixin, object):
+class Client(SamplesMixin, HasTraits):
     def __init__(self, serverHost, id=None, cookies=None, proxies=None):
         '''Constructor for client object
 
@@ -61,10 +62,10 @@ class Client(SamplesMixin, object):
     def register(self):
         '''Register client with the competitions host'''
         if not self._am_registered():
-            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/register'), data={}, cookies=self._cookies, proxies=self._proxies)
+            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/v1/register'), data={}, cookies=self._cookies, proxies=self._proxies)
         else:
             # attempt to login in case of disconnect
-            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/login'), data={'id': self._id} if self._id else {}, cookies=self._cookies, proxies=self._proxies)
+            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/v1/login'), data={'id': self._id} if self._id else {}, cookies=self._cookies, proxies=self._proxies)
 
         self._id = resp.get('id')
         self._cookies = cookies
@@ -83,11 +84,11 @@ class Client(SamplesMixin, object):
             raise MalformedCompetitionSpec()
 
         self.register()
-        resp = safe_post(construct_path(self._host, 'api/competition'), data=ujson.dumps({'id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):
-        '''Ping server for competitionId, on update call callback'''
+        '''Ping server for competition_id, on update call callback'''
         if not self._competitions.get(competitionType):
             self._competitions[competitionType] = []
 
@@ -162,7 +163,7 @@ class Client(SamplesMixin, object):
             send['competition_id'] = competitionId
         if type:
             send['type'] = type
-        ret = safe_get(construct_path(self._host, 'api/submission'), data=ujson.dumps(send), cookies=self._cookies, proxies=self._proxies)
+        ret = safe_get(construct_path(self._host, 'api/v1/submission'), data=ujson.dumps(send), cookies=self._cookies, proxies=self._proxies)
         return ret  # TODO parse into the correct type
 
     def competitions(self, clientId=None, competitionId=None, type=None):
@@ -185,7 +186,7 @@ class Client(SamplesMixin, object):
         if type:
             send['type'] = type
 
-        ret = safe_get(construct_path(self._host, 'api/competition'), data=ujson.dumps(send), cookies=self._cookies, proxies=self._proxies)
+        ret = safe_get(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps(send), cookies=self._cookies, proxies=self._proxies)
 
         ret = [{'id': x['id'], 'spec': CompetitionSpec.from_dict(x)} for x in ret]
         return ret
@@ -198,10 +199,13 @@ class Client(SamplesMixin, object):
             submission_format = DatasetFormat.JSON
         if not isinstance(submission, SubmissionSpec):
             submission = SubmissionSpec(competitionId, submission, submission_format)
-        resp = safe_post(construct_path(self._host, 'api/submission'), data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/submission'),
+                                    data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
+                                    cookies=self._cookies,
+                                    proxies=self._proxies)
         return resp
 
     def users(self):
         '''Return a list of active user ids'''
         self.register()
-        return safe_get(construct_path(self._host, 'api/register'), cookies=self._cookies, proxies=self._proxies)
+        return safe_get(construct_path(self._host, 'api/v1/register'), cookies=self._cookies, proxies=self._proxies)

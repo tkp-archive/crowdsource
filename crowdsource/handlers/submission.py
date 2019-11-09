@@ -1,31 +1,30 @@
-import heapq
+import logging
+import six
 import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
-from ..structs import SubmissionStruct
-from ..utils import log, str_or_unicode
-from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED
-from ..utils.enums import CompetitionType
-from ..competition.utils import fetchDataset
-from ..submission.utils import checkAnswer
-from ..utils.validate import validate_submission_get, validate_submission_post
+from .validate import validate_submission_get, validate_submission_post
+from ..persistence.models import Submission, Competition
+from ..types.submission import SubmissionSpec
+from ..types.utils import fetchDataset, checkAnswer
+from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED, _COMPETITION_NOT_REGISTERED
+from ..enums import CompetitionType
 
 
 class SubmissionHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):  # TODO make coroutine
         '''Get the current list of competition ids'''
-        self._authenticate()
-
         data = self._validate(validate_submission_get)
 
-        # first, grade any pending submissions that are now available
-        self.score_laters()
-
         res = []
-        for x in self._submissions.values():
-            for c in x:
+        with self.session() as session:
+            # first, grade any pending submissions that are now available
+            self.score_laters(session)
+            submissions = session.query(Submission).all()
+
+            for c in submissions:
                 id = data.get('id', ())
                 cpid = data.get('competition_id', ())
                 clid = data.get('client_id', ())
@@ -33,15 +32,15 @@ class SubmissionHandler(ServerHandler):
 
                 if id and c.id not in id:
                     continue
-                if cpid and c.competitionId not in cpid:
+                if cpid and c.competition_id not in cpid:
                     continue
-                if clid and c.clientId not in clid:
+                if clid and c.client_id not in clid:
                     continue
                 if t and CompetitionType(t) != c.competition.spec.type:
                     continue
 
                 # only allow if im the submitter or the competition owner
-                if (self.current_user != c.clientId) and (self.current_user != c.competition.clientId):
+                if (self.current_user != c.client_id) and (self.current_user != c.competition.client_id):
                     continue
 
                 # check if expired and turn off if necessary
@@ -58,72 +57,67 @@ class SubmissionHandler(ServerHandler):
     @tornado.web.authenticated
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
-        self._authenticate()
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
-        clientId = data['id']
-        competitionId = data['competition_id']
-        competition = self._competitions[competitionId]
+        client_id = data['id']
+        competition_id = data['competition_id']
 
-        if datetime.now() > competition.expiration:
-            competition.active = False
-            self.write('{}')
-            return
+        with self.session() as session:
+            competition = session.query(Competition).filter_by(id=int(competition_id)).first()
+            if not competition:
+                self._set_400(_COMPETITION_NOT_REGISTERED)
+                return
 
-        try:
-            submission = SubmissionStruct(id=-1,
-                                          clientId=clientId,
-                                          competitionId=competitionId,
-                                          competition=competition,
-                                          spec=submission,
-                                          score=-1.0)
-        except (KeyError, ValueError, AttributeError):
-            self._set_400(_SUBMISSION_MALFORMED)
+            if datetime.now() > competition.expiration:
+                competition.active = False
+                self.write('{}')
+                return
 
-        # persist
-        self._persist(submission)
+            try:
+                spec = SubmissionSpec.from_dict(submission)
+                submission = Submission.from_spec(client_id=client_id,
+                                                  competition_id=competition_id,
+                                                  competition=competition,
+                                                  spec=spec)
+            except (KeyError, ValueError, AttributeError):
+                self._set_400(_SUBMISSION_MALFORMED)
 
-        if not submission.id:
-            self._set_400(_SUBMISSION_MALFORMED)
+            # persist
+            session.commit()
+            session.refresh(submission)
 
-        id = submission.id
-        competitionId = submission.competitionId
-        competition = self._competitions[competitionId]
+            if not submission.id:
+                self._set_400(_SUBMISSION_MALFORMED)
 
-        # calculate result if immediate
-        if competition.answer_delay <= 0:
-            score = self.score(submission)
+            # put in perspective
+            self._submissions.update([submission.to_dict()])
 
-        else:
-            self.score_later(submission)
-            score = {'id': id}
+            id = submission.id
 
-        # persist submission
-        self._persist(submission)
+            # calculate result if immediate
+            if competition.answer_delay <= 0:
+                score = self.score(submission, session)
+            else:
+                self.score_later(submission)
+                score = {'id': id}
 
-        self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.clientId)
+            self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.client_id)
 
-    def score(self, submission):
-        log.info("SCORING %s FOR %s", str(submission.id), submission.competitionId)
+    def score(self, submission, session):
+        logging.info("SCORING %s FOR %s", str(submission.id), submission.competition_id)
         score = checkAnswer(submission)
         submission.score = score
-
-        # update leaderboard
-        if not self._submissions.get(submission.competitionId):
-            self._submissions[submission.competitionId] = [submission]
-        else:
-            heapq.heappush(self._submissions[submission.competitionId], submission)
-
-        return submission.to_json()
+        session.commit()
+        return submission.to_dict()
 
     def score_later(self, submission):
-        log.info("Stashing submission %s for competition %s to score later", submission.id, submission.competitionId)
+        logging.info("Stashing submission %s for competition %s to score later", submission.id, submission.competition_id)
         self._to_score_later.append(submission)
 
-    def score_laters(self):
+    def score_laters(self, session):
         to_score_now = [s for s in self._to_score_later if datetime.now() > s.competition.expiration]
-        log.info('Scoring %s submissions now', len(to_score_now))
+        logging.info('Scoring %s submissions now', len(to_score_now))
 
         ret = []
 
@@ -136,20 +130,17 @@ class SubmissionHandler(ServerHandler):
                 df = df[df[competition.dataset_key].isin(list(set(competition.current_state[competition.dataset_key].values)))][competition.current_state.columns]
             elif isinstance(competition.targets, list):
                 df = df[competition.spec.targets][competition.current_state.columns]
-            elif str_or_unicode(competition.targets):
+            elif isinstance(competition.targets, six.string_types):
                 df = df[[competition.spec.targets]][competition.current_state.columns]
 
             cur = len(competition.current_state.index)
             if len(df.index) > cur:
                 competition.answer = df[df.index == df.index[-1]]
-                ret.append(self.score(s))
-
-                # persist updated submission
-                self._persist(s, update=True)
-
+                ret.append(self.score(s, session))
                 self._to_score_later.remove(s)
-            else:
-                log.info('SKIPPING %d', s.id)
 
-        log.info('%s left to score', len(self._to_score_later))
+            else:
+                logging.info('SKIPPING %d', s.id)
+
+        logging.info('%s left to score', len(self._to_score_later))
         return ret

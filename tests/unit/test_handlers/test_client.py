@@ -1,8 +1,5 @@
 import tornado.web
 from crowdsource.handlers import RegisterHandler
-from crowdsource.login import null_login
-from crowdsource.persistence import null_persist
-from crowdsource.registration import null_register
 from mock import MagicMock
 
 
@@ -19,9 +16,8 @@ class TestRegister:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'login': null_login,
-                   'register': null_register,
-                   'persist': null_persist}
+                   'sessionmaker': MagicMock()}
+
         x = RegisterHandler(self.app, req, **context)
         x._transforms = []
         x.get_current_user = lambda: b'test'
