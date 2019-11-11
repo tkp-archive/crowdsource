@@ -25,12 +25,12 @@ class SubmissionHandler(ServerHandler):
             submissions = session.query(Submission).all()
 
             for c in submissions:
-                id = data.get('id', ())
+                submission_id = data.get('submission_id', ())
                 cpid = data.get('competition_id', ())
                 clid = data.get('client_id', ())
                 t = data.get('type', '')
 
-                if id and c.id not in id:
+                if submission_id and c.submission_id not in submission_id:
                     continue
                 if cpid and c.competition_id not in cpid:
                     continue
@@ -60,11 +60,11 @@ class SubmissionHandler(ServerHandler):
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
-        client_id = data['id']
+        client_id = data['client_id']
         competition_id = data['competition_id']
 
         with self.session() as session:
-            competition = session.query(Competition).filter_by(id=int(competition_id)).first()
+            competition = session.query(Competition).filter_by(competition_id=int(competition_id)).first()
             if not competition:
                 self._set_400(_COMPETITION_NOT_REGISTERED)
                 return
@@ -87,32 +87,32 @@ class SubmissionHandler(ServerHandler):
             session.commit()
             session.refresh(submission)
 
-            if not submission.id:
+            if not submission.submission_id:
                 self._set_400(_SUBMISSION_MALFORMED)
 
             # put in perspective
             self._submissions.update([submission.to_dict()])
 
-            id = submission.id
+            submission_id = submission.submission_id
 
             # calculate result if immediate
             if competition.answer_delay <= 0:
                 score = self.score(submission, session)
             else:
                 self.score_later(submission)
-                score = {'id': id}
+                score = {'submission_id': submission_id}
 
-            self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, id, submission.client_id)
+            self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, submission_id, submission.client_id)
 
     def score(self, submission, session):
-        logging.info("SCORING %s FOR %s", str(submission.id), submission.competition_id)
+        logging.info("SCORING %s FOR %s", str(submission.submission_id), submission.competition_id)
         score = checkAnswer(submission)
         submission.score = score
         session.commit()
         return submission.to_dict()
 
     def score_later(self, submission):
-        logging.info("Stashing submission %s for competition %s to score later", submission.id, submission.competition_id)
+        logging.info("Stashing submission %s for competition %s to score later", submission.submission_id, submission.competition_id)
         self._to_score_later.append(submission)
 
     def score_laters(self, session):

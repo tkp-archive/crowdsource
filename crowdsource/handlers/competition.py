@@ -16,14 +16,14 @@ class CompetitionHandler(ServerHandler):
         with self.session() as session:
             competitions = session.query(Competition).all()
             for c in competitions:
-                id = data.get('id', ())
+                competition_id = data.get('competition_id', ())
                 clid = data.get('client_id', ())
                 t = data.get('type', ())
 
-                if id and c.id not in id:
+                if competition_id and c.competition_id not in competition_id:
                     continue
 
-                if clid and c.clientId not in clid:
+                if clid and c.client_id not in clid:
                     continue
 
                 if t and c.spec.type not in t:
@@ -46,7 +46,7 @@ class CompetitionHandler(ServerHandler):
         data = self._validate(validate_competition_post)
 
         # generate a new ID
-        client_id = data['id']
+        client_id = data['client_id']
         try:
             spec = CompetitionSpec.from_dict(data["spec"])
             comp = Competition.from_spec(client_id=client_id, spec=spec)
@@ -58,9 +58,9 @@ class CompetitionHandler(ServerHandler):
             session.commit()
             session.refresh(comp)
 
-            if comp.id:
+            if comp.competition_id:
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'id': str(comp.id)}), _REGISTER_COMPETITION, comp.id, comp.client_id)
+                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), _REGISTER_COMPETITION, comp.competition_id, comp.client_id)
             else:
                 self._set_400(_COMPETITION_MALFORMED)

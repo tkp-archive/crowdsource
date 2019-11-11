@@ -18,12 +18,11 @@ class LoginHandler(ServerHandler):
         if not user and self.current_user:
             user = self.current_user.decode('utf-8')
         with self.session() as session:
-            client = session.query(Client).filter_by(id=int(user)).first()
+            client = session.query(Client).filter_by(client_id=int(user)).first()
             if client:
                 ret = self._login_post(client)
-                self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
+                self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
             else:
-                import ipdb; ipdb.set_trace()
                 self._set_401(_CLIENT_NOT_REGISTERED)
 
 

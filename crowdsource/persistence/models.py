@@ -13,7 +13,9 @@ Base = declarative_base()
 
 class Client(Base):
     __tablename__ = 'clients'
-    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, primary_key=True)
+    username = Column(String(100), nullable=False)
+    password = Column(String(100), nullable=False)
 
     competitions = relationship('Competition', back_populates='client')
     submissions = relationship('Submission', back_populates='client')
@@ -24,11 +26,11 @@ class Client(Base):
 
 class Competition(Base):
     __tablename__ = 'competitions'
-    id = Column(Integer, primary_key=True)
+    competition_id = Column(Integer, primary_key=True)
     title = Column(String(500), nullable=False)
     subtitle = Column(String(500), nullable=False)
 
-    client_id = Column(Integer, ForeignKey('clients.id', ondelete='cascade'))
+    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'))
     client = relationship('Client', back_populates="competitions")
 
     type = Column(String(10), nullable=False)
@@ -62,7 +64,7 @@ class Competition(Base):
 
     def to_dict(self):
         ret = {}
-        for item in ("id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
+        for item in ("competition_id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
                      "dataset_url", "dataset_type", "num_classes", "when", "answer", "answer_url", "answer_type",
                      "timestamp"):
             ret[item] = getattr(self, item)
@@ -97,12 +99,12 @@ class Competition(Base):
 
 class Submission(Base):
     __tablename__ = 'submissions'
-    id = Column(Integer, primary_key=True)
+    submission_id = Column(Integer, primary_key=True)
 
-    client_id = Column(Integer, ForeignKey('clients.id', ondelete='cascade'), nullable=False, )
+    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'), nullable=False, )
     client = relationship(Client, back_populates='submissions')
 
-    competition_id = Column(Integer, ForeignKey('competitions.id', ondelete='cascade'), nullable=False, )
+    competition_id = Column(Integer, ForeignKey('competitions.competition_id', ondelete='cascade'), nullable=False, )
     competition = relationship('Competition', back_populates='submissions')
 
     score = Column(Integer)
@@ -118,7 +120,7 @@ class Submission(Base):
 
     def to_dict(self):
         ret = {}
-        for item in ("id", "client_id", "competition_id", "score", "answer", "answer_url", "answer_type", "timestamp"):
+        for item in ("submission_id", "client_id", "competition_id", "score", "answer", "answer_url", "answer_type", "timestamp"):
             ret[item] = getattr(self, item)
         return ret
 

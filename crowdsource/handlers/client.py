@@ -26,6 +26,6 @@ class RegisterHandler(ServerHandler):
             ret = self._login_post(c)
 
         if ret:
-            self._writeout(ujson.dumps(ret), _REGISTER, ret["id"])
+            self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
         else:
             self._set_403(_CLIENT_MALFORMED)

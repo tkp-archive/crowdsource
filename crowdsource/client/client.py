@@ -84,7 +84,7 @@ class Client(SamplesMixin, HasTraits):
             raise MalformedCompetitionSpec()
 
         self.register()
-        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'client_id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):
@@ -101,20 +101,20 @@ class Client(SamplesMixin, HasTraits):
                 threads = {}
                 competitions = self.competitions()
                 for comp in competitions:
-                    id = comp['id']
+                    competition_id = comp['competition_id']
                     c = comp['spec']
 
                     for callback in self._callbacks.get(c.type.value, []):
-                        if (id, callback) not in self._competitions[competitionType]:
+                        if (competition_id, callback) not in self._competitions[competitionType]:
 
                             # New competition or callback, run
                             t = Thread(target=callback, competitionSpec=c, **callbackArgs)
 
                             # start thread
                             t.start()
-                            threads[t] = (id, callback)
+                            threads[t] = (competition_id, callback)
 
-                            self._competitions[competitionType].append((id, callback))
+                            self._competitions[competitionType].append((competition_id, callback))
 
                 remove = []
                 for t in threads:
@@ -123,11 +123,11 @@ class Client(SamplesMixin, HasTraits):
                     if not t.isAlive():
 
                         # pop from thread list
-                        id, _ = threads[t]
+                        competition_id, _ = threads[t]
                         if ret is None or ret.empty:
                             pass
                         else:
-                            self.submit(id, ret)
+                            self.submit(competition_id, ret)
                             remove.append(t)
 
                 for t in remove:
@@ -156,7 +156,7 @@ class Client(SamplesMixin, HasTraits):
 
         send = {}
         if submissionId:
-            send['id'] = submissionId
+            send['submission_id'] = submissionId
         if clientId:
             send['client_id'] = clientId
         if competitionId:
@@ -180,7 +180,7 @@ class Client(SamplesMixin, HasTraits):
 
         send = {}
         if competitionId:
-            send['id'] = competitionId
+            send['competition_id'] = competitionId
         if clientId:
             send['client_id'] = clientId
         if type:
@@ -188,7 +188,7 @@ class Client(SamplesMixin, HasTraits):
 
         ret = safe_get(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps(send), cookies=self._cookies, proxies=self._proxies)
 
-        ret = [{'id': x['id'], 'spec': CompetitionSpec.from_dict(x)} for x in ret]
+        ret = [{'competition_id': x['competition_id'], 'spec': CompetitionSpec.from_dict(x)} for x in ret]
         return ret
 
     def submit(self, competitionId, submission, submission_format=DatasetFormat.JSON):
@@ -200,7 +200,7 @@ class Client(SamplesMixin, HasTraits):
         if not isinstance(submission, SubmissionSpec):
             submission = SubmissionSpec(competitionId, submission, submission_format)
         resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/submission'),
-                                    data=ujson.dumps({'id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
+                                    data=ujson.dumps({'client_id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
                                     cookies=self._cookies,
                                     proxies=self._proxies)
         return resp

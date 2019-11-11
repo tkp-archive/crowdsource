@@ -10,6 +10,14 @@ class AboutWidget extends Widget {
 
 
 export 
+class RegisterWidget extends Widget {
+    constructor() {
+        super({node: Private.createRegisterNode()});
+        this.addClass("register");
+    }
+}
+
+export 
 class LoginWidget extends Widget {
     constructor() {
         super({node: Private.createLoginNode()});
@@ -33,13 +41,26 @@ namespace Private {
         return node;
     }
 
+   export function createRegisterNode(): HTMLDivElement {
+        const node = document.createElement("div");
+        node.innerHTML =
+            "<label>Register</label> \
+            <input type=\"text\" placeholder=\"username\"></input>\
+            <label>Email</label> \
+            <input type=\"email\" placeholder=\"email\"></input>\
+            <label>Password</label> \
+            <input type=\"password\" placeholder=\"password\"></input>\
+            <input type=\"submit\" value=\"Register\"></input>";
+        return node;
+    }
+
    export function createLoginNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
             "<label>Login</label> \
             <input type=\"text\" placeholder=\"username\"></input>\
             <label>Password</label> \
-            <input type=\"password\" placeholder=\"email\"></input>\
+            <input type=\"password\" placeholder=\"password\"></input>\
             <input type=\"submit\" value=\"Login\"></input>";
         return node;
     }

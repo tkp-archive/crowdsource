@@ -3,7 +3,7 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {AboutWidget, LoginWidget} from "./widgets";
+import {AboutWidget, LoginWidget, LogoutWidget, RegisterWidget} from "./widgets";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
 import {loggedIn} from './utils';
@@ -32,8 +32,8 @@ async function main() {
 
     // configuration pages
     const login = new LoginWidget();
-    const logout = new BoxPanel();
-    const register = new BoxPanel();
+    const logout = new LogoutWidget();
+    const register = new RegisterWidget();
     const apikeys = new BoxPanel();
     const submissions = new PerspectiveWidget("Submissions");
     const about = new AboutWidget();
