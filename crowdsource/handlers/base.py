@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 class ServerHandler(tornado.web.RequestHandler):
     '''Just a default handler'''
+
     def get_current_user(self):
         return self.get_secure_cookie('user')
 

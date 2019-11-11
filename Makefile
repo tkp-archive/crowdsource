@@ -27,6 +27,10 @@ lint: ## run linter
 	flake8 crowdsource
 	yarn lint
 
+fix:  ## run autopep8
+	autopep8 --in-place -r -a -a crowdsource/
+	./node_modules/.bin/tslint --fix src/ts/*
+
 js:  ## build the js
 	yarn
 	yarn build

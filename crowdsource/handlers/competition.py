@@ -1,4 +1,3 @@
-import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
@@ -39,7 +38,7 @@ class CompetitionHandler(ServerHandler):
                 res.append(c.to_dict())
 
         page = int(data.get('page', 0))
-        self.write(ujson.dumps(res[page*100:(page+1)*100]))  # return top 100
+        self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''

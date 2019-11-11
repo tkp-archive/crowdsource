@@ -1,5 +1,7 @@
 import {Widget} from "@phosphor/widgets";
 
+// tslint:disable max-classes-per-file no-namespace
+
 export
 class AboutWidget extends Widget {
     constructor() {
@@ -8,8 +10,7 @@ class AboutWidget extends Widget {
     }
 }
 
-
-export 
+export
 class RegisterWidget extends Widget {
     constructor() {
         super({node: Private.createRegisterNode()});
@@ -17,7 +18,7 @@ class RegisterWidget extends Widget {
     }
 }
 
-export 
+export
 class LoginWidget extends Widget {
     constructor() {
         super({node: Private.createLoginNode()});
@@ -25,7 +26,7 @@ class LoginWidget extends Widget {
     }
 }
 
-export 
+export
 class LogoutWidget extends Widget {
     constructor() {
         super({node: Private.createLogoutNode()});
@@ -41,7 +42,7 @@ namespace Private {
         return node;
     }
 
-   export function createRegisterNode(): HTMLDivElement {
+    export function createRegisterNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
             "<label>Register</label> \
@@ -54,7 +55,7 @@ namespace Private {
         return node;
     }
 
-   export function createLoginNode(): HTMLDivElement {
+    export function createLoginNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
             "<label>Login</label> \
@@ -65,7 +66,7 @@ namespace Private {
         return node;
     }
 
-   export function createLogoutNode(): HTMLDivElement {
+    export function createLogoutNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
             "<input type=\"submit\" value=\"Logout\"></input>";

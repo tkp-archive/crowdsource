@@ -43,14 +43,14 @@ class HTMLOpenHandler(ServerHandler):
                     return
                 self._login_post(ret)
             elif 'register' in self.request.path:
-                    c = Client()
-                    session.add(c)
-                    session.commit()
-                    session.refresh(c)
-                    if not ret:
-                        self.redirect(self.basepath + 'login')
-                        return
-                    self._login_post(c)
+                c = Client()
+                session.add(c)
+                session.commit()
+                session.refresh(c)
+                if not ret:
+                    self.redirect(self.basepath + 'login')
+                    return
+                self._login_post(c)
             self.redirect(self.get_argument('next', self.basepath))
 
 

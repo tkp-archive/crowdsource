@@ -6,7 +6,7 @@ from traitlets import HasTraits
 from .samples_mixin import SamplesMixin
 from ..types.competition import CompetitionSpec
 from ..types.submission import SubmissionSpec
-from ..utils import safe_get, safe_post, safe_post_cookies, construct_path
+from ..utils import safe_get, safe_post_cookies, construct_path
 from ..enums import DatasetFormat
 from ..exceptions import MalformedCompetitionSpec
 
@@ -84,7 +84,8 @@ class Client(SamplesMixin, HasTraits):
             raise MalformedCompetitionSpec()
 
         self.register()
-        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'), data=ujson.dumps({'client_id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+        resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'),
+                                    data=ujson.dumps({'client_id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):

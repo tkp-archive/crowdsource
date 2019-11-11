@@ -266,4 +266,4 @@ def _metric(metric, x, y, **kwargs):
     if metric == CompetitionMetric.LOGLOSS:
         return log_loss(x.values, y.values, **kwargs)
     else:
-        return (x.values-y.values).sum(1)[0]
+        return (x.values - y.values).sum(1)[0]

@@ -85,10 +85,10 @@ class Crowdsource(Application):
         default_handlers = [
             (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
             (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
-            (r"/home", HTMLOpenHandler, {'template': 'home.html',  'context': context}),
-            (r"/login", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
-            (r"/register", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
-            (r"/logout", HTMLOpenHandler, {'template': 'logout.html',  'context': context}),
+            (r"/home", HTMLOpenHandler, {'template': 'home.html', 'context': context}),
+            (r"/login", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
+            (r"/register", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
+            (r"/logout", HTMLOpenHandler, {'template': 'logout.html', 'context': context}),
         ]
 
         default_handlers.extend([
@@ -112,11 +112,11 @@ class Crowdsource(Application):
                     default_handlers[i] = (handler[0], handler[1], d)
 
         settings = {
-                "cookie_secret": self.cookie_secret,
-                "login_url": self.basepath + "login",
-                "debug": self.debug,
-                "template_path": os.path.join(root, 'templates'),
-                }
+            "cookie_secret": self.cookie_secret,
+            "login_url": self.basepath + "login",
+            "debug": self.debug,
+            "template_path": os.path.join(root, 'templates'),
+        }
 
         application = tornado.web.Application(default_handlers, **settings)
 

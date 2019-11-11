@@ -52,7 +52,7 @@ class SubmissionHandler(ServerHandler):
                 res.append(d)
 
         page = int(data.get('page', 0))
-        self.write(ujson.dumps(res[page*100:(page+1)*100]))  # return top 100
+        self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
     @tornado.web.authenticated
     def post(self):

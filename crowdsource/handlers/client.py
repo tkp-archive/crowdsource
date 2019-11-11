@@ -14,7 +14,7 @@ class RegisterHandler(ServerHandler):
 
         # paginate
         page = int(self.get_argument('page', 0))
-        self.write(ujson.dumps([c.to_dict() for c in list(self._clients.values())[page*100:(page+1)*100]]))
+        self.write(ujson.dumps([c.to_dict() for c in list(self._clients.values())[page * 100:(page + 1) * 100]]))
 
     def post(self):
         '''Register a client. Client will be assigned a session id'''

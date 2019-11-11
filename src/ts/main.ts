@@ -3,10 +3,10 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {AboutWidget, LoginWidget, LogoutWidget, RegisterWidget} from "./widgets";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
-import {loggedIn} from './utils';
+import {loggedIn} from "./utils";
+import {AboutWidget, LoginWidget, LogoutWidget, RegisterWidget} from "./widgets";
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -39,68 +39,67 @@ async function main() {
     const about = new AboutWidget();
 
     // main container
-    const main = new SplitPanel({orientation: "horizontal"});
-    main.addWidget(workspace);
+    const mainPage = new SplitPanel({orientation: "horizontal"});
+    mainPage.addWidget(workspace);
 
     // to track whats in side bar
-    let side_panel: Widget = null;
+    let sidePanel: Widget = null;
 
     // helper to clear sidebar
     const setSidePanel = (name: string, w: Widget) => {
-        if (side_panel){
-            side_panel.close();
+        if (sidePanel) {
+            sidePanel.close();
         }
         const sidebar = new SidebarPanel(name, w, (s: SidebarPanel) => {
             s.close();
-            main.setRelativeSizes([1]);
+            mainPage.setRelativeSizes([1]);
         });
         (sidebar.node as HTMLDivElement).classList.add("sidebar");
-        main.addWidget(sidebar);
-        main.setRelativeSizes([3, 1]);
-        side_panel = sidebar;
+        mainPage.addWidget(sidebar);
+        mainPage.setRelativeSizes([3, 1]);
+        sidePanel = sidebar;
     };
 
-
-    /* 
+    /*
      *  Commands
      */
     commands.addCommand("about", {
-        execute: () => {setSidePanel("About", about)},
+        execute: () => {setSidePanel("About", about); },
         iconClass: "fa fa-question",
         isEnabled: () => true,
         label: "About",
     });
 
     commands.addCommand("register", {
-        execute: () => {setSidePanel("Register", register)},
+        execute: () => {setSidePanel("Register", register); },
         iconClass: "fa fa-plus",
         isEnabled: () => !loggedIn(),
         label: "Register",
     });
 
     commands.addCommand("login", {
-        execute: () => {setSidePanel("Login", login)},
+        execute: () => {setSidePanel("Login", login); },
         iconClass: "fa fa-sign-in",
         isEnabled: () => !loggedIn(),
         label: "Login",
     });
 
     commands.addCommand("logout", {
-        execute: () => {setSidePanel("Logout", logout)},
+        execute: () => {setSidePanel("Logout", logout); },
         iconClass: "fa fa-sign-out",
         isEnabled: loggedIn,
         label: "Logout",
     });
 
     commands.addCommand("apikeys", {
-        execute: () => {setSidePanel("API Keys", apikeys)},
+        execute: () => {setSidePanel("API Keys", apikeys); },
         iconClass: "fa fa-cog",
         isEnabled: loggedIn,
         label: "API Keys",
     });
 
     commands.addCommand("submissions", {
-        execute: () => {setSidePanel("Submissions", submissions)},
+        execute: () => {setSidePanel("Submissions", submissions); },
         iconClass: "fa fa-paper-plane",
         isEnabled: loggedIn,
         label: "Submissions",
