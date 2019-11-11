@@ -3,9 +3,10 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {AboutWidget} from "./widgets";
+import {AboutWidget, LoginWidget} from "./widgets";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
+import {loggedIn} from './utils';
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -30,7 +31,7 @@ async function main() {
     const menubar = new MenuBar();
 
     // configuration pages
-    const login = new BoxPanel();
+    const login = new LoginWidget();
     const logout = new BoxPanel();
     const register = new BoxPanel();
     const apikeys = new BoxPanel();
@@ -53,7 +54,7 @@ async function main() {
             s.close();
             main.setRelativeSizes([1]);
         });
-        sidebar.addClass("sidebar");
+        (sidebar.node as HTMLDivElement).classList.add("sidebar");
         main.addWidget(sidebar);
         main.setRelativeSizes([3, 1]);
         side_panel = sidebar;
@@ -73,35 +74,35 @@ async function main() {
     commands.addCommand("register", {
         execute: () => {setSidePanel("Register", register)},
         iconClass: "fa fa-plus",
-        isEnabled: () => true,
+        isEnabled: () => !loggedIn(),
         label: "Register",
     });
 
     commands.addCommand("login", {
         execute: () => {setSidePanel("Login", login)},
         iconClass: "fa fa-sign-in",
-        isEnabled: () => true,
+        isEnabled: () => !loggedIn(),
         label: "Login",
     });
 
     commands.addCommand("logout", {
         execute: () => {setSidePanel("Logout", logout)},
         iconClass: "fa fa-sign-out",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "Logout",
     });
 
     commands.addCommand("apikeys", {
         execute: () => {setSidePanel("API Keys", apikeys)},
         iconClass: "fa fa-cog",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "API Keys",
     });
 
     commands.addCommand("submissions", {
         execute: () => {setSidePanel("Submissions", submissions)},
         iconClass: "fa fa-paper-plane",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "Submissions",
     });
 
