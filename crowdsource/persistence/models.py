@@ -4,6 +4,7 @@ import ujson
 import validators
 from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -17,11 +18,22 @@ class Client(Base):
     username = Column(String(100), nullable=False)
     password = Column(String(100), nullable=False)
 
+    _email = Column("email", String)
+
     competitions = relationship('Competition', back_populates='client')
     submissions = relationship('Submission', back_populates='client')
 
+    @hybrid_property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, email):
+        #TODO validate
+        self._email = email
+
     def __repr__(self):
-        return "<User(id='%s')>" % self.id
+        return "<User(id='%s')>" % self.client_id
 
 
 class Competition(Base):

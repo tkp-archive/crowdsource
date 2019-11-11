@@ -54,7 +54,7 @@ async function main() {
             s.close();
             mainPage.setRelativeSizes([1]);
         });
-        (sidebar.node as HTMLDivElement).classList.add("sidebar");
+        sidebar.addClass("sidebar");
         mainPage.addWidget(sidebar);
         mainPage.setRelativeSizes([3, 1]);
         sidePanel = sidebar;
@@ -126,7 +126,7 @@ async function main() {
     // Attach parts to dom
     Widget.attach(header, document.body);
     Widget.attach(menubar, document.body);
-    Widget.attach(main, document.body);
+    Widget.attach(mainPage, document.body);
 
     // Load perspective tables
     widget1.load(table1);
