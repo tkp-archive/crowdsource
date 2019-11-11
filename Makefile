@@ -11,7 +11,7 @@ bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
 tests: ## Clean and Make unit tests
-	python3 -m pytest -v tests/ --cov=crowdsource
+	python3 -m pytest -vvv tests/ --cov=crowdsource
 
 test: clean lint ## run the tests for travis CI
 	python3 -m pytest -v tests/ --cov=crowdsource

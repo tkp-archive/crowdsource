@@ -8,7 +8,6 @@ from .validate import validate_submission_get, validate_submission_post
 from ..persistence.models import Submission, Competition
 from ..types.submission import SubmissionSpec
 from ..types.utils import fetchDataset, checkAnswer
-from ..utils import _REGISTER_SUBMISSION, _SUBMISSION_MALFORMED, _COMPETITION_NOT_REGISTERED
 from ..enums import CompetitionType
 
 
@@ -66,7 +65,7 @@ class SubmissionHandler(ServerHandler):
         with self.session() as session:
             competition = session.query(Competition).filter_by(competition_id=int(competition_id)).first()
             if not competition:
-                self._set_400(_COMPETITION_NOT_REGISTERED)
+                self._set_400("Competition not registered")
                 return
 
             if datetime.now() > competition.expiration:
@@ -81,14 +80,14 @@ class SubmissionHandler(ServerHandler):
                                                   competition=competition,
                                                   spec=spec)
             except (KeyError, ValueError, AttributeError):
-                self._set_400(_SUBMISSION_MALFORMED)
+                self._set_400("Submission malformed")
 
             # persist
             session.commit()
             session.refresh(submission)
 
             if not submission.submission_id:
-                self._set_400(_SUBMISSION_MALFORMED)
+                self._set_400("Submission malformed")
 
             # put in perspective
             self._submissions.update([submission.to_dict()])
@@ -102,7 +101,7 @@ class SubmissionHandler(ServerHandler):
                 self.score_later(submission)
                 score = {'submission_id': submission_id}
 
-            self._writeout(ujson.dumps(score), _REGISTER_SUBMISSION, submission_id, submission.client_id)
+            self._writeout(ujson.dumps(score), 'Registering submission %s from %s', submission_id, submission.client_id)
 
     def score(self, submission, session):
         logging.info("SCORING %s FOR %s", str(submission.submission_id), submission.competition_id)

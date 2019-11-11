@@ -3,7 +3,6 @@ import tornado.web
 import ujson
 from .base import ServerHandler
 from ..persistence.models import Client, APIKey
-from ..utils import _REGISTER, _CLIENT_MALFORMED
 
 
 class RegisterHandler(ServerHandler):
@@ -25,7 +24,7 @@ class RegisterHandler(ServerHandler):
         password = self.get_argument('password', body.get('password', ''))
 
         if not username or not email or not password:
-            self._set_403(_CLIENT_MALFORMED)
+            self._set_400("Client malformed")
 
         with self.session() as session:
             c = Client(username=username, email=email, password=password)
@@ -35,10 +34,10 @@ class RegisterHandler(ServerHandler):
                 session.commit()
                 session.refresh(c)
                 ret = self._login_post(c)
-                self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
+                self._writeout(ujson.dumps(ret), "Registering client {}", ret["client_id"])
                 return
             except BaseException:
-                self._set_403(_CLIENT_MALFORMED)
+                self._set_400("Client malformed")
                 return
 
 
@@ -48,7 +47,7 @@ class APIKeyHandler(ServerHandler):
         with self.session() as session:
             client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
             if not client:
-                self._set_403(_CLIENT_MALFORMED)
+                self._set_400("Client malformed")
             self.write({a.apikey_id: a.to_dict() for a in client.apikeys})
 
     @tornado.web.authenticated
@@ -56,6 +55,15 @@ class APIKeyHandler(ServerHandler):
         with self.session() as session:
             client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
             if not client:
-                self._set_403(_CLIENT_MALFORMED)
-            apikey = APIKey(client=client)
-            session.add(apikey)
+                self._set_400("Client malformed")
+            if self.get_argument("id", ""):
+                # delete key
+                key = session.query(APIKey).filter_by(apikey_id=int(self.get_argument("id"))).first()
+                if key.client == client:
+                    session.delete(key)
+                else:
+                    self._set_401("Unauthorized to delete key")
+            else:
+                # new key
+                apikey = APIKey(client=client)
+                session.add(apikey)

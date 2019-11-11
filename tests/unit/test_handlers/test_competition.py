@@ -33,7 +33,7 @@ class TestCompetitions:
         except HTTPError:
             pass
 
-        assert(x.get_status() == 401)
+        assert(x.get_status() == 400)
 
         # malformed competition
         req.body = '{"id":1234}'

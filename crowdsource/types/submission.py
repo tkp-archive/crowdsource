@@ -38,10 +38,16 @@ class SubmissionSpec(HasTraits):
             if k == 'answer_type':
                 d[k] = DatasetFormat(v)
             elif k == 'answer':
-                if not v or validators.url(v) or v == 'hidden':
-                    d[k] = v
+                if isinstance(v, six.string_types):
+                    if v in ("", "hidden") or validators.url(v):
+                        d[k] = v
+                    else:
+                        v = ujson.loads(v)
+
+                if isinstance(v, dict) or isinstance(v, list):
+                    d[k] = pandas.DataFrame(v)
                 else:
-                    d[k] = pandas.DataFrame(ujson.loads(v))
+                    d[k] = v
             else:
                 d[k] = v
         return cls(**d)

@@ -2,7 +2,7 @@ import {Widget} from "@phosphor/widgets";
 import {IRequestResult, request} from "requests-helper";
 import {APIKEYS, LOGIN, LOGOUT, REGISTER} from "./define";
 import {basepath} from "./utils";
-// tslint:disable max-classes-per-file no-namespace no-empty object-literal-sort-keys
+// tslint:disable max-classes-per-file no-namespace no-empty object-literal-sort-keys no-console
 
 export
 class BaseWidget extends Widget {
@@ -125,11 +125,19 @@ class APIKeysWidget extends BaseWidget {
                 let count = 0;
                 for (const k of Object.keys(data)) {
                     const dat = data[k];
-                    Private.addAPIKeyTableRow(table, dat.apikey_id, dat.key, dat.secret);
+                    Private.addAPIKeyTableRow(table, dat.apikey_id, dat.key, dat.secret, (id: string) => {
+                        request("post", basepath() + APIKEYS, {id}).then((res2: IRequestResult) => {
+                            if (res2.ok) {
+                                this.onAfterAttach();
+                            } else {
+                                console.error("apikey delete failed");
+                            }
+                        });
+                    });
                     count++;
                 }
                 if (count === 0) {
-                    Private.addAPIKeyTableRow(table, "-", "-", "-");
+                    Private.addAPIKeyTableRow(table, "-", "-", "-", (id: string) => {});
                 }
             }
         });
@@ -226,12 +234,16 @@ namespace Private {
         return node;
     }
 
-    export function addAPIKeyTableRow(table: HTMLDivElement, num: string, key: string, secret: string) {
+    export function addAPIKeyTableRow(table: HTMLDivElement,
+                                      id: string,
+                                      key: string,
+                                      secret: string,
+                                      ondelete: (id: string) => void) {
         const row = document.createElement("div");
         row.innerHTML =
             "<div>\
-            <label>No:</label>\
-            <label>" + num + "</label>\
+            <label>Id:</label>\
+            <label>" + id + "</label>\
             </div>\
             <div>\
             <label>Key:</label>\
@@ -245,6 +257,7 @@ namespace Private {
             <label>Delete:</label>\
             <input type=\"submit\" value=\"Delete\"></input>\
             </div>";
+        (row.querySelector("input[type=submit]") as HTMLInputElement).onclick = (e: Event) => ondelete(id);
         table.appendChild(row);
     }
 

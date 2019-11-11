@@ -4,7 +4,6 @@ from .base import ServerHandler
 from .validate import validate_competition_get, validate_competition_post
 from ..types.competition import CompetitionSpec
 from ..persistence.models import Competition
-from ..utils import _REGISTER_COMPETITION, _COMPETITION_MALFORMED
 
 
 class CompetitionHandler(ServerHandler):
@@ -50,7 +49,7 @@ class CompetitionHandler(ServerHandler):
             spec = CompetitionSpec.from_dict(data["spec"])
             comp = Competition.from_spec(client_id=client_id, spec=spec)
         except (KeyError, ValueError):
-            self._set_400(_COMPETITION_MALFORMED)
+            self._set_400("Competition malformed")
 
         with self.session() as session:
             session.add(comp)
@@ -60,6 +59,6 @@ class CompetitionHandler(ServerHandler):
             if comp.competition_id:
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), _REGISTER_COMPETITION, comp.competition_id, comp.client_id)
+                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong {} for client {}", comp.competition_id, comp.client_id)
             else:
-                self._set_400(_COMPETITION_MALFORMED)
+                self._set_400("Competition malformed")

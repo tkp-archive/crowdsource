@@ -1,7 +1,6 @@
 import tornado.escape
 import ujson
 from .base import ServerHandler
-from ..utils import _CLIENT_NOT_REGISTERED, _CLIENT_MALFORMED, _REGISTER
 from ..persistence.models import Client
 
 
@@ -28,18 +27,18 @@ class LoginHandler(ServerHandler):
                         self.login(client)
                         return
 
-            self._set_403(_CLIENT_MALFORMED)
+            self._set_400("Client malformed")
 
         with self.session() as session:
             client = session.query(Client).filter_by(username=username).first()
             if client and (client or not password) and (client.password == password):
                 self.login(client)
             else:
-                self._set_401(_CLIENT_NOT_REGISTERED)
+                self._set_400("Client not registered")
 
     def login(self, client):
         ret = self._login_post(client)
-        self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
+        self._writeout(ujson.dumps(ret), "Registering client {}", ret["client_id"])
 
 
 class LogoutHandler(ServerHandler):

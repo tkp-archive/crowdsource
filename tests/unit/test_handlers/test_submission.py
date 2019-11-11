@@ -38,7 +38,7 @@ class TestSubmissions:
             assert False
         except HTTPError:
             pass
-        assert(x.get_status() == 401)
+        assert(x.get_status() == 400)
 
         # unregistered
         req.body = '{"id":1233}'
@@ -51,7 +51,7 @@ class TestSubmissions:
         except HTTPError:
             pass
 
-        assert(x.get_status() == 401)
+        assert(x.get_status() == 400)
 
         # no competition id
         req.body = '{"id":1234}'
@@ -64,7 +64,7 @@ class TestSubmissions:
         except HTTPError:
             pass
 
-        assert(x.get_status() == 401)
+        assert(x.get_status() == 400)
 
         # no submission
         req.body = '{"id":1234, "competition_id":1234}'
