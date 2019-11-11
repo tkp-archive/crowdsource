@@ -2,6 +2,9 @@
     --light: #00ffff;
     --light2: #00f2f2;
 
+    --lightfont: #c0c0c0;
+    --darkfont: #737373;
+
     --dark:rgba(0, 255, 255, .2);
     --dark2:#004444;
     --darkest:rgba(17, 17, 17, .8);

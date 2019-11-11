@@ -1,5 +1,6 @@
 import pandas as pd
 import six
+import secrets
 import ujson
 import validators
 from datetime import datetime, timedelta
@@ -8,7 +9,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-
+TOKEN_WIDTH = 64
 Base = declarative_base()
 
 
@@ -20,6 +21,7 @@ class Client(Base):
 
     _email = Column("email", String, nullable=False, unique=True)
 
+    apikeys = relationship('APIKey', back_populates='client')
     competitions = relationship('Competition', back_populates='client')
     submissions = relationship('Submission', back_populates='client')
 
@@ -34,6 +36,26 @@ class Client(Base):
 
     def __repr__(self):
         return "<User(id='{}', username='{}')>".format(self.client_id, self.username)
+
+
+class APIKey(Base):
+    __tablename__ = 'apikeys'
+    apikey_id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'))
+    client = relationship('Client', back_populates="apikeys")
+    key = Column(String(100), nullable=False, default=lambda: secrets.token_urlsafe(TOKEN_WIDTH))
+    secret = Column(String(100), nullable=False, default=lambda: secrets.token_urlsafe(TOKEN_WIDTH))
+
+    @staticmethod
+    def generateKey():
+        return {"key": secrets.token_urlsafe(TOKEN_WIDTH),
+                "secret": secrets.token_urlsafe(TOKEN_WIDTH)}
+
+    def to_dict(self):
+        ret = {}
+        for item in ("apikey_id", "client_id", "key", "secret"):
+            ret[item] = getattr(self, item)
+        return ret
 
 
 class Competition(Base):

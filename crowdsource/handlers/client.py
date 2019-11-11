@@ -2,7 +2,7 @@ import tornado.escape
 import tornado.web
 import ujson
 from .base import ServerHandler
-from ..persistence.models import Client
+from ..persistence.models import Client, APIKey
 from ..utils import _REGISTER, _CLIENT_MALFORMED
 
 
@@ -40,3 +40,22 @@ class RegisterHandler(ServerHandler):
             except BaseException:
                 self._set_403(_CLIENT_MALFORMED)
                 return
+
+
+class APIKeyHandler(ServerHandler):
+    @tornado.web.authenticated
+    def get(self):
+        with self.session() as session:
+            client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
+            if not client:
+                self._set_403(_CLIENT_MALFORMED)
+            self.write({a.apikey_id: a.to_dict() for a in client.apikeys})
+
+    @tornado.web.authenticated
+    def post(self):
+        with self.session() as session:
+            client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
+            if not client:
+                self._set_403(_CLIENT_MALFORMED)
+            apikey = APIKey(client=client)
+            session.add(apikey)

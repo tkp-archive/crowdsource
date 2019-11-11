@@ -1,6 +1,6 @@
 import {Widget} from "@phosphor/widgets";
 import {IRequestResult, request} from "requests-helper";
-import {LOGIN, LOGOUT, REGISTER} from "./define";
+import {APIKEYS, LOGIN, LOGOUT, REGISTER} from "./define";
 import {basepath} from "./utils";
 // tslint:disable max-classes-per-file no-namespace no-empty object-literal-sort-keys
 
@@ -43,7 +43,7 @@ class RegisterWidget extends BaseWidget {
                 password: (this.node.querySelector("input[type=password]") as HTMLInputElement).value};
     }
 
-    private register(e: Event): boolean {
+    private register(e: Event): void {
         e.preventDefault();
         request("post", basepath() + REGISTER, {}, this.getFormData()).then((res: IRequestResult) => {
             if (res.ok) {
@@ -52,7 +52,6 @@ class RegisterWidget extends BaseWidget {
                 console.error("register failed");
             }
         });
-        return false;
     }
 }
 
@@ -70,7 +69,7 @@ class LoginWidget extends BaseWidget {
                 password: (this.node.querySelector("input[type=password]") as HTMLInputElement).value};
     }
 
-    private login(e: Event): boolean {
+    private login(e: Event): void {
         e.preventDefault();
         request("post", basepath() + LOGIN, {}, this.getFormData()).then((res: IRequestResult) => {
             if (res.ok) {
@@ -81,7 +80,6 @@ class LoginWidget extends BaseWidget {
                 console.error("login failed");
             }
         });
-        return false;
     }
 }
 
@@ -94,7 +92,7 @@ class LogoutWidget extends BaseWidget {
         this.title.label = "Logout";
     }
 
-    private logout(e: Event): boolean {
+    private logout(e: Event): void {
         e.preventDefault();
         request("post", basepath() + LOGOUT).then((res: IRequestResult) => {
             if (res.ok) {
@@ -104,7 +102,6 @@ class LogoutWidget extends BaseWidget {
                 console.error("logout failed");
             }
         });
-        return true;
     }
 }
 
@@ -112,9 +109,45 @@ export
 class APIKeysWidget extends BaseWidget {
     constructor() {
         super({node: Private.createAPIKeysNode()});
-        // this.getForm().onsubmit = (e) => this.logout(e);
+        this.getForm().onsubmit = (e) => this.newKey(e);
         this.addClass("apikeys");
         this.title.label = "API Keys";
+    }
+
+    public onAfterAttach() {
+        request("get", basepath() + APIKEYS).then((res: IRequestResult) => {
+            if (res.ok) {
+                const table = this.getTable();
+                while (table.lastChild) {
+                    table.removeChild(table.lastChild);
+                }
+                const data = res.json() as {[key: string]: {[key: string]: string}};
+                let count = 0;
+                for (const k of Object.keys(data)) {
+                    const dat = data[k];
+                    Private.addAPIKeyTableRow(table, dat.apikey_id, dat.key, dat.secret);
+                    count++;
+                }
+                if (count === 0) {
+                    Private.addAPIKeyTableRow(table, "-", "-", "-");
+                }
+            }
+        });
+    }
+
+    private getTable(): HTMLDivElement {
+        return this.node.querySelector("div.table") as HTMLDivElement;
+    }
+
+    private newKey(e: Event): void {
+        e.preventDefault();
+        request("post", basepath() + APIKEYS).then((res: IRequestResult) => {
+            if (res.ok) {
+                this.onAfterAttach();
+            } else {
+                console.error("apikeys failed");
+            }
+        });
     }
 }
 
@@ -178,12 +211,41 @@ namespace Private {
 
     export function createAPIKeysNode(): HTMLDivElement {
         const node = document.createElement("div");
+        node.innerHTML =
+            "<h2>Active Keys</h2>\
+            <div class=\"table\"></div> \
+            <h2>Create New</h2>\
+            <form name=\"apikey\" action=\"\">\
+            <input type=\"submit\" value=\"Create\"></input>\
+            </form>";
         return node;
     }
 
     export function createSubmissionsNode(): HTMLDivElement {
         const node = document.createElement("div");
         return node;
+    }
+
+    export function addAPIKeyTableRow(table: HTMLDivElement, num: string, key: string, secret: string) {
+        const row = document.createElement("div");
+        row.innerHTML =
+            "<div>\
+            <label>No:</label>\
+            <label>" + num + "</label>\
+            </div>\
+            <div>\
+            <label>Key:</label>\
+            <input type=\"text\" value=\"" + key + "\"></input>\
+            </div>\
+            <div>\
+            <label>Secret:</label>\
+            <input type=\"text\" value=\"" + secret + "\"></input>\
+            </div>\
+            <div>\
+            <label>Delete:</label>\
+            <input type=\"submit\" value=\"Delete\"></input>\
+            </div>";
+        table.appendChild(row);
     }
 
 }

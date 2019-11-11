@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
 from traitlets import Int, Unicode, List, Bool
-from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, APIKeyHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
 
@@ -95,6 +95,7 @@ class Crowdsource(Application):
             (r"/api/v1/login", LoginHandler, context),
             (r"/api/v1/logout", LogoutHandler, context),
             (r"/api/v1/register", RegisterHandler, context),
+            (r"/api/v1/apikeys", APIKeyHandler, context),
             (r"/api/v1/competition", CompetitionHandler, context),
             (r"/api/v1/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
             (r"/api/v1/submission", SubmissionHandler, context),
