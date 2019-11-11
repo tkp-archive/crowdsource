@@ -1,3 +1,4 @@
+import tornado.escape
 import tornado.web
 import ujson
 from .base import ServerHandler
@@ -18,14 +19,24 @@ class RegisterHandler(ServerHandler):
 
     def post(self):
         '''Register a client. Client will be assigned a session id'''
-        with self.session() as session:
-            c = Client()
-            session.add(c)
-            session.commit()
-            session.refresh(c)
-            ret = self._login_post(c)
+        body = tornado.escape.json_decode(self.request.body or '{}')
+        username = self.get_argument('username', body.get('username', ''))
+        email = self.get_argument('email', body.get('email', ''))
+        password = self.get_argument('password', body.get('password', ''))
 
-        if ret:
-            self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
-        else:
+        if not username or not email or not password:
             self._set_403(_CLIENT_MALFORMED)
+
+        with self.session() as session:
+            c = Client(username=username, email=email, password=password)
+
+            try:
+                session.add(c)
+                session.commit()
+                session.refresh(c)
+                ret = self._login_post(c)
+                self._writeout(ujson.dumps(ret), _REGISTER, ret["client_id"])
+                return
+            except BaseException:
+                self._set_403(_CLIENT_MALFORMED)
+                return

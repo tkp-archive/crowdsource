@@ -15,10 +15,10 @@ Base = declarative_base()
 class Client(Base):
     __tablename__ = 'clients'
     client_id = Column(Integer, primary_key=True)
-    username = Column(String(100), nullable=False)
+    username = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
 
-    _email = Column("email", String)
+    _email = Column("email", String, nullable=False, unique=True)
 
     competitions = relationship('Competition', back_populates='client')
     submissions = relationship('Submission', back_populates='client')
@@ -29,11 +29,11 @@ class Client(Base):
 
     @email.setter
     def email(self, email):
-        #TODO validate
+        # TODO validate
         self._email = email
 
     def __repr__(self):
-        return "<User(id='%s')>" % self.client_id
+        return "<User(id='{}', username='{}')>".format(self.client_id, self.username)
 
 
 class Competition(Base):

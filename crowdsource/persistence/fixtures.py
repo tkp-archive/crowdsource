@@ -14,11 +14,16 @@ def main(sql_url):
     admin = Client(username='test',
                    password='test',
                    email='test@test.com')
-    session.add(admin)
-    session.commit()
-    session.refresh(admin)
+    try:
+        session.add(admin)
+        session.commit()
+        session.refresh(admin)
+        print('added admin: {}'.format(admin))
+    except BaseException:
+        session.rollback()
+        admin = session.query(Client).filter_by(username='test').first()
+        print('admin exists: {}'.format(admin))
 
-    print('added admin: {}'.format(admin))
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

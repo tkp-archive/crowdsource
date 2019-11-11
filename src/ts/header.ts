@@ -1,4 +1,5 @@
 import {Widget} from "@phosphor/widgets";
+import {basepath} from "./utils";
 
 export
 class Header extends Widget {
@@ -6,7 +7,7 @@ class Header extends Widget {
         const node = document.createElement("div");
         node.classList.add("header");
         const a = document.createElement("a");
-        a.href = (window as any).CONNECTION_CONFIG.basepath;
+        a.href = basepath();
 
         const img = document.createElement("img");
         img.src = a.href + "static/img/cs_cyan.png";

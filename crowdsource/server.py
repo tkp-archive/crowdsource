@@ -56,7 +56,7 @@ class Crowdsource(Application):
         session = self.sessionmaker()
         clients = session.query(Client).all()
 
-        self._clients = {c.id: c for c in clients}
+        self._clients = {c.client_id: c for c in clients}
         self._manager = PerspectiveManager()
 
         self._competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))

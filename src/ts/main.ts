@@ -2,11 +2,12 @@
 import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
-import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
+import {Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
+import {WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
-import {loggedIn} from "./utils";
-import {AboutWidget, LoginWidget, LogoutWidget, RegisterWidget} from "./widgets";
+import {checkLoggedIn, loggedIn, wspath} from "./utils";
+import {AboutWidget, APIKeysWidget, BaseWidget, LoginWidget, LogoutWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -15,15 +16,20 @@ export const commands = new CommandRegistry();
 
 export
 async function main() {
+    // see if logged in
+    await checkLoggedIn();
+
     // connect to perspective
-    const websocket = (perspective as any).websocket((window as any).CONNECTION_CONFIG.wspath + "api/v1/wscompetition");
+    const websocket = (perspective as any).websocket(wspath() + WSCOMPETITIONS);
     const table1 = websocket.open_table("competitions");
-    const table2 = websocket.open_table("submissions");
+    const table2 = websocket.open_table("past_competitions");
+    const table3 = websocket.open_table("submissions");
 
     // perspective workspace
     const workspace = new PerspectiveWorkspace();
-    const widget1 = new PerspectiveWidget("Competitions");
-    const widget2 = new PerspectiveWidget("Leaderboards");
+    const widget1 = new PerspectiveWidget("Active Competitions");
+    const widget2 = new PerspectiveWidget("Past Competitions");
+    const widget3 = new PerspectiveWidget("Leaderboards");
 
     // top bar
     const header = new Header();
@@ -34,8 +40,8 @@ async function main() {
     const login = new LoginWidget();
     const logout = new LogoutWidget();
     const register = new RegisterWidget();
-    const apikeys = new BoxPanel();
-    const submissions = new PerspectiveWidget("Submissions");
+    const apikeys = new APIKeysWidget();
+    const submissions = new SubmissionsWidget();
     const about = new AboutWidget();
 
     // main container
@@ -43,63 +49,73 @@ async function main() {
     mainPage.addWidget(workspace);
 
     // to track whats in side bar
-    let sidePanel: Widget = null;
+    let sidePanel: BaseWidget = null;
+    const closeWidget = (s: SidebarPanel) => {
+        s.close();
+        mainPage.setRelativeSizes([1]);
+    };
+    const sidebar = new SidebarPanel(closeWidget);
 
     // helper to clear sidebar
-    const setSidePanel = (name: string, w: Widget) => {
+    const setSidePanel = (w: BaseWidget) => {
+        // close currently open widget
         if (sidePanel) {
             sidePanel.close();
         }
-        const sidebar = new SidebarPanel(name, w, (s: SidebarPanel) => {
-            s.close();
-            mainPage.setRelativeSizes([1]);
-        });
-        sidebar.addClass("sidebar");
+
+        // add widget to sidebar
+        sidebar.addWidget(w);
+
+        // add sidebar to main page
         mainPage.addWidget(sidebar);
+
+        // set to 3/1
         mainPage.setRelativeSizes([3, 1]);
-        sidePanel = sidebar;
+
+        // set var to current widget
+        sidePanel = w;
     };
 
     /*
      *  Commands
      */
     commands.addCommand("about", {
-        execute: () => {setSidePanel("About", about); },
+        execute: () => {setSidePanel(about); },
         iconClass: "fa fa-question",
         isEnabled: () => true,
         label: "About",
     });
 
     commands.addCommand("register", {
-        execute: () => {setSidePanel("Register", register); },
+        execute: () => {setSidePanel(register); },
         iconClass: "fa fa-plus",
         isEnabled: () => !loggedIn(),
         label: "Register",
     });
 
     commands.addCommand("login", {
-        execute: () => {setSidePanel("Login", login); },
+        execute: () => {setSidePanel(login); },
         iconClass: "fa fa-sign-in",
         isEnabled: () => !loggedIn(),
         label: "Login",
     });
 
     commands.addCommand("logout", {
-        execute: () => {setSidePanel("Logout", logout); },
+        execute: () => {setSidePanel(logout); },
         iconClass: "fa fa-sign-out",
         isEnabled: loggedIn,
         label: "Logout",
     });
 
     commands.addCommand("apikeys", {
-        execute: () => {setSidePanel("API Keys", apikeys); },
+        execute: () => {setSidePanel(apikeys); },
         iconClass: "fa fa-cog",
         isEnabled: loggedIn,
         label: "API Keys",
     });
 
     commands.addCommand("submissions", {
-        execute: () => {setSidePanel("Submissions", submissions); },
+        execute: () => {setSidePanel(submissions); },
         iconClass: "fa fa-paper-plane",
         isEnabled: loggedIn,
         label: "Submissions",
@@ -121,7 +137,8 @@ async function main() {
 
     // Add tables to workspace
     workspace.addViewer(widget1, {});
-    workspace.addViewer(widget2, {mode: "split-bottom", ref: widget1});
+    workspace.addViewer(widget3, {mode: "split-bottom", ref: widget1});
+    workspace.addViewer(widget2, {mode: "split-right", ref: widget1});
 
     // Attach parts to dom
     Widget.attach(header, document.body);
@@ -131,6 +148,7 @@ async function main() {
     // Load perspective tables
     widget1.load(table1);
     widget2.load(table2);
+    widget3.load(table3);
 
     window.onresize = () => {
         workspace.update();
