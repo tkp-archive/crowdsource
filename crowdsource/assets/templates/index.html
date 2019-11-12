@@ -6,11 +6,14 @@
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Orbitron">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
-
 <link href='{{basepath + "static/css/root.css"}}' rel="stylesheet">
 <link href='{{basepath + "static/css/index.css"}}' rel="stylesheet">
 <link href='{{basepath + "static/css/font-awesome.min.css"}}' rel="stylesheet">
 <link rel="shortcut icon" type="image/png" href='{{basepath + "static/img/cs_cyan.png" }}'/>
+<script>
+    window.CONNECTION_CONFIG={basepath: '{{basepath}}', wspath: '{{wspath}}'};
+    window.user = "{{current_user}}";
+</script>
 
 </head>
 <body>

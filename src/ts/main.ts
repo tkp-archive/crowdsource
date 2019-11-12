@@ -6,7 +6,7 @@ import {Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
 import {WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
-import {checkLoggedIn, loggedIn, wspath} from "./utils";
+import {loggedIn, wspath} from "./utils";
 import {AboutWidget, APIKeysWidget, BaseWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
         NewSubmissionWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
@@ -18,9 +18,6 @@ export const commands = new CommandRegistry();
 
 export
 async function main() {
-    // see if logged in
-    await checkLoggedIn();
-
     // connect to perspective
     const websocket = (perspective as any).websocket(wspath() + WSCOMPETITIONS);
     const table1 = websocket.open_table("competitions");

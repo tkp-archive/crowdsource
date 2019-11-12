@@ -10,7 +10,7 @@ class LoginHandler(ServerHandler):
         if self.current_user:
             self.redirect('api/v1/register')
         else:
-            self.redirect('login')
+            self.redirect(self.basepath + "home")
 
     def post(self):
         '''Login'''
@@ -45,6 +45,7 @@ class LogoutHandler(ServerHandler):
     def get(self):
         '''clear cookie'''
         self.clear_cookie("user")
+        self.redirect(self.basepath + "home")
 
     def post(self):
         '''Get the logout page'''

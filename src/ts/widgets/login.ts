@@ -19,17 +19,15 @@ class LoginWidget extends BaseWidget {
                 password: (this.node.querySelector("input[type=password]") as HTMLInputElement).value};
     }
 
-    private login(e: Event): void {
-        e.preventDefault();
+    private login(e: Event): boolean {
         request("post", basepath() + LOGIN, {}, this.getFormData()).then((res: IRequestResult) => {
             if (res.ok) {
-                const username = (res.json() as {[key: string]: string}).username;
-                (window as any).user = username;
                 this.close();
             } else {
                 console.error("login failed");
             }
         });
+        return true;
     }
 }
 
@@ -42,16 +40,15 @@ class LogoutWidget extends BaseWidget {
         this.title.label = "Logout";
     }
 
-    private logout(e: Event): void {
-        e.preventDefault();
+    private logout(e: Event): boolean {
         request("post", basepath() + LOGOUT).then((res: IRequestResult) => {
             if (res.ok) {
-                (window as any).user = undefined;
                 this.close();
             } else {
                 console.error("logout failed");
             }
         });
+        return true;
     }
 }
 
@@ -59,7 +56,7 @@ namespace Private {
     export function createLoginNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
-            "<form name=\"login\" action=\"\">\
+            "<form name=\"login\" action=\"" + basepath() + LOGIN + "\">\
             <label>Login</label> \
             <input type=\"text\" placeholder=\"username\" autocomplete=\"username\" required></input>\
             <label>Password</label> \
@@ -72,7 +69,7 @@ namespace Private {
     export function createLogoutNode(): HTMLDivElement {
         const node = document.createElement("div");
         node.innerHTML =
-            "<form name=\"logout\" action=\"\">\
+            "<form name=\"logout\" action=\"" + basepath() + LOGOUT + "\">\
             <input type=\"submit\" value=\"Logout\"></input>\
             </form>";
         return node;
