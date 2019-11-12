@@ -55,6 +55,9 @@ async function main() {
         mainPage.setRelativeSizes([1]);
     };
     const sidebar = new SidebarPanel(closeWidget);
+    window.onresize = () => {
+        mainPage.update();
+    }
 
     // helper to clear sidebar
     const setSidePanel = (w: BaseWidget) => {
