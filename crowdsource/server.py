@@ -86,9 +86,6 @@ class Crowdsource(Application):
             (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
             (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
             (r"/home", HTMLOpenHandler, {'template': 'home.html', 'context': context}),
-            (r"/login", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
-            (r"/register", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
-            (r"/logout", HTMLOpenHandler, {'template': 'logout.html', 'context': context}),
         ]
 
         default_handlers.extend([
