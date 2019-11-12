@@ -1,7 +1,7 @@
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, Client
+from .models import Base, Client, APIKey
 
 
 def main(sql_url):
@@ -19,6 +19,11 @@ def main(sql_url):
         session.commit()
         session.refresh(admin)
         print('added admin: {}'.format(admin))
+        key = APIKey(client=admin)
+        session.add(key)
+        session.commit()
+        session.refresh(key)
+        print('added apikey: {}'.format(key))
     except BaseException:
         session.rollback()
         admin = session.query(Client).filter_by(username='test').first()

@@ -7,7 +7,9 @@ import {WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
 import {checkLoggedIn, loggedIn, wspath} from "./utils";
-import {AboutWidget, APIKeysWidget, BaseWidget, LoginWidget, LogoutWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
+import {AboutWidget, APIKeysWidget, BaseWidget,
+        LoginWidget, LogoutWidget, NewCompetitionWidget,
+        NewSubmissionWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -43,6 +45,8 @@ async function main() {
     const apikeys = new APIKeysWidget();
     const submissions = new SubmissionsWidget();
     const about = new AboutWidget();
+    const newcompetition = new NewCompetitionWidget();
+    const newsubmission = new NewSubmissionWidget();
 
     // main container
     const mainPage = new SplitPanel({orientation: "horizontal"});
@@ -88,7 +92,7 @@ async function main() {
 
     commands.addCommand("register", {
         execute: () => {setSidePanel(register); },
-        iconClass: "fa fa-plus",
+        iconClass: "fa fa-key",
         isEnabled: () => !loggedIn(),
         label: "Register",
     });
@@ -121,6 +125,20 @@ async function main() {
         label: "Submissions",
     });
 
+    commands.addCommand("new:competition", {
+        execute: () => {setSidePanel(newcompetition); },
+        iconClass: "fa fa-plus",
+        isEnabled: () => loggedIn(),
+        label: "New Competition",
+    });
+
+    commands.addCommand("new:submission", {
+        execute: () => {setSidePanel(newsubmission); },
+        iconClass: "fa fa-plus",
+        isEnabled: () => loggedIn(),
+        label: "New Submission",
+    });
+
     // Construct top menu
     menubar.addClass("topmenu");
     const menu = new Menu({commands});
@@ -133,6 +151,13 @@ async function main() {
     menu.addItem({ command: "logout"});
     menu.addItem({ command: "apikeys"});
     menu.addItem({ command: "submissions"});
+
+    const addmenu = new Menu({commands});
+    addmenu.addClass("settings");
+    addmenu.title.label = "New";
+    addmenu.addItem({ command: "new:competition"});
+    addmenu.addItem({ command: "new:submission"});
+    menu.addItem({type: "submenu", submenu: addmenu});
     menubar.addMenu(menu);
 
     // Add tables to workspace

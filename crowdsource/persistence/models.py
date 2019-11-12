@@ -51,6 +51,9 @@ class APIKey(Base):
         return {"key": secrets.token_urlsafe(TOKEN_WIDTH),
                 "secret": secrets.token_urlsafe(TOKEN_WIDTH)}
 
+    def __repr__(self):
+        return "<Key(id='{}', key='{}', secret='***')>".format(self.apikey_id, self.key)
+
     def to_dict(self):
         ret = {}
         for item in ("apikey_id", "client_id", "key", "secret"):
