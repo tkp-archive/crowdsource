@@ -38,7 +38,7 @@ class LoginHandler(ServerHandler):
 
     def login(self, client):
         ret = self._login_post(client)
-        self._writeout(ujson.dumps(ret), "Registering client {}", ret["client_id"])
+        self._writeout(ujson.dumps(ret), "Registering client %s", ret["client_id"])
 
 
 class LogoutHandler(ServerHandler):

@@ -150,5 +150,8 @@ async function main() {
     widget2.load(table2);
     widget3.load(table3);
 
+    window.onresize = () => {
+        mainPage.update();
+    };
     (window as any).workspace = workspace;
 }

@@ -8,19 +8,15 @@ const loggedIn = () => {
 
 export
 const checkLoggedIn = async () => {
-    if ((window as any).user) {
-        return (window as any).user;
-    } else {
-        request("post", basepath() + LOGIN, {}, {}).then((res: IRequestResult) => {
-            if (res.ok) {
-                const username = (res.json() as {[key: string]: string}).username;
-                (window as any).user = username;
-                return username;
-            } else {
-                return undefined;
-            }
-        });
-    }
+    request("post", basepath() + LOGIN, {}, {}).then((res: IRequestResult) => {
+        if (res.ok) {
+            const username = (res.json() as {[key: string]: string}).username;
+            (window as any).user = username;
+            return username;
+        } else {
+            return undefined;
+        }
+    });
 };
 
 export
