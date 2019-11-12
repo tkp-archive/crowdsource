@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
 from traitlets import Int, Unicode, List, Bool
-from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, APIKeyHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
 
@@ -56,7 +56,7 @@ class Crowdsource(Application):
         session = self.sessionmaker()
         clients = session.query(Client).all()
 
-        self._clients = {c.id: c for c in clients}
+        self._clients = {c.client_id: c for c in clients}
         self._manager = PerspectiveManager()
 
         self._competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
@@ -85,16 +85,17 @@ class Crowdsource(Application):
         default_handlers = [
             (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
             (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
-            (r"/home", HTMLOpenHandler, {'template': 'home.html',  'context': context}),
-            (r"/login", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
-            (r"/register", HTMLOpenHandler, {'template': 'login.html',  'context': context}),
-            (r"/logout", HTMLOpenHandler, {'template': 'logout.html',  'context': context}),
+            (r"/home", HTMLOpenHandler, {'template': 'home.html', 'context': context}),
+            (r"/login", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
+            (r"/register", HTMLOpenHandler, {'template': 'login.html', 'context': context}),
+            (r"/logout", HTMLOpenHandler, {'template': 'logout.html', 'context': context}),
         ]
 
         default_handlers.extend([
             (r"/api/v1/login", LoginHandler, context),
             (r"/api/v1/logout", LogoutHandler, context),
             (r"/api/v1/register", RegisterHandler, context),
+            (r"/api/v1/apikeys", APIKeyHandler, context),
             (r"/api/v1/competition", CompetitionHandler, context),
             (r"/api/v1/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
             (r"/api/v1/submission", SubmissionHandler, context),
@@ -112,11 +113,11 @@ class Crowdsource(Application):
                     default_handlers[i] = (handler[0], handler[1], d)
 
         settings = {
-                "cookie_secret": self.cookie_secret,
-                "login_url": self.basepath + "login",
-                "debug": self.debug,
-                "template_path": os.path.join(root, 'templates'),
-                }
+            "cookie_secret": self.cookie_secret,
+            "login_url": self.basepath + "login",
+            "debug": self.debug,
+            "template_path": os.path.join(root, 'templates'),
+        }
 
         application = tornado.web.Application(default_handlers, **settings)
 

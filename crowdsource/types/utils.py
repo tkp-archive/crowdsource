@@ -218,9 +218,16 @@ def checkAnswer(submission):
     dataset_kwargs = competition.dataset_kwargs
 
     # grab answer if possible
-    if isinstance(answer, string_types):
+    if isinstance(answer, string_types) and not answer:
+        # look at dataset for answer
+        answer = competition.dataset
+        answer_type = competition.dataset_type
+
+    if isinstance(answer, string_types) and validators.url(answer):
         real_answer = _fetchDataset(answer, answer_type, **dataset_kwargs)
     else:
+        if isinstance(answer, string_types):
+            answer = ujson.loads(answer)
         real_answer = pd.DataFrame(answer)
     ####
 
@@ -229,9 +236,11 @@ def checkAnswer(submission):
     user_answer_type = submission.answer_type
 
     # grab user answer if possible
-    if isinstance(user_answer, string_types):
+    if isinstance(user_answer, string_types) and validators.url(user_answer):
         real_user_answer = _fetchDataset(user_answer, user_answer_type, **dataset_kwargs)
     else:
+        if isinstance(user_answer, string_types):
+            user_answer = ujson.loads(user_answer)
         real_user_answer = pd.DataFrame(user_answer)
     ####
 
@@ -266,4 +275,4 @@ def _metric(metric, x, y, **kwargs):
     if metric == CompetitionMetric.LOGLOSS:
         return log_loss(x.values, y.values, **kwargs)
     else:
-        return (x.values-y.values).sum(1)[0]
+        return (x.values - y.values).sum(1)[0]

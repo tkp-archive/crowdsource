@@ -9,20 +9,6 @@ import requests
 import tornado
 import ujson
 
-_SKIP_REREGISTER = 'Skipping re-registration for client %s'
-_REGISTER = 'Registering client %s'
-_REGISTER_COMPETITION = 'Registering competition %s from %s'
-_REGISTER_SUBMISSION = 'New Submission %s from %s'
-_FORBIDDEN = 'Forbidden'
-_CLIENT_NO_ID = 'Client did not provide id'
-_CLIENT_NOT_REGISTERED = 'Client not registered'
-_CLIENT_MALFORMED = 'Client Malformed'
-_COMPETITION_NO_ID = 'Client did not provide competition id'
-_COMPETITION_NOT_REGISTERED = 'Competition not registered/active'
-_COMPETITION_MALFORMED = 'Client provided malformed competition'
-_NO_SUBMISSION = 'Client provided no submission'
-_SUBMISSION_MALFORMED = 'Client provided malformed submission'
-
 
 def parse_body(req, **fields):
     try:

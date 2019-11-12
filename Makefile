@@ -11,7 +11,7 @@ bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
 tests: ## Clean and Make unit tests
-	python3 -m pytest -v tests/ --cov=crowdsource
+	python3 -m pytest -vvv tests/ --cov=crowdsource
 
 test: clean lint ## run the tests for travis CI
 	python3 -m pytest -v tests/ --cov=crowdsource
@@ -27,21 +27,28 @@ lint: ## run linter
 	flake8 crowdsource
 	yarn lint
 
+fix:  ## run autopep8
+	autopep8 --in-place -r -a -a crowdsource/
+	./node_modules/.bin/tslint --fix src/ts/*
+
 js:  ## build the js
 	yarn
 	yarn build
 
-db:  ## Remake the db
-	echo crowdsource > tmppw
-	initdb -D db/ -A md5  -U cs --pwfile=tmppw
-	rm tmppw
-	sed -i -le 's/\#port\ \=\ 5432/port\ \=\ 8890/' db/postgresql.conf
-	pg_ctl -D db -l logfile start
-	createdb -O cs cs -E utf-8 -U cs -p 8890
+fixtures:  ## make db fixtures
+	python3 -m crowdsource.persistence.fixtures sqlite:///crowdsource.db
 
-migrations:  ## apply migrations to the db
-	python3 crowdsource/persistence/migrations/0001.py
-	python3 crowdsource/persistence/migrations/0002.py
+# db:  ## Remake the db
+# 	echo crowdsource > tmppw
+# 	initdb -D db/ -A md5  -U cs --pwfile=tmppw
+# 	rm tmppw
+# 	sed -i -le 's/\#port\ \=\ 5432/port\ \=\ 8890/' db/postgresql.conf
+# 	pg_ctl -D db -l logfile start
+# 	createdb -O cs cs -E utf-8 -U cs -p 8890
+
+# migrations:  ## apply migrations to the db
+# 	python3 crowdsource/persistence/migrations/0001.py
+# 	python3 crowdsource/persistence/migrations/0002.py
 
 clean: ## clean the repository
 	find . -name "__pycache__" | xargs  rm -rf 

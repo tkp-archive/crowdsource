@@ -5,10 +5,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
 
-from crowdsource.types.submission import SubmissionSpec
 from crowdsource.types.utils import _metric, checkAnswer, fetchDataset, answerPrototype
-from crowdsource.structs import CompetitionStruct, SubmissionStruct
+from crowdsource.persistence.models import Competition, Submission
 from crowdsource.types.competition import CompetitionSpec
+from crowdsource.types.submission import SubmissionSpec
 from crowdsource.enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 
@@ -77,10 +77,9 @@ class TestUtils:
                                       dataset=pd.DataFrame(dataset[0]),
                                       metric=CompetitionMetric.LOGLOSS,
                                       answer=pd.DataFrame(dataset[1]))
-        d = competition.to_dict()
-        c2 = CompetitionStruct(1, 2, d)
-        d2 = {'competitionId': 2, 'answer': pd.DataFrame(dataset[1]).to_json(), 'answer_type': DatasetFormat.JSON}
-        s = SubmissionStruct(1, 2, 3, c2, d2, 1)
+        c2 = Competition.from_spec(1, competition)
+        d2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': pd.DataFrame(dataset[1]).to_json(), 'answer_type': DatasetFormat.JSON})
+        s = Submission.from_spec(1, 2, c2, d2)
 
         checkAnswer(s)
 
@@ -95,15 +94,12 @@ class TestUtils:
                                       targets=dataset.columns[-1],
                                       answer=dataset.iloc[-1:],
                                       when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
-        d = competition.to_dict()
-        c2 = CompetitionStruct(1, 2, d)
 
-        ans = foo3(CompetitionSpec.from_dict(d))
-
+        c2 = Competition.from_spec(1, competition)
+        ans = foo3(competition)
         print(ans)
-
-        d2 = {'competitionId': 2, 'answer': ans.to_json(), 'answer_type': DatasetFormat.JSON}
-        s = SubmissionStruct(1, 2, 3, c2, d2, 1)
+        d2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': ans.to_json(), 'answer_type': DatasetFormat.JSON})
+        s = Submission.from_spec(1, 2, c2, d2)
 
         checkAnswer(s)
 
@@ -121,12 +117,9 @@ class TestUtils:
                                       targets=['availableBikes', 'availableDocks'],
                                       expiration=exp)
 
-        d = competition.to_dict()
-        c2 = CompetitionStruct(1, 2, d)
-
-        ans = foo5(CompetitionSpec.from_dict(d))
-
-        d2 = {'competitionId': 2, 'answer': ans.to_json(orient='records'), 'answer_type': DatasetFormat.JSON}
-        s = SubmissionStruct(1, 2, 3, c2, d2, 1)
+        c2 = Competition.from_spec(1, competition)
+        ans = foo5(competition)
+        s2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': ans.to_json(orient='records'), 'answer_type': DatasetFormat.JSON})
+        s = Submission.from_spec(1, 2, c2, s2)
 
         checkAnswer(s)

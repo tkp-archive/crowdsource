@@ -6,7 +6,17 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
- 
+ ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--light);
+}
+
+
 body {
   display: flex;
   flex-direction: column;
@@ -18,6 +28,17 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+
+input[type=submit] {
+  background-color: var(--dark);
+  color: var(--fontlight);
+  height: 40px;
+  font-size: 18px;
+}
+
+input[type=submit]:hover {
+  background-color: var(--darkest);
 }
 
 div.header {
@@ -44,7 +65,7 @@ div.topmenu.p-mod-active {
 }
 
 div.topmenu div.p-MenuBar-itemLabel {
-  color: #c0c0c0;
+  color: var(--lightfont);
 }
 
 div.topmenu ul.p-MenuBar-content {
@@ -65,7 +86,7 @@ div.settings {
 }
 
 div.settings {
-  border: 1px solid #c0c0c0;
+  border: 1px solid var(--lightfont);
 }
 
 div.settings > ul > li > div.p-Menu-itemIcon::before {
@@ -73,22 +94,64 @@ div.settings > ul > li > div.p-Menu-itemIcon::before {
 }
 
 div.settings li.p-Menu-item {
-  color: #c0c0c0;
+  color: var(--lightfont);
 }
 
 div.settings li.p-Menu-item.p-mod-disabled {
-  color: #737373;
+  color: var(--darkfont);
 }
 
 div.sidebar {
   margin: 0px;
-  color: #c0c0c0;
+  color: var(--lightfont);
 }
 
-div.about {
-  padding: 10px;
-}
-div.about > div {
+div.sidebar > div.sidebar > * {
   display: flex;
   flex-direction: column;
+  padding: 5px;
+}
+
+div.sidebar > div.sidebar > * > input[type=submit] {
+  margin-top: 10px;
+}
+
+div.sidebar > div.apikeys > h2 {
+  margin-bottom: 0px;
+}
+
+div.sidebar > div.apikeys > div.table {
+  display: flex;
+  flex-direction: column;
+  max-height: 50%;
+  table-layout: fixed;
+  margin: 5px;
+  border: 1px solid var(--lightfont);
+  overflow: scroll;
+}
+
+// api key
+div.sidebar > div.apikeys > div.table > div {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+// api key column
+div.sidebar > div.apikeys > div.table > div > div {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+div.sidebar > div.apikeys > div.table > div > div > label, 
+div.sidebar > div.apikeys > div.table > div > div > input {
+  flex: 1;
+}
+
+div.sidebar > div.apikeys > div.table > div > div > input[type=submit] {
+  padding: 2px;
+  height: 100%;
+  width: 100%;
+  font-size: 12px;
 }

@@ -2,10 +2,12 @@
 import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
-import {BoxPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {AboutWidget} from "./widgets";
+import {Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
+import {WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
+import {checkLoggedIn, loggedIn, wspath} from "./utils";
+import {AboutWidget, APIKeysWidget, BaseWidget, LoginWidget, LogoutWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -14,15 +16,20 @@ export const commands = new CommandRegistry();
 
 export
 async function main() {
+    // see if logged in
+    await checkLoggedIn();
+
     // connect to perspective
-    const websocket = (perspective as any).websocket((window as any).CONNECTION_CONFIG.wspath + "api/v1/wscompetition");
+    const websocket = (perspective as any).websocket(wspath() + WSCOMPETITIONS);
     const table1 = websocket.open_table("competitions");
-    const table2 = websocket.open_table("submissions");
+    const table2 = websocket.open_table("past_competitions");
+    const table3 = websocket.open_table("submissions");
 
     // perspective workspace
     const workspace = new PerspectiveWorkspace();
-    const widget1 = new PerspectiveWidget("Competitions");
-    const widget2 = new PerspectiveWidget("Leaderboards");
+    const widget1 = new PerspectiveWidget("Active Competitions");
+    const widget2 = new PerspectiveWidget("Past Competitions");
+    const widget3 = new PerspectiveWidget("Leaderboards");
 
     // top bar
     const header = new Header();
@@ -30,78 +37,87 @@ async function main() {
     const menubar = new MenuBar();
 
     // configuration pages
-    const login = new BoxPanel();
-    const logout = new BoxPanel();
-    const register = new BoxPanel();
-    const apikeys = new BoxPanel();
-    const submissions = new PerspectiveWidget("Submissions");
+    const login = new LoginWidget();
+    const logout = new LogoutWidget();
+    const register = new RegisterWidget();
+    const apikeys = new APIKeysWidget();
+    const submissions = new SubmissionsWidget();
     const about = new AboutWidget();
 
     // main container
-    const main = new SplitPanel({orientation: "horizontal"});
-    main.addWidget(workspace);
+    const mainPage = new SplitPanel({orientation: "horizontal"});
+    mainPage.addWidget(workspace);
 
     // to track whats in side bar
-    let side_panel: Widget = null;
+    let sidePanel: BaseWidget = null;
+    const closeWidget = (s: SidebarPanel) => {
+        s.close();
+        mainPage.setRelativeSizes([1]);
+    };
+    const sidebar = new SidebarPanel(closeWidget);
 
     // helper to clear sidebar
-    const setSidePanel = (name: string, w: Widget) => {
-        if (side_panel){
-            side_panel.close();
+    const setSidePanel = (w: BaseWidget) => {
+        // close currently open widget
+        if (sidePanel) {
+            sidePanel.close();
         }
-        const sidebar = new SidebarPanel(name, w, (s: SidebarPanel) => {
-            s.close();
-            main.setRelativeSizes([1]);
-        });
-        sidebar.addClass("sidebar");
-        main.addWidget(sidebar);
-        main.setRelativeSizes([3, 1]);
-        side_panel = sidebar;
+
+        // add widget to sidebar
+        sidebar.addWidget(w);
+
+        // add sidebar to main page
+        mainPage.addWidget(sidebar);
+
+        // set to 3/1
+        mainPage.setRelativeSizes([3, 1]);
+
+        // set var to current widget
+        sidePanel = w;
     };
 
-
-    /* 
+    /*
      *  Commands
      */
     commands.addCommand("about", {
-        execute: () => {setSidePanel("About", about)},
+        execute: () => {setSidePanel(about); },
         iconClass: "fa fa-question",
         isEnabled: () => true,
         label: "About",
     });
 
     commands.addCommand("register", {
-        execute: () => {setSidePanel("Register", register)},
+        execute: () => {setSidePanel(register); },
         iconClass: "fa fa-plus",
-        isEnabled: () => true,
+        isEnabled: () => !loggedIn(),
         label: "Register",
     });
 
     commands.addCommand("login", {
-        execute: () => {setSidePanel("Login", login)},
+        execute: () => {setSidePanel(login); },
         iconClass: "fa fa-sign-in",
-        isEnabled: () => true,
+        isEnabled: () => !loggedIn(),
         label: "Login",
     });
 
     commands.addCommand("logout", {
-        execute: () => {setSidePanel("Logout", logout)},
+        execute: () => {setSidePanel(logout); },
         iconClass: "fa fa-sign-out",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "Logout",
     });
 
     commands.addCommand("apikeys", {
-        execute: () => {setSidePanel("API Keys", apikeys)},
+        execute: () => {setSidePanel(apikeys); },
         iconClass: "fa fa-cog",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "API Keys",
     });
 
     commands.addCommand("submissions", {
-        execute: () => {setSidePanel("Submissions", submissions)},
+        execute: () => {setSidePanel(submissions); },
         iconClass: "fa fa-paper-plane",
-        isEnabled: () => false,
+        isEnabled: loggedIn,
         label: "Submissions",
     });
 
@@ -121,20 +137,18 @@ async function main() {
 
     // Add tables to workspace
     workspace.addViewer(widget1, {});
-    workspace.addViewer(widget2, {mode: "split-bottom", ref: widget1});
+    workspace.addViewer(widget3, {mode: "split-bottom", ref: widget1});
+    workspace.addViewer(widget2, {mode: "split-right", ref: widget1});
 
     // Attach parts to dom
     Widget.attach(header, document.body);
     Widget.attach(menubar, document.body);
-    Widget.attach(main, document.body);
+    Widget.attach(mainPage, document.body);
 
     // Load perspective tables
     widget1.load(table1);
     widget2.load(table2);
-
-    window.onresize = () => {
-        workspace.update();
-    };
+    widget3.load(table3);
 
     (window as any).workspace = workspace;
 }

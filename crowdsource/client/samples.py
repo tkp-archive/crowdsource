@@ -50,7 +50,7 @@ def predict1(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   targets=dataset.columns[-1],
                                   answer=dataset.iloc[-1:],
-                                  when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
+                                  when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime) / 1000000000))
     resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
@@ -65,7 +65,7 @@ def predict2(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   answer=dataset.iloc[-1:],
                                   targets=dataset.columns,
-                                  when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
+                                  when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime) / 1000000000))
     resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
@@ -91,7 +91,7 @@ def answerPredict1(competitionSpec, *args, **kwargs):
         y = data[col].values.reshape(len(data[col]), 1)
         reg.fit(x, y)
 
-        ans.loc[when, col] = reg.predict([[when.timestamp() if hasattr(when, 'timestamp') else float((time.mktime(when.timetuple())+when.microsecond/1000000.0))]])
+        ans.loc[when, col] = reg.predict([[when.timestamp() if hasattr(when, 'timestamp') else float((time.mktime(when.timetuple()) + when.microsecond / 1000000.0))]])
 
     return ans
 

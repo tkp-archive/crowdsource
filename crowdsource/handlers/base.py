@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 class ServerHandler(tornado.web.RequestHandler):
     '''Just a default handler'''
+
     def get_current_user(self):
         return self.get_secure_cookie('user')
 
@@ -40,19 +41,19 @@ class ServerHandler(tornado.web.RequestHandler):
         return validation_method(self) if validation_method else {}
 
     def _login_post(self, client):
-        if client and client.id and client.id in self._clients:
+        if client and client.client_id and client.client_id in self._clients:
             self._set_login_cookie(client)
-            return {'id': str(client.id)}
+            return {'client_id': str(client.client_id), 'username': client.username}
 
         elif client and client.id:
-            self._clients[client.id] = client
+            self._clients[client.client_id] = client
             self._set_login_cookie(client)
-            return {'id': str(client.id)}
+            return {'client_id': str(client.client_id), 'username': client.username}
         else:
             return False
 
     def _set_login_cookie(self, client):
-        self.set_secure_cookie('user', str(client.id))
+        self.set_secure_cookie('user', str(client.client_id))
 
     @contextmanager
     def session(self):

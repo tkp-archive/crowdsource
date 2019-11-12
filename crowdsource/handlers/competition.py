@@ -1,11 +1,9 @@
-import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
 from .validate import validate_competition_get, validate_competition_post
 from ..types.competition import CompetitionSpec
 from ..persistence.models import Competition
-from ..utils import _REGISTER_COMPETITION, _COMPETITION_MALFORMED
 
 
 class CompetitionHandler(ServerHandler):
@@ -16,14 +14,14 @@ class CompetitionHandler(ServerHandler):
         with self.session() as session:
             competitions = session.query(Competition).all()
             for c in competitions:
-                id = data.get('id', ())
+                competition_id = data.get('competition_id', ())
                 clid = data.get('client_id', ())
                 t = data.get('type', ())
 
-                if id and c.id not in id:
+                if competition_id and c.competition_id not in competition_id:
                     continue
 
-                if clid and c.clientId not in clid:
+                if clid and c.client_id not in clid:
                     continue
 
                 if t and c.spec.type not in t:
@@ -39,28 +37,28 @@ class CompetitionHandler(ServerHandler):
                 res.append(c.to_dict())
 
         page = int(data.get('page', 0))
-        self.write(ujson.dumps(res[page*100:(page+1)*100]))  # return top 100
+        self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
         data = self._validate(validate_competition_post)
 
         # generate a new ID
-        client_id = data['id']
+        client_id = data['client_id']
         try:
             spec = CompetitionSpec.from_dict(data["spec"])
             comp = Competition.from_spec(client_id=client_id, spec=spec)
         except (KeyError, ValueError):
-            self._set_400(_COMPETITION_MALFORMED)
+            self._set_400("Competition malformed")
 
         with self.session() as session:
             session.add(comp)
             session.commit()
             session.refresh(comp)
 
-            if comp.id:
+            if comp.competition_id:
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'id': str(comp.id)}), _REGISTER_COMPETITION, comp.id, comp.client_id)
+                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong {} for client {}", comp.competition_id, comp.client_id)
             else:
-                self._set_400(_COMPETITION_MALFORMED)
+                self._set_400("Competition malformed")
