@@ -32,7 +32,6 @@ def _fetchDataset(data, data_type, record_column='', cookies=None, proxies=None,
         resp = requests.get(data, cookies=cookies, proxies=proxies)
         if resp.status_code != 200:
             raise MalformedDataset()
-
         if record_column:
             df1 = pd.DataFrame(resp.json())
             df2 = json_normalize(resp.json(), record_column)
@@ -54,6 +53,8 @@ def answerPrototype(spec, dataset=None):
 
     type = spec.type
     targets = spec.targets
+    if isinstance(targets, string_types):
+        targets = ujson.loads(targets)
 
     key = spec.dataset_key
     when = spec.when

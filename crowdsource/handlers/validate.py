@@ -27,11 +27,8 @@ def validate_competition_get(handler):
 
 def validate_competition_post(handler):
     data = parse_body(handler.request)
-    if not data.get('competition_id'):
-        handler._set_400('Client no id')
-
-    if int(data.get('competition_id', '-1')) not in handler._clients:
-        handler._set_400('Client not registered')
+    if not handler.get_current_user() or int(handler.get_current_user()) not in handler._clients:
+        handler._set_401('Client no id')
 
     if data.get('spec', None) is None:
         handler._set_400('Competition malformed')
@@ -65,11 +62,8 @@ def validate_submission_get(handler):
 def validate_submission_post(handler):
     data = parse_body(handler.request)
 
-    if not data.get('client_id'):
-        handler._set_400('Client no id')
-
-    if int(data.get('client_id', '-1')) not in handler._clients:
-        handler._set_400('Client not registered')
+    if not handler.get_current_user() or int(handler.get_current_user()) not in handler._clients:
+        handler._set_401('Client no id')
 
     if not data.get('competition_id'):
         handler._set_400('Competition no id')

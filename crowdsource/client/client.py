@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import threading
 import time
@@ -34,7 +35,7 @@ class Thread(threading.Thread):
 
 
 class Client(SamplesMixin, HasTraits):
-    def __init__(self, serverHost, id=None, cookies=None, proxies=None):
+    def __init__(self, serverHost, key=None, secret=None, cookies=None, proxies=None):
         '''Constructor for client object
 
         Client is the primary API interface for
@@ -42,14 +43,16 @@ class Client(SamplesMixin, HasTraits):
 
         Arguments:
             serverhost {str} -- IP/port of the competition server
-            id {str} -- participant id (if known and registering on private server)
-            passphrase {str} -- participant password (if applicable)
+            key {str} -- participant api key - key
+            secret {str} -- participant api key - secret
         '''
         self._host = serverHost
 
-        self._id = id if id else None
+        self._key = key or os.environ["CROWDSOURCE_KEY"]
+        self._secret = secret or os.environ["CROWDSOURCE_SECRET"]
         self._cookies = cookies if cookies else None
         self._proxies = proxies if proxies else None
+        self._am_registered = False
 
         self.register()
 
@@ -61,18 +64,9 @@ class Client(SamplesMixin, HasTraits):
 
     def register(self):
         '''Register client with the competitions host'''
-        if not self._am_registered():
-            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/v1/register'), data={}, cookies=self._cookies, proxies=self._proxies)
-        else:
-            # attempt to login in case of disconnect
-            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/v1/login'), data={'id': self._id} if self._id else {}, cookies=self._cookies, proxies=self._proxies)
-
-        self._id = resp.get('id')
+        if not self._am_registered:
+            resp, cookies = safe_post_cookies(construct_path(self._host, 'api/v1/login'), data={"key": self._key, "secret": self._secret}, cookies=self._cookies, proxies=self._proxies)
         self._cookies = cookies
-        return self._id
-
-    def _am_registered(self):
-        return hasattr(self, '_id') and self._id is not None
 
     def start_competition(self, competition):
         '''Host a competition
@@ -85,7 +79,7 @@ class Client(SamplesMixin, HasTraits):
 
         self.register()
         resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/competition'),
-                                    data=ujson.dumps({'client_id': self._id, 'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
+                                    data=ujson.dumps({'spec': competition.to_dict()}), cookies=self._cookies, proxies=self._proxies)
         self._my_competitions.append(resp)
 
     def compete(self, competitionType, callback, **callbackArgs):
@@ -201,7 +195,7 @@ class Client(SamplesMixin, HasTraits):
         if not isinstance(submission, SubmissionSpec):
             submission = SubmissionSpec(competitionId, submission, submission_format)
         resp, _ = safe_post_cookies(construct_path(self._host, 'api/v1/submission'),
-                                    data=ujson.dumps({'client_id': self._id, 'competition_id': competitionId, 'submission': submission.to_dict()}),
+                                    data=ujson.dumps({'competition_id': competitionId, 'submission': submission.to_dict()}),
                                     cookies=self._cookies,
                                     proxies=self._proxies)
         return resp

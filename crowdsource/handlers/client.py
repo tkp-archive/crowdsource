@@ -9,7 +9,7 @@ class RegisterHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):
         '''Get the current list of client ids'''
-        if self.current_user and self.current_user.decode('utf-8') not in self._clients:
+        if self.current_user and int(self.current_user.decode('utf-8')) not in self._clients:
             return self.post()
 
         # paginate
@@ -18,7 +18,10 @@ class RegisterHandler(ServerHandler):
 
     def post(self):
         '''Register a client. Client will be assigned a session id'''
-        body = tornado.escape.json_decode(self.request.body or '{}')
+        try:
+            body = tornado.escape.json_decode(self.request.body or '{}')
+        except ValueError:
+            body = {}
         username = self.get_argument('username', body.get('username', ''))
         email = self.get_argument('email', body.get('email', ''))
         password = self.get_argument('password', body.get('password', ''))

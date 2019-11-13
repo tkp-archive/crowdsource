@@ -29,6 +29,7 @@ async function main() {
 
     // perspective workspace
     const workspace = new PerspectiveWorkspace();
+    workspace.addClass("workspace");
     const widget1 = new PerspectiveWidget("Active Competitions");
     const widget2 = new PerspectiveWidget("Past Competitions");
     const widget3 = new PerspectiveWidget("Leaderboards");
@@ -162,8 +163,8 @@ async function main() {
 
     // Add tables to workspace
     workspace.addViewer(widget1, {});
+    workspace.addViewer(widget2, {mode: "tab-after", ref: widget1});
     workspace.addViewer(widget3, {mode: "split-bottom", ref: widget1});
-    workspace.addViewer(widget2, {mode: "split-right", ref: widget1});
 
     // Attach parts to dom
     Widget.attach(header, document.body);

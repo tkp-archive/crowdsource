@@ -5,7 +5,7 @@ from .samples import answerClassify1, answerClassify2, answerClassify3, answerPr
 class SamplesMixin:
     def _sampleClassify1(self):
         self.register()
-        resp = classify1(self._host, self._id, self._cookies, self._proxies)
+        resp = classify1(self._host, self._cookies, self._proxies)
         self._my_competitions.append(resp)
 
     def _sampleAnswerClassify1(self):
@@ -19,7 +19,7 @@ class SamplesMixin:
 
     def _samplePredict1(self):
         self.register()
-        resp = predict1(self._host, self._id, self._cookies, self._proxies)
+        resp = predict1(self._host, self._cookies, self._proxies)
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredict1(self):
@@ -27,12 +27,12 @@ class SamplesMixin:
 
     def _samplePredict2(self):
         self.register()
-        resp = predict2(self._host, self._id, self._cookies, self._proxies)
+        resp = predict2(self._host, self._cookies, self._proxies)
         self._my_competitions.append(resp)
 
     def _samplePredictCorporateBonds(self):
         self.register()
-        resp = predictCorporateBonds(self._host, self._id, self._cookies, self._proxies)
+        resp = predictCorporateBonds(self._host, self._cookies, self._proxies)
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredictCorporateBonds(self):
@@ -40,7 +40,7 @@ class SamplesMixin:
 
     def _samplePredictCitibike(self):
         self.register()
-        resp = predictCitibike(self._host, self._id, self._cookies, self._proxies)
+        resp = predictCitibike(self._host, self._cookies, self._proxies)
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredictCitibike(self):

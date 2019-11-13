@@ -109,3 +109,6 @@ node_modules
 package-lock.json
 bundle.js
 coverage
+keys.sh
+examples/local/crowdsource
+examples/remote/crowdsource

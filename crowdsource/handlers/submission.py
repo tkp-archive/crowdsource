@@ -59,7 +59,7 @@ class SubmissionHandler(ServerHandler):
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
-        client_id = data['client_id']
+        client_id = int(self.current_user.decode('utf-8'))
         competition_id = data['competition_id']
 
         with self.session() as session:

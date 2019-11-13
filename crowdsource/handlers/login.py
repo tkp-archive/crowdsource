@@ -1,7 +1,7 @@
-import tornado.escape
 import ujson
 from .base import ServerHandler
 from ..persistence.models import Client
+from ..utils import parse_body
 
 
 class LoginHandler(ServerHandler):
@@ -14,27 +14,25 @@ class LoginHandler(ServerHandler):
 
     def post(self):
         '''Login'''
-        body = tornado.escape.json_decode(self.request.body or '{}')
+        if self.current_user:
+            client_id = self.current_user.decode('utf-8')
+            with self.session() as session:
+                client = session.query(Client).filter_by(client_id=client_id).first()
+                if client:
+                    self.login(client)
+                    return
+        body = parse_body(self.request)
         username = self.get_argument('username', body.get('username', ''))
         password = self.get_argument('password', body.get('password', ''))
 
-        if not username or not password:
-            if self.current_user:
-                client_id = self.current_user.decode('utf-8')
-                with self.session() as session:
-                    client = session.query(Client).filter_by(client_id=client_id).first()
-                    if client:
-                        self.login(client)
-                        return
-
-            self._set_400("Client malformed")
-
-        with self.session() as session:
-            client = session.query(Client).filter_by(username=username).first()
-            if client and (client or not password) and (client.password == password):
-                self.login(client)
-            else:
+        if not username or password:
+            client_id = self.get_user_from_key()
+            if not client_id:
                 self._set_400("Client not registered")
+            return
+
+        if not self.get_user_from_username_password():
+            self._set_400("Client not registered")
 
     def login(self, client):
         ret = self._login_post(client)

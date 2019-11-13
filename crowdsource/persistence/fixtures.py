@@ -24,6 +24,10 @@ def main(sql_url):
         session.commit()
         session.refresh(key)
         print('added apikey: {}'.format(key))
+        with open("keys.sh", "w") as fp:
+            fp.write("#!/bin/bash\n")
+            fp.write("export CROWDSOURCE_KEY={}\n".format(key.key))
+            fp.write("export CROWDSOURCE_SECRET={}\n".format(key.secret))
     except BaseException:
         session.rollback()
         admin = session.query(Client).filter_by(username='test').first()

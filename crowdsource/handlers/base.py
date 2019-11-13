@@ -3,6 +3,8 @@ import tornado.ioloop
 import tornado.web
 from contextlib import contextmanager
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from ..persistence.models import APIKey, Client
+from ..utils import parse_body
 
 
 class ServerHandler(tornado.web.RequestHandler):
@@ -10,6 +12,33 @@ class ServerHandler(tornado.web.RequestHandler):
 
     def get_current_user(self):
         return self.get_secure_cookie('user')
+
+    def get_user_from_username_password(self):
+        body = parse_body(self.request)
+        username = self.get_argument('username', body.get('username', ''))
+        password = self.get_argument('password', body.get('password', ''))
+        if not username or password:
+            return 0
+        with self.session() as session:
+            client = session.query(Client).filter_by(username=username).first()
+            if client and (client or not password) and (client.password == password):
+                self.login(client)
+                return client.client_id
+            else:
+                return 0
+
+    def get_user_from_key(self):
+        body = parse_body(self.request)
+        key = self.get_argument('key', body.get('key', ''))
+        secret = self.get_argument('secret', body.get('secret', ''))
+        if not key or not secret:
+            return 0
+        with self.session() as session:
+            apikey = session.query(APIKey).filter_by(key=key).first()
+            if apikey.secret != secret:
+                return 0
+            self.login(apikey.client)
+            return apikey.client_id
 
     def _set_400(self, log_message, *args):
         logging.info(log_message, *args)

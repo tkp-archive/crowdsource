@@ -37,6 +37,12 @@ class Client(Base):
     def __repr__(self):
         return "<User(id='{}', username='{}')>".format(self.client_id, self.username)
 
+    def to_dict(self):
+        ret = {}
+        for item in ("client_id", "username", "_email"):
+            ret[item] = getattr(self, item)
+        return ret
+
 
 class APIKey(Base):
     __tablename__ = 'apikeys'
@@ -102,7 +108,7 @@ class Competition(Base):
     def to_dict(self):
         ret = {}
         for item in ("competition_id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
-                     "dataset_url", "dataset_type", "num_classes", "when", "answer", "answer_url", "answer_type",
+                     "dataset_url", "dataset_type", "dataset_kwargs", "num_classes", "when", "answer", "answer_url", "answer_type",
                      "timestamp"):
             ret[item] = getattr(self, item)
         return ret

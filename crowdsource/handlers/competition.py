@@ -1,3 +1,4 @@
+import tornado.web
 import ujson
 from datetime import datetime
 from .base import ServerHandler
@@ -39,19 +40,21 @@ class CompetitionHandler(ServerHandler):
         page = int(data.get('page', 0))
         self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
+    @tornado.web.authenticated
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
         data = self._validate(validate_competition_post)
 
         # generate a new ID
-        client_id = data['client_id']
-        try:
-            spec = CompetitionSpec.from_dict(data["spec"])
-            comp = Competition.from_spec(client_id=client_id, spec=spec)
-        except (KeyError, ValueError):
-            self._set_400("Competition malformed")
-
         with self.session() as session:
+            client_id = int(self.current_user.decode('utf-8'))
+            try:
+                spec = CompetitionSpec.from_dict(data["spec"])
+                comp = Competition.from_spec(client_id=client_id, spec=spec)
+            except (KeyError, ValueError):
+                self._set_400("Competition malformed")
+                return
+
             session.add(comp)
             session.commit()
             session.refresh(comp)
@@ -59,6 +62,6 @@ class CompetitionHandler(ServerHandler):
             if comp.competition_id:
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong {} for client {}", comp.competition_id, comp.client_id)
+                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong %s for client %s", comp.competition_id, comp.client_id)
             else:
                 self._set_400("Competition malformed")

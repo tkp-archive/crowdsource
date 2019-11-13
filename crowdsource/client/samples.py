@@ -9,7 +9,7 @@ from ..utils import safe_post, construct_path
 from ..enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 
-def classify1(host, id, cookies=None, proxies=None):
+def classify1(host, cookies=None, proxies=None):
     dataset = make_classification()
     competition = CompetitionSpec(title='Classify this dataset',
                                   type=CompetitionType.CLASSIFY,
@@ -18,7 +18,7 @@ def classify1(host, id, cookies=None, proxies=None):
                                   dataset=pandas.DataFrame(dataset[0]),
                                   metric=CompetitionMetric.LOGLOSS,
                                   answer=pandas.DataFrame(dataset[1]))
-    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
@@ -40,7 +40,7 @@ def answerClassify3(competitionSpec, *args, **kwargs):
     return pandas.DataFrame(ret.astype(int))
 
 
-def predict1(host, id, cookies=None, proxies=None):
+def predict1(host, cookies=None, proxies=None):
     dataset = cfdg.ohlcv()
     competition = CompetitionSpec(title='Predict next day volume',
                                   type=CompetitionType.PREDICT,
@@ -51,11 +51,11 @@ def predict1(host, id, cookies=None, proxies=None):
                                   targets=dataset.columns[-1],
                                   answer=dataset.iloc[-1:],
                                   when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime) / 1000000000))
-    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
-def predict2(host, id, cookies=None, proxies=None):
+def predict2(host, cookies=None, proxies=None):
     dataset = cfdg.lines()
     competition = CompetitionSpec(title='Predict future value',
                                   type=CompetitionType.PREDICT,
@@ -66,7 +66,7 @@ def predict2(host, id, cookies=None, proxies=None):
                                   answer=dataset.iloc[-1:],
                                   targets=dataset.columns,
                                   when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime) / 1000000000))
-    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
@@ -78,7 +78,6 @@ def answerPredict1(competitionSpec, *args, **kwargs):
 
     ans = answerPrototype(competitionSpec, data)
     when = competitionSpec.when
-
     if not when or competitionSpec.dataset_key:
         ''' TS prediction'''
         return
@@ -96,7 +95,7 @@ def answerPredict1(competitionSpec, *args, **kwargs):
     return ans
 
 
-def predictCorporateBonds(host, id, cookies=None, proxies=None):
+def predictCorporateBonds(host, cookies=None, proxies=None):
     competition = CompetitionSpec(title='Predict corporate bond volume',
                                   type=CompetitionType.PREDICT,
                                   expiration=datetime.now() + timedelta(minutes=1),
@@ -106,7 +105,7 @@ def predictCorporateBonds(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   dataset_key='Name',
                                   targets={'ABC Corp': ['Price']})
-    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
@@ -131,7 +130,7 @@ def answerPredictCorporateBonds(competitionSpec, *args, **kwargs):
     return answer
 
 
-def predictCitibike(host, id, cookies=None, proxies=None):
+def predictCitibike(host, cookies=None, proxies=None):
     exp = datetime.now() + timedelta(minutes=2)
     competition = CompetitionSpec(title='Predict citibike volume',
                                   type=CompetitionType.PREDICT,
@@ -144,7 +143,7 @@ def predictCitibike(host, id, cookies=None, proxies=None):
                                   metric=CompetitionMetric.ABSDIFF,
                                   targets=['availableBikes', 'availableDocks'],
                                   expiration=exp)
-    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'id': id, 'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
+    resp = safe_post(construct_path(host, 'api/v1/competition'), data=ujson.dumps({'spec': competition.to_dict()}), cookies=cookies, proxies=proxies)
     return resp
 
 
