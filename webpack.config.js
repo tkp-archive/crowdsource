@@ -4,7 +4,7 @@ const webpack = require("webpack");
 
 module.exports = {
     entry: './build/index.js',
-    mode: 'development',
+    mode: 'production',
     devtool: 'inline-source-map',
     output: {
         path: __dirname + '/crowdsource/assets/static/js/',
