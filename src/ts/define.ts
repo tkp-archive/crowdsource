@@ -12,3 +12,6 @@ const LOGOUT = "api/v1/logout";
 
 export
 const APIKEYS = "api/v1/apikeys";
+
+export
+const ADMIN = "api/v1/admin";

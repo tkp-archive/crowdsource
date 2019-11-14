@@ -47,7 +47,7 @@ class CompetitionHandler(ServerHandler):
 
         # generate a new ID
         with self.session() as session:
-            client_id = int(self.current_user.decode('utf-8'))
+            client_id = int(self.current_user)
             try:
                 spec = CompetitionSpec.from_dict(data["spec"])
                 comp = Competition.from_spec(client_id=client_id, spec=spec)

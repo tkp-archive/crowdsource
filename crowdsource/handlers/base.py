@@ -11,7 +11,14 @@ class ServerHandler(tornado.web.RequestHandler):
     '''Just a default handler'''
 
     def get_current_user(self):
-        return self.get_secure_cookie('user')
+        return self.get_secure_cookie('user').decode("utf8")
+
+    def is_admin(self):
+        with self.session() as session:
+            client = session.query(Client).filter_by(client_id=self.current_user).first()
+            if client and client.status == "admin":
+                return True
+        return False
 
     def get_user_from_username_password(self):
         body = parse_body(self.request)
@@ -145,7 +152,7 @@ class ServerHandler(tornado.web.RequestHandler):
         except TemplateNotFound:
             raise TemplateNotFound(self.template)
 
-        kwargs['current_user'] = self.current_user.decode('utf-8') if self.current_user else ''
+        kwargs['current_user'] = self.current_user if self.current_user else ''
         kwargs['basepath'] = self.basepath
         kwargs['wspath'] = self.wspath
         content = template.render(**kwargs)

@@ -3,10 +3,11 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {WSCOMPETITIONS} from "./define";
+import {request, IRequestResult} from "requests-helper";
+import {ADMIN, WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
-import {checkLoggedIn, loggedIn, wspath} from "./utils";
+import {checkLoggedIn, loggedIn, basepath, wspath} from "./utils";
 import {AboutWidget, APIKeysWidget, BaseWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
         NewSubmissionWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
@@ -140,6 +141,13 @@ async function main() {
         label: "New Submission",
     });
 
+    commands.addCommand("admin", {
+        execute: () => {},
+        iconClass: "fa fa-plus",
+        isEnabled: () => loggedIn(),
+        label: "Admin",
+    });
+
     // Construct top menu
     menubar.addClass("topmenu");
     const menu = new Menu({commands});
@@ -160,6 +168,13 @@ async function main() {
     addmenu.addItem({ command: "new:submission"});
     menu.addItem({type: "submenu", submenu: addmenu});
     menubar.addMenu(menu);
+
+    // get admin page
+    request("get", basepath() + ADMIN).then((res: IRequestResult) => {
+        if (res.ok) {
+            menu.addItem({ command: "admin"});
+        }
+    });
 
     // Add tables to workspace
     workspace.addViewer(widget1, {});

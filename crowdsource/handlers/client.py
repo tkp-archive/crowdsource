@@ -9,7 +9,7 @@ class RegisterHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):
         '''Get the current list of client ids'''
-        if self.current_user and int(self.current_user.decode('utf-8')) not in self._clients:
+        if self.current_user and int(self.current_user) not in self._clients:
             return self.post()
 
         # paginate
@@ -48,7 +48,7 @@ class APIKeyHandler(ServerHandler):
     @tornado.web.authenticated
     def get(self):
         with self.session() as session:
-            client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
+            client = session.query(Client).filter_by(client_id=int(self.current_user)).first()
             if not client:
                 self._set_400("Client malformed")
             self.write({a.apikey_id: a.to_dict() for a in client.apikeys})
@@ -56,7 +56,7 @@ class APIKeyHandler(ServerHandler):
     @tornado.web.authenticated
     def post(self):
         with self.session() as session:
-            client = session.query(Client).filter_by(client_id=int(self.current_user.decode('utf-8'))).first()
+            client = session.query(Client).filter_by(client_id=int(self.current_user)).first()
             if not client:
                 self._set_400("Client malformed")
             if self.get_argument("id", ""):

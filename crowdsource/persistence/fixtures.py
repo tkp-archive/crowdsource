@@ -11,9 +11,10 @@ def main(sql_url):
     sm = sessionmaker(bind=engine)
 
     session = sm()
-    admin = Client(username='test',
-                   password='test',
-                   email='test@test.com')
+    admin = Client(username='admin',
+                   password='admin',
+                   email='test@test.com',
+                   status="admin")
     try:
         session.add(admin)
         session.commit()

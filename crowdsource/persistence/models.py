@@ -24,6 +24,7 @@ class Client(Base):
     apikeys = relationship('APIKey', back_populates='client')
     competitions = relationship('Competition', back_populates='client')
     submissions = relationship('Submission', back_populates='client')
+    status = Column(String(10), default="normal")
 
     @hybrid_property
     def email(self):

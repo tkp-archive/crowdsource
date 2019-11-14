@@ -15,7 +15,7 @@ class LoginHandler(ServerHandler):
     def post(self):
         '''Login'''
         if self.current_user:
-            client_id = self.current_user.decode('utf-8')
+            client_id = self.current_user
             with self.session() as session:
                 client = session.query(Client).filter_by(client_id=client_id).first()
                 if client:
