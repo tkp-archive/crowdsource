@@ -1,6 +1,7 @@
 import logging
 import tornado.ioloop
 import tornado.web
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from ..persistence.models import APIKey, Client
@@ -9,6 +10,8 @@ from ..utils import parse_body
 
 class ServerHandler(tornado.web.RequestHandler):
     '''Just a default handler'''
+
+    executor = ThreadPoolExecutor(16)
 
     def get_current_user(self):
         return self.get_secure_cookie('user').decode("utf8")

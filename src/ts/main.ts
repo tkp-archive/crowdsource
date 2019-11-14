@@ -2,13 +2,15 @@
 import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
-import {Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
+import {DockPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
 import {request, IRequestResult} from "requests-helper";
+import {AdminWidget} from "./admin";
 import {ADMIN, WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
 import {checkLoggedIn, loggedIn, basepath, wspath} from "./utils";
 import {AboutWidget, APIKeysWidget, BaseWidget,
+        CompetitionsWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
         NewSubmissionWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
 
@@ -31,6 +33,8 @@ async function main() {
     // perspective workspace
     const workspace = new PerspectiveWorkspace();
     workspace.addClass("workspace");
+    workspace.title.label = "Workspace";
+
     const widget1 = new PerspectiveWidget("Active Competitions");
     const widget2 = new PerspectiveWidget("Past Competitions");
     const widget3 = new PerspectiveWidget("Leaderboards");
@@ -45,14 +49,18 @@ async function main() {
     const logout = new LogoutWidget();
     const register = new RegisterWidget();
     const apikeys = new APIKeysWidget();
+    const competitions = new CompetitionsWidget();
     const submissions = new SubmissionsWidget();
     const about = new AboutWidget();
     const newcompetition = new NewCompetitionWidget();
     const newsubmission = new NewSubmissionWidget();
+    const admin = new AdminWidget();
 
     // main container
     const mainPage = new SplitPanel({orientation: "horizontal"});
-    mainPage.addWidget(workspace);
+    const centerPage = new DockPanel();
+    mainPage.addWidget(centerPage);
+    centerPage.addWidget(workspace);
 
     // to track whats in side bar
     let sidePanel: BaseWidget = null;
@@ -115,9 +123,16 @@ async function main() {
 
     commands.addCommand("apikeys", {
         execute: () => {setSidePanel(apikeys); },
-        iconClass: "fa fa-cog",
+        iconClass: "fa fa-key",
         isEnabled: loggedIn,
         label: "API Keys",
+    });
+
+    commands.addCommand("competitions", {
+        execute: () => {setSidePanel(competitions); },
+        iconClass: "fa fa-hourglass-start",
+        isEnabled: loggedIn,
+        label: "Competitions",
     });
 
     commands.addCommand("submissions", {
@@ -142,11 +157,17 @@ async function main() {
     });
 
     commands.addCommand("admin", {
-        execute: () => {},
-        iconClass: "fa fa-plus",
+        execute: () => {
+            centerPage.addWidget(admin, {mode: "tab-before", ref: workspace});
+            centerPage.selectWidget(admin);
+        },
+        iconClass: "fa fa-cog",
         isEnabled: () => loggedIn(),
         label: "Admin",
     });
+    /*
+     *  End commands
+     */
 
     // Construct top menu
     menubar.addClass("topmenu");
@@ -158,15 +179,24 @@ async function main() {
     menu.addItem({ command: "register"});
     menu.addItem({ command: "login"});
     menu.addItem({ command: "logout"});
-    menu.addItem({ command: "apikeys"});
-    menu.addItem({ command: "submissions"});
 
+    // construct add menu
     const addmenu = new Menu({commands});
     addmenu.addClass("settings");
     addmenu.title.label = "New";
     addmenu.addItem({ command: "new:competition"});
     addmenu.addItem({ command: "new:submission"});
     menu.addItem({type: "submenu", submenu: addmenu});
+
+    // construct profile menu
+    const mymenu = new Menu({commands});
+    mymenu.addClass("settings");
+    mymenu.title.label = "Profile";
+    mymenu.addItem({ command: "apikeys"});
+    mymenu.addItem({ command: "competitions"});
+    mymenu.addItem({ command: "submissions"});
+    menu.addItem({type: "submenu", submenu: mymenu});
+
     menubar.addMenu(menu);
 
     // get admin page
