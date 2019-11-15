@@ -107,7 +107,7 @@ async function main() {
 
     commands.addCommand("register", {
         execute: () => {setSidePanel(register); },
-        iconClass: "fa fa-key",
+        iconClass: "fa fa-pencil-square-o",
         isEnabled: () => !loggedIn(),
         label: "Register",
     });
