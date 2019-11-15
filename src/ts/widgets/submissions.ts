@@ -1,21 +1,29 @@
-import {BaseWidget} from "./base";
-
-// tslint:disable no-namespace
+import {PerspectiveWidget} from "@finos/perspective-phosphor";
+import {SplitPanel} from "@phosphor/widgets";
+import {IRequestResult, request} from "requests-helper";
+import {SUBMISSIONS} from "../define";
+import {basepath, loggedIn} from "../utils";
+// tslint:disable no-namespace no-console
 
 export
-class SubmissionsWidget extends BaseWidget {
+class SubmissionsWidget extends SplitPanel {
     constructor() {
-        super({node: Private.createSubmissionsNode()});
-        // this.getForm().onsubmit = (e) => this.logout(e);
+        super();
         this.addClass("submissions");
-        this.title.label = "Submissions";
-
+        this.title.label = "My Submissions";
+        this.title.closable = true;
     }
-}
 
-namespace Private {
-    export function createSubmissionsNode(): HTMLDivElement {
-        const node = document.createElement("div");
-        return node;
+    public onAfterAttach() {
+        request("get", basepath() + SUBMISSIONS, {client_username: loggedIn()}).then((res: IRequestResult) => {
+            if (res.ok) {
+                const data = res.json() as any;
+                const widget = new PerspectiveWidget("Submissions");
+                this.addWidget(widget);
+                widget.load(data);
+            } else {
+                console.error("submissions get failed");
+            }
+        });
     }
 }

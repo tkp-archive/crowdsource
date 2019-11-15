@@ -9,8 +9,7 @@ import {ADMIN, WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
 import {checkLoggedIn, loggedIn, basepath, wspath} from "./utils";
-import {AboutWidget, APIKeysWidget, BaseWidget,
-        CompetitionsWidget,
+import {AboutWidget, APIKeysWidget, BaseWidget, CompetitionsWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
         NewSubmissionWidget, PaymentsWidget, RegisterWidget,
         SubmissionsWidget} from "./widgets";
@@ -26,19 +25,18 @@ async function main() {
     await checkLoggedIn();
 
     // connect to perspective
-    const websocket = (perspective as any).websocket(wspath() + WSCOMPETITIONS);
-    const table1 = websocket.open_table("competitions");
-    const table2 = websocket.open_table("past_competitions");
-    const table3 = websocket.open_table("submissions");
+    const websocket = perspective.websocket(wspath() + WSCOMPETITIONS);
+
+    const competitionsTable = websocket.open_table("competitions");
+    const leaderboardsTable = websocket.open_table("leaderboards");
 
     // perspective workspace
     const workspace = new PerspectiveWorkspace();
     workspace.addClass("workspace");
     workspace.title.label = "Workspace";
 
-    const widget1 = new PerspectiveWidget("Active Competitions");
-    const widget2 = new PerspectiveWidget("Past Competitions");
-    const widget3 = new PerspectiveWidget("Leaderboards");
+    const competitionsWidget = new PerspectiveWidget("Active Competitions");
+    const leaderboardsWidget = new PerspectiveWidget("Leaderboards");
 
     // top bar
     const header = new Header();
@@ -52,13 +50,14 @@ async function main() {
     const register = new RegisterWidget();
 
     const apikeys = new APIKeysWidget();
-    const competitions = new CompetitionsWidget();
-    const submissions = new SubmissionsWidget();
+    const myCompetitions = new CompetitionsWidget();
+    const mySubmissions = new SubmissionsWidget();
     const payments = new PaymentsWidget();
 
     const newcompetition = new NewCompetitionWidget();
     const newsubmission = new NewSubmissionWidget();
 
+    // setup admin page
     const admin = new AdminWidget();
 
     // main container
@@ -134,17 +133,23 @@ async function main() {
     });
 
     commands.addCommand("my:competitions", {
-        execute: () => {setSidePanel(competitions); },
+        execute: () => {
+            centerPage.addWidget(myCompetitions);
+            centerPage.selectWidget(myCompetitions);
+        },
         iconClass: "fa fa-hourglass-start",
         isEnabled: loggedIn,
-        label: "Competitions",
+        label: "My Competitions",
     });
 
     commands.addCommand("my:submissions", {
-        execute: () => {setSidePanel(submissions); },
+        execute: () => {
+            centerPage.addWidget(mySubmissions);
+            centerPage.selectWidget(mySubmissions);
+        },
         iconClass: "fa fa-paper-plane",
         isEnabled: loggedIn,
-        label: "Submissions",
+        label: "My Submissions",
     });
 
     commands.addCommand("my:payments", {
@@ -170,7 +175,7 @@ async function main() {
 
     commands.addCommand("admin", {
         execute: () => {
-            centerPage.addWidget(admin, {mode: "tab-before", ref: workspace});
+            centerPage.addWidget(admin);
             centerPage.selectWidget(admin);
         },
         iconClass: "fa fa-cog",
@@ -226,9 +231,8 @@ async function main() {
     });
 
     // Add tables to workspace
-    workspace.addViewer(widget1, {});
-    workspace.addViewer(widget2, {mode: "tab-after", ref: widget1});
-    workspace.addViewer(widget3, {mode: "split-bottom", ref: widget1});
+    workspace.addViewer(competitionsWidget, {});
+    workspace.addViewer(leaderboardsWidget, {mode: "split-bottom", ref: competitionsWidget});
 
     // Attach parts to dom
     Widget.attach(header, document.body);
@@ -236,9 +240,8 @@ async function main() {
     Widget.attach(mainPage, document.body);
 
     // Load perspective tables
-    widget1.load(table1);
-    widget2.load(table2);
-    widget3.load(table3);
+    competitionsWidget.load(competitionsTable);
+    leaderboardsWidget.load(leaderboardsTable);
 
     window.onresize = () => {
         mainPage.update();

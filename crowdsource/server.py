@@ -3,12 +3,21 @@ import os.path
 import logging
 import tornado.ioloop
 import tornado.web
+# from datetime import datetime
 from perspective import Table, PerspectiveManager, PerspectiveTornadoHandler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config.application import Application
 from traitlets import Int, Unicode, List, Bool
-from .handlers import HTMLOpenHandler, LoginHandler, LogoutHandler, RegisterHandler, AdminHandler, APIKeyHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
+from .handlers import HTMLOpenHandler, \
+    LoginHandler, \
+    LogoutHandler, \
+    RegisterHandler, \
+    AdminHandler, \
+    APIKeyHandler, \
+    CompetitionHandler, \
+    SubmissionHandler, \
+    LeaderboardHandler
 from .persistence.models import Base, Client, Competition, Submission
 
 
@@ -45,37 +54,60 @@ class Crowdsource(Application):
         if self.debug:
             logging.getLogger().setLevel(logging.DEBUG)
 
+        # Port
         self.port = int(os.environ.get('PORT', self.port))
+
+        # Set websocket path
         self.wspath = self.wspath.format(self.port)
 
         self._stash = []
         engine = create_engine(self.sql_url, echo=False)
         Base.metadata.create_all(engine)
 
+        # fetch clients
         self.sessionmaker = sessionmaker(bind=engine)
         session = self.sessionmaker()
         clients = session.query(Client).all()
 
         self._clients = {c.client_id: c for c in clients}
-        self._manager = PerspectiveManager()
 
+        # Perspective managers
+        self._manager = PerspectiveManager()
+        self._admin_manager = PerspectiveManager()
+
+        # Public perspective tables
         self._competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
-        self._submissions = Table(list(s.to_dict() for s in session.query(Submission).all()))
-        self._leaderboards = Table({"a": int})
-        self._stash = []
-        self._table = Table([{"a": 1, "b": 2}])
-        self._manager.host_table("data_source_one", self._table)
+        self._leaderboards = Table(list(s.to_dict() for s in session.query(Submission).all()))
+        # self._leaderboards = Table(list(s.to_dict() for s in session.query(Submission).all() if datetime.now() > s.competition.expiration))
+
         self._manager.host_table("competitions", self._competitions)
-        self._manager.host_table("submissions", self._submissions)
         self._manager.host_table("leaderboards", self._leaderboards)
+
+        # Private perspective tables
+        self._all_clients = Table(list(s.to_dict() for s in session.query(Client).all()))
+        self._all_competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
+        self._all_submissions = Table(list(s.to_dict() for s in session.query(Submission).all()))
+
+        self._admin_manager.host_table("clients", self._all_clients)
+        self._admin_manager.host_table("competitions", self._all_competitions)
+        self._admin_manager.host_table("submissions", self._all_submissions)
+
+        # TODO to remove
+        self._submissions = Table({"a": int})  # TODO remove
+
+        # for offline storage
+        self._stash = []
 
         root = os.path.join(os.path.dirname(__file__), 'assets')
         static = os.path.join(root, 'static')
 
         context = {'sessionmaker': self.sessionmaker,
                    'clients': self._clients,
+                   'all_clients': self._all_clients,
                    'competitions': self._competitions,
+                   'all_competitions': self._all_competitions,
                    'submissions': self._submissions,
+                   'all_submissions': self._all_submissions,
                    'leaderboards': self._leaderboards,
                    'stash': self._stash,
                    'basepath': self.basepath,

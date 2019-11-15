@@ -18,10 +18,8 @@ class RegisterHandler(ServerHandler):
     def _get(self):
         if self.current_user and int(self.current_user) not in self._clients:
             return self.post()
-
-        # paginate
-        page = int(self.get_argument('page', 0))
-        self.write(ujson.dumps([c.to_dict() for c in list(self._clients.values())[page * 100:(page + 1) * 100]]))
+        with self.session() as session:
+            self.write(ujson.dumps(session.query(Client).all()))
 
     @tornado.gen.coroutine
     def post(self):
@@ -49,6 +47,10 @@ class RegisterHandler(ServerHandler):
                 session.commit()
                 session.refresh(c)
                 ret = self._login_post(c)
+
+                # put in perspective
+                self._all_clients.update([c.to_dict()])
+
                 self._writeout(ujson.dumps(ret), "Registering client {}", ret["client_id"])
                 return
             except BaseException:

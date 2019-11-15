@@ -1,21 +1,29 @@
-import {BaseWidget} from "./base";
-
-// tslint:disable no-namespace
+import {PerspectiveWidget} from "@finos/perspective-phosphor";
+import {SplitPanel} from "@phosphor/widgets";
+import {IRequestResult, request} from "requests-helper";
+import {COMPETITIONS} from "../define";
+import {basepath, loggedIn} from "../utils";
+// tslint:disable no-namespace no-console
 
 export
-class CompetitionsWidget extends BaseWidget {
+class CompetitionsWidget extends SplitPanel {
     constructor() {
-        super({node: Private.createCompetitionsNode()});
-        // this.getForm().onsubmit = (e) => this.logout(e);
+        super();
         this.addClass("competitions");
-        this.title.label = "Competitions";
-
+        this.title.label = "My Competitions";
+        this.title.closable = true;
     }
-}
 
-namespace Private {
-    export function createCompetitionsNode(): HTMLDivElement {
-        const node = document.createElement("div");
-        return node;
+    public onAfterAttach() {
+        request("get", basepath() + COMPETITIONS, {client_username: loggedIn()}).then((res: IRequestResult) => {
+            if (res.ok) {
+                const data = res.json() as any;
+                const widget = new PerspectiveWidget("Competitions");
+                this.addWidget(widget);
+                widget.load(data);
+            } else {
+                console.error("competitions get failed");
+            }
+        });
     }
 }

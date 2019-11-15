@@ -2,7 +2,6 @@ import {IRequestResult, request} from "requests-helper";
 import {REGISTER} from "../define";
 import {basepath} from "../utils";
 import {BaseWidget} from "./base";
-
 // tslint:disable no-namespace object-literal-sort-keys no-console
 
 export

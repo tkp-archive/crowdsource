@@ -25,7 +25,9 @@ class LeaderboardHandler(ServerHandler):
                     submission_id = data.get('submission_id', ())
                     cpid = data.get('competition_id', ())
                     clid = data.get('client_id', ())
+                    client_username = data.get('client_username', ())
                     t = data.get('type', '')
+
                     if submission_id and c.submission_id not in submission_id:
                         continue
                     if cpid and c.competition_id not in cpid:
@@ -33,6 +35,8 @@ class LeaderboardHandler(ServerHandler):
                     if clid and c.client_id not in clid:
                         continue
                     if t and CompetitionType(t) != c.competition.spec.type:
+                        continue
+                    if client_username and c.client.username != client_username:
                         continue
 
                     d = c.to_dict(private=True)

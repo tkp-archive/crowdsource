@@ -120,7 +120,21 @@ class ServerHandler(tornado.web.RequestHandler):
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
 
-    def initialize(self, sessionmaker, clients, competitions, submissions, leaderboards, stash, basepath='/', wspath='ws:localhost:8080/', proxies=None, *args, **kwargs):
+    def initialize(self,
+                   sessionmaker,
+                   clients,
+                   all_clients,
+                   competitions,
+                   all_competitions,
+                   submissions,
+                   all_submissions,
+                   leaderboards,
+                   stash,
+                   basepath='/',
+                   wspath='ws:localhost:8080/',
+                   proxies=None,
+                   *args,
+                   **kwargs):
         '''Initialize the server competition registry handler
 
         This handler is responsible for managing competition
@@ -132,8 +146,11 @@ class ServerHandler(tornado.web.RequestHandler):
         super(ServerHandler, self).initialize(*args, **kwargs)
         self._sessionmaker = sessionmaker
         self._clients = clients
+        self._all_clients = all_clients
         self._competitions = competitions
+        self._all_competitions = all_competitions
         self._submissions = submissions
+        self._all_submissions = all_submissions
         self._leaderboards = leaderboards
         self._to_score_later = stash
 

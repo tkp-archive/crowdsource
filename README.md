@@ -14,3 +14,5 @@ Crowdsourcing answers
 
 ## Running the Server
 `python -m crowdsource.server`
+
+![](https://raw.githubusercontent.com/timkpaine/crowdsource/master/docs/img/screenshot.png)

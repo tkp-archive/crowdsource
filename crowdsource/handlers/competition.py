@@ -24,15 +24,16 @@ class CompetitionHandler(ServerHandler):
             for c in competitions:
                 competition_id = data.get('competition_id', ())
                 clid = data.get('client_id', ())
+                client_username = data.get('client_username', ())
                 t = data.get('type', ())
 
                 if competition_id and c.competition_id not in competition_id:
                     continue
-
                 if clid and c.client_id not in clid:
                     continue
-
                 if t and c.spec.type not in t:
+                    continue
+                if client_username and c.client.username != client_username:
                     continue
 
                 # check if expired and turn off if necessary
@@ -41,11 +42,9 @@ class CompetitionHandler(ServerHandler):
 
                     if self.get_argument('current', False):
                         continue
-
                 res.append(c.to_dict())
 
-        page = int(data.get('page', 0))
-        self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
+        self.write(ujson.dumps(res))
 
     @tornado.web.authenticated
     @tornado.gen.coroutine
@@ -74,6 +73,7 @@ class CompetitionHandler(ServerHandler):
             if comp.competition_id:
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
+                self._all_competitions.update([comp.to_dict()])
                 self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong %s for client %s", comp.competition_id, comp.client_id)
             else:
                 self._set_400("Competition malformed")

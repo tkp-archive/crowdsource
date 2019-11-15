@@ -34,6 +34,7 @@ class SubmissionHandler(ServerHandler):
                 submission_id = data.get('submission_id', ())
                 cpid = data.get('competition_id', ())
                 clid = data.get('client_id', ())
+                client_username = data.get('client_username', ())
                 t = data.get('type', '')
 
                 if submission_id and c.submission_id not in submission_id:
@@ -43,6 +44,8 @@ class SubmissionHandler(ServerHandler):
                 if clid and c.client_id not in clid:
                     continue
                 if t and CompetitionType(t) != c.competition.spec.type:
+                    continue
+                if client_username and c.client.username != client_username:
                     continue
 
                 # only allow if im the submitter or the competition owner
@@ -57,8 +60,7 @@ class SubmissionHandler(ServerHandler):
                 d['score'] = round(d['score'], 2)
                 res.append(d)
 
-        page = int(data.get('page', 0))
-        self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
+        self.write(ujson.dumps(res))
 
     @tornado.web.authenticated
     @tornado.gen.coroutine
@@ -120,7 +122,13 @@ class SubmissionHandler(ServerHandler):
         score = checkAnswer(submission)
         submission.score = score
         session.commit()
-        return submission.to_dict()
+
+        # put in perspective
+        d = submission.to_dict()
+        self._all_submissions.update([d])
+        self._leaderboards.update([d])
+
+        return d
 
     def score_later(self, submission):
         logging.info("Stashing submission %s for competition %s to score later", submission.submission_id, submission.competition_id)
