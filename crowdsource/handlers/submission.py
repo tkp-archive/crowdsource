@@ -1,8 +1,10 @@
 import logging
 import six
+import tornado.gen
 import tornado.web
 import ujson
 from datetime import datetime
+from tornado.concurrent import run_on_executor
 from .base import ServerHandler
 from .validate import validate_submission_get, validate_submission_post
 from ..persistence.models import Submission, Competition
@@ -13,7 +15,12 @@ from ..enums import CompetitionType
 
 class SubmissionHandler(ServerHandler):
     @tornado.web.authenticated
-    def get(self):  # TODO make coroutine
+    @tornado.gen.coroutine
+    def get(self):
+        yield self._get()
+
+    @run_on_executor
+    def _get(self):
         '''Get the current list of competition ids'''
         data = self._validate(validate_submission_get)
 
@@ -54,8 +61,13 @@ class SubmissionHandler(ServerHandler):
         self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
     @tornado.web.authenticated
+    @tornado.gen.coroutine
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
+        yield self._post()
+
+    @run_on_executor
+    def _post(self):
         data = self._validate(validate_submission_post)
 
         submission = data['submission']

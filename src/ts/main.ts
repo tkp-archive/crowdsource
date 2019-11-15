@@ -12,7 +12,8 @@ import {checkLoggedIn, loggedIn, basepath, wspath} from "./utils";
 import {AboutWidget, APIKeysWidget, BaseWidget,
         CompetitionsWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
-        NewSubmissionWidget, RegisterWidget, SubmissionsWidget} from "./widgets";
+        NewSubmissionWidget, PaymentsWidget, RegisterWidget,
+        SubmissionsWidget} from "./widgets";
 
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer-hypergrid";
@@ -45,15 +46,19 @@ async function main() {
     const menubar = new MenuBar();
 
     // configuration pages
+    const about = new AboutWidget();
     const login = new LoginWidget();
     const logout = new LogoutWidget();
     const register = new RegisterWidget();
+
     const apikeys = new APIKeysWidget();
     const competitions = new CompetitionsWidget();
     const submissions = new SubmissionsWidget();
-    const about = new AboutWidget();
+    const payments = new PaymentsWidget();
+
     const newcompetition = new NewCompetitionWidget();
     const newsubmission = new NewSubmissionWidget();
+
     const admin = new AdminWidget();
 
     // main container
@@ -121,25 +126,32 @@ async function main() {
         label: "Logout",
     });
 
-    commands.addCommand("apikeys", {
+    commands.addCommand("my:apikeys", {
         execute: () => {setSidePanel(apikeys); },
         iconClass: "fa fa-key",
         isEnabled: loggedIn,
         label: "API Keys",
     });
 
-    commands.addCommand("competitions", {
+    commands.addCommand("my:competitions", {
         execute: () => {setSidePanel(competitions); },
         iconClass: "fa fa-hourglass-start",
         isEnabled: loggedIn,
         label: "Competitions",
     });
 
-    commands.addCommand("submissions", {
+    commands.addCommand("my:submissions", {
         execute: () => {setSidePanel(submissions); },
         iconClass: "fa fa-paper-plane",
         isEnabled: loggedIn,
         label: "Submissions",
+    });
+
+    commands.addCommand("my:payments", {
+        execute: () => {setSidePanel(payments); },
+        iconClass: "fa fa-credit-card",
+        isEnabled: loggedIn,
+        label: "Wallet",
     });
 
     commands.addCommand("new:competition", {
@@ -176,9 +188,15 @@ async function main() {
     menu.title.label = "Settings";
     menu.title.mnemonic = 0;
     menu.addItem({ command: "about"});
-    menu.addItem({ command: "register"});
-    menu.addItem({ command: "login"});
-    menu.addItem({ command: "logout"});
+
+    // login/register menu
+    const lrmenu = new Menu({commands});
+    lrmenu.addClass("settings");
+    lrmenu.title.label = "Login/Register";
+    lrmenu.addItem({ command: "register"});
+    lrmenu.addItem({ command: "login"});
+    lrmenu.addItem({ command: "logout"});
+    menu.addItem({type: "submenu", submenu: lrmenu});
 
     // construct add menu
     const addmenu = new Menu({commands});
@@ -192,9 +210,10 @@ async function main() {
     const mymenu = new Menu({commands});
     mymenu.addClass("settings");
     mymenu.title.label = "Profile";
-    mymenu.addItem({ command: "apikeys"});
-    mymenu.addItem({ command: "competitions"});
-    mymenu.addItem({ command: "submissions"});
+    mymenu.addItem({ command: "my:apikeys"});
+    mymenu.addItem({ command: "my:competitions"});
+    mymenu.addItem({ command: "my:submissions"});
+    mymenu.addItem({ command: "my:payments"});
     menu.addItem({type: "submenu", submenu: mymenu});
 
     menubar.addMenu(menu);

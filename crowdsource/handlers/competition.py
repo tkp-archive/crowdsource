@@ -1,6 +1,8 @@
+import tornado.gen
 import tornado.web
 import ujson
 from datetime import datetime
+from tornado.concurrent import run_on_executor
 from .base import ServerHandler
 from .validate import validate_competition_get, validate_competition_post
 from ..types.competition import CompetitionSpec
@@ -8,7 +10,12 @@ from ..persistence.models import Competition
 
 
 class CompetitionHandler(ServerHandler):
+    @tornado.gen.coroutine
     def get(self, *args, **kwargs):
+        yield self._get()
+
+    @run_on_executor
+    def _get(self, *args, **kwargs):
         '''Get the current list of competition ids'''
         data = self._validate(validate_competition_get)
         res = []
@@ -41,8 +48,13 @@ class CompetitionHandler(ServerHandler):
         self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
 
     @tornado.web.authenticated
+    @tornado.gen.coroutine
     def post(self):
         '''Register a competition. Competition will be assigned a session id'''
+        yield self._post()
+
+    @run_on_executor
+    def _post(self):
         data = self._validate(validate_competition_post)
 
         # generate a new ID

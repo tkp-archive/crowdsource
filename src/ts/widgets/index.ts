@@ -6,3 +6,4 @@ export * from "./login";
 export * from "./new";
 export * from "./register";
 export * from "./submissions";
+export * from "./wallet";

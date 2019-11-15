@@ -1,4 +1,6 @@
+import tornado.gen
 import ujson
+from tornado.concurrent import run_on_executor
 from .base import ServerHandler
 from .validate import validate_leaderboard_get
 from ..persistence.models import Submission
@@ -6,8 +8,13 @@ from ..enums import CompetitionType
 
 
 class LeaderboardHandler(ServerHandler):
-    def get(self):  # TODO make coroutine
+    @tornado.gen.coroutine
+    def get(self):
         '''Get the current list of competition ids'''
+        yield self._get()
+
+    @run_on_executor
+    def _get(self):
         data = self._validate(validate_leaderboard_get)
 
         res = []

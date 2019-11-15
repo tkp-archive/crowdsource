@@ -15,8 +15,6 @@ crowdsource
 
    installation
    quickstart
-   server
-   client
    api
 
 Introduction

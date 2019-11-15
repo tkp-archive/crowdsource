@@ -14,7 +14,10 @@ class ServerHandler(tornado.web.RequestHandler):
     executor = ThreadPoolExecutor(16)
 
     def get_current_user(self):
-        return self.get_secure_cookie('user').decode("utf8")
+        cu = self.get_secure_cookie('user')
+        if cu:
+            return cu.decode("utf8")
+        return None
 
     def is_admin(self):
         with self.session() as session:

@@ -53,8 +53,11 @@ def answerPrototype(spec, dataset=None):
 
     type = spec.type
     targets = spec.targets
-    if isinstance(targets, string_types):
-        targets = ujson.loads(targets)
+    if targets and isinstance(targets, string_types):
+        try:
+            targets = ujson.loads(targets)
+        except ValueError:
+            pass
 
     key = spec.dataset_key
     when = spec.when

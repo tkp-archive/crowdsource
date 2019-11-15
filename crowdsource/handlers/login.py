@@ -1,19 +1,31 @@
+import tornado.gen
 import ujson
+from tornado.concurrent import run_on_executor
 from .base import ServerHandler
 from ..persistence.models import Client
 from ..utils import parse_body
 
 
 class LoginHandler(ServerHandler):
+    @tornado.gen.coroutine
     def get(self):
         '''Get the login page'''
+        yield self._get()
+
+    @run_on_executor
+    def _get(self):
         if self.current_user:
             self.redirect('api/v1/register')
         else:
             self.redirect(self.basepath + "home")
 
+    @tornado.gen.coroutine
     def post(self):
         '''Login'''
+        yield self._post()
+
+    @run_on_executor
+    def _post(self):
         if self.current_user:
             client_id = self.current_user
             with self.session() as session:
