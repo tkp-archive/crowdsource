@@ -1,6 +1,7 @@
 import logging
 import tornado.ioloop
 import tornado.web
+import ujson
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
@@ -30,7 +31,7 @@ class ServerHandler(tornado.web.RequestHandler):
         body = parse_body(self.request)
         username = self.get_argument('username', body.get('username', ''))
         password = self.get_argument('password', body.get('password', ''))
-        if not username or password:
+        if not username or not password:
             return 0
         with self.session() as session:
             client = session.query(Client).filter_by(username=username).first()
@@ -55,21 +56,18 @@ class ServerHandler(tornado.web.RequestHandler):
 
     def _set_400(self, log_message, *args):
         logging.info(log_message, *args)
-        self.clear()
         self.set_status(400)
         self.finish('{"error":"400"}')
         raise tornado.web.HTTPError(400)
 
     def _set_401(self, log_message, *args):
         logging.info(log_message, *args)
-        self.clear()
         self.set_status(401)
         self.finish('{"error":"401"}')
         raise tornado.web.HTTPError(401)
 
     def _set_403(self, log_message, *args):
         logging.info(log_message, *args)
-        self.clear()
         self.set_status(403)
         self.finish('{"error":"403"}')
         raise tornado.web.HTTPError(403)
@@ -81,6 +79,10 @@ class ServerHandler(tornado.web.RequestHandler):
 
     def _validate(self, validation_method=None):
         return validation_method(self) if validation_method else {}
+
+    def login(self, client):
+        ret = self._login_post(client)
+        self._writeout(ujson.dumps(ret), "Registering client %s", ret["client_id"])
 
     def _login_post(self, client):
         if client and client.client_id and client.client_id in self._clients:

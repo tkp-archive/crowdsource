@@ -225,7 +225,7 @@ async function main() {
 
     // get admin page
     request("get", basepath() + ADMIN).then((res: IRequestResult) => {
-        if (res.ok) {
+        if (res.ok && res.status === 200) {
             menu.addItem({ command: "admin"});
         }
     });

@@ -5,9 +5,42 @@ html {
 
 body {
     height: 100vh;
-    margin: 0px;
     background: linear-gradient(var(--dark), #000);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--light);
+}
+
+
+
+input[type=submit] {
+  background-color: var(--dark);
+  color: var(--fontlight);
+  height: 40px;
+  font-size: 18px;
+}
+
+input[type=submit]:hover {
+  background-color: var(--darkest);
+}
+
 
 div.main{
     height:100%;
@@ -68,14 +101,6 @@ div.subs a {
     -webkit-filter: brightness(.4);
 }
 
-p.leaders, 
-p.active {
-    width:50%;
-    max-width:100px;
-    max-height:25px;
-    min-height:5px;
-}
-
 div.subs a:hover, 
 dib.subs a:hover{
     -webkit-transition: filter .8s linear;
@@ -84,4 +109,20 @@ dib.subs a:hover{
     filter: contrast(1);
     -webkit-filter: brightness(1);
     -webkit-filter: contrast(1);
+}
+
+h2 {
+    color: var(--clight);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px !important;
+    margin-bottom: 2px !important;
+}
+
+h4 {
+    color: var(--mag);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    margin-bottom: 2px;
 }

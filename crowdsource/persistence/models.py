@@ -106,12 +106,14 @@ class Competition(Base):
     def __repr__(self):
         return "<Competition(id='%s', clientId='%s')>" % (self.id, self.clientId)
 
-    def to_dict(self):
+    def to_dict(self, private=False):
         ret = {}
         for item in ("competition_id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
-                     "dataset_url", "dataset_type", "dataset_kwargs", "num_classes", "when", "answer", "answer_url", "answer_type",
-                     "timestamp"):
+                     "dataset_url", "dataset_type", "dataset_kwargs", "num_classes", "when", "timestamp"):
             ret[item] = getattr(self, item)
+        if private:
+            for item in ("answer", "answer_url", "answer_type",):
+                ret[item] = getattr(self, item)
         return ret
 
     @staticmethod
@@ -162,10 +164,13 @@ class Submission(Base):
     def __repr__(self):
         return "<Submission(id='%s', clientId='%s', competitionId='%s')>" % (self.id, self.clientId, self.competitionId)
 
-    def to_dict(self):
+    def to_dict(self, private=False):
         ret = {}
-        for item in ("submission_id", "client_id", "competition_id", "score", "answer", "answer_url", "answer_type", "timestamp"):
+        for item in ("submission_id", "client_id", "competition_id", "score", "timestamp"):
             ret[item] = getattr(self, item)
+        if private:
+            for item in ("answer", "answer_url", "answer_type",):
+                ret[item] = getattr(self, item)
         return ret
 
     @staticmethod

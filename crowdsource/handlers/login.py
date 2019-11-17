@@ -22,10 +22,6 @@ class LoginHandler(ServerHandler):
     @tornado.gen.coroutine
     def post(self):
         '''Login'''
-        yield self._post()
-
-    @run_on_executor
-    def _post(self):
         if self.current_user:
             client_id = self.current_user
             with self.session() as session:
@@ -37,7 +33,7 @@ class LoginHandler(ServerHandler):
         username = self.get_argument('username', body.get('username', ''))
         password = self.get_argument('password', body.get('password', ''))
 
-        if not username or password:
+        if not username or not password:
             client_id = self.get_user_from_key()
             if not client_id:
                 self._set_400("Client not registered")
@@ -45,10 +41,6 @@ class LoginHandler(ServerHandler):
 
         if not self.get_user_from_username_password():
             self._set_400("Client not registered")
-
-    def login(self, client):
-        ret = self._login_post(client)
-        self._writeout(ujson.dumps(ret), "Registering client %s", ret["client_id"])
 
 
 class LogoutHandler(ServerHandler):

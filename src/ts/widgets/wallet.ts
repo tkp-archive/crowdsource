@@ -8,7 +8,7 @@ class PaymentsWidget extends BaseWidget {
         super({node: Private.createPaymentsNode()});
         // this.getForm().onsubmit = (e) => this.logout(e);
         this.addClass("payments");
-        this.title.label = "payments";
+        this.title.label = "Payments";
 
     }
 }

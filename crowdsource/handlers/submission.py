@@ -49,7 +49,7 @@ class SubmissionHandler(ServerHandler):
                     continue
 
                 # only allow if im the submitter or the competition owner
-                if (self.current_user != c.client_id) and (self.current_user != c.competition.client_id):
+                if (int(self.current_user) != c.client_id) and (int(self.current_user) != c.competition.client_id):
                     continue
 
                 # check if expired and turn off if necessary
@@ -57,6 +57,7 @@ class SubmissionHandler(ServerHandler):
                     c.competition.active = False
 
                 d = c.to_dict(private=True)
+
                 d['score'] = round(d['score'], 2)
                 res.append(d)
 

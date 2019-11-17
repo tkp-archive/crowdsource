@@ -6,41 +6,6 @@
  * the Apache License 2.0.  The full license can be found in the LICENSE file.
  *
  */
- ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--light);
-}
-
-
-body {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-input[type=submit] {
-  background-color: var(--dark);
-  color: var(--fontlight);
-  height: 40px;
-  font-size: 18px;
-}
-
-input[type=submit]:hover {
-  background-color: var(--darkest);
-}
-
 div.header {
   height: 50px;
 }
@@ -162,7 +127,6 @@ div.workspace div.p-DockPanel-tabBar {
 
 div.admin {
   color: var(--lightfont);
-  padding: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -170,4 +134,8 @@ div.admin {
 div.admin > div {
   display: flex;
   flex-direction: column;
+}
+
+div.admin div.p-SplitPanel-child {
+  padding: 10px;
 }
