@@ -24,14 +24,11 @@ requires = [
 ]
 
 requires_dev = [
-    'Faker>=1.0.0',
     'flake8>=3.7.8',
     'mock',
     'pybind11>=2.4.0',
     'pytest>=4.3.0',
     'pytest-cov>=2.6.1',
-    'pytest-check-links',
-    'pytz>=2018.9',
     'Sphinx>=1.8.4',
     'sphinx-markdown-builder>=0.5.2',
 ] + requires

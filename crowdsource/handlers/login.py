@@ -1,5 +1,4 @@
 import tornado.gen
-import ujson
 from tornado.concurrent import run_on_executor
 from .base import ServerHandler
 from ..persistence.models import Client

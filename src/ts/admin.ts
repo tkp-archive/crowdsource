@@ -30,7 +30,7 @@ export class AdminControlsWidget extends SplitPanel {
 
 export class ConstrolsWidget extends Widget {
   constructor(title: string) {
-    super({node: Private.createControlsNode(title)})
+    super({node: Private.createControlsNode(title)});
   }
 }
 

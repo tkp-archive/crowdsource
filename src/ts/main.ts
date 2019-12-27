@@ -3,12 +3,12 @@ import perspective from "@finos/perspective";
 import {PerspectiveWidget, PerspectiveWorkspace} from "@finos/perspective-phosphor";
 import {CommandRegistry} from "@phosphor/commands";
 import {DockPanel, Menu, MenuBar, SplitPanel, Widget} from "@phosphor/widgets";
-import {request, IRequestResult} from "requests-helper";
+import {IRequestResult, request} from "requests-helper";
 import {AdminWidget} from "./admin";
 import {ADMIN, WSCOMPETITIONS} from "./define";
 import {Header} from "./header";
 import {SidebarPanel} from "./sidebar";
-import {checkLoggedIn, loggedIn, basepath, wspath} from "./utils";
+import {basepath, checkLoggedIn, loggedIn, wspath} from "./utils";
 import {AboutWidget, APIKeysWidget, BaseWidget, CompetitionsWidget,
         LoginWidget, LogoutWidget, NewCompetitionWidget,
         NewSubmissionWidget, PaymentsWidget, RegisterWidget,

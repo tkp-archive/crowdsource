@@ -1,4 +1,4 @@
-from .admin import AdminHandler
+from .admin import AdminHandler  # noqa: F401
 from .client import APIKeyHandler, RegisterHandler  # noqa: F401
 from .competition import CompetitionHandler  # noqa: F401
 from .html import HTMLHandler, HTMLOpenHandler  # noqa: F401
