@@ -11,7 +11,7 @@ bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
 tests: ## Clean and Make unit tests
-	python3 -m pytest -vvv tests/ --cov=crowdsource
+	CROWDSOURCE_KEY=TEST python3 -m pytest -vvv crowdsource/tests/ --cov=crowdsource
 
 annotate: ## MyPy type annotation check
 	mypy -s crowdsource  
