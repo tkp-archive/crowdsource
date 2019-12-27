@@ -1,21 +1,34 @@
-language: python
-sudo: required
 dist: xenial
+language: python
+cache: pip
 
 matrix:
   include:
-    - python: "2.7"
-      env: PYTHONVER=2
-    - python: "3.6"
+    - python: "3.7"
       env: PYTHONVER=3
 
-install:
-    - pip install -e .[dev]
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+  homebrew:
+    update: true
+    packages:
+      - python
+
+before_install:
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then npm install -g yarn; fi
+
+install: 
+  - node --version
+  - yarn
+  - python3 -m pip install -e .[dev]
 
 script:
-  - if [ "$PYTHONVER" = "3" ]; then echo "Python3" && make test; fi
-# - if [ "$PYTHONVER" = "2" ]; then echo "Python2" && make testpy2; fi
-
+  - make lint
+  - make tests
 
 after_success:
     - codecov --token f87444f1-1c2d-4f8d-9f54-14089c09c18c
