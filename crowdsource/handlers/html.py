@@ -37,8 +37,8 @@ class HTMLOpenHandler(ServerHandler):
         with self.session() as session:
             if 'login' in self.request.path:
                 user = self.get_argument('id', '') or self.current_user.decode('utf-8') or -1
-                ret = session.query(Client).filter_by(id=int(user)).first()
-                if not ret.id:
+                ret = session.query(Client).filter_by(client_id=int(user)).first()
+                if not ret.client_id:
                     self.redirect(self.basepath + 'login')
                     return
                 self._login_post(ret)

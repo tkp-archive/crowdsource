@@ -18,8 +18,11 @@ class RegisterHandler(ServerHandler):
     def _get(self):
         if self.current_user and int(self.current_user) not in self._clients:
             return self.post()
-        with self.session() as session:
-            self.write(ujson.dumps(session.query(Client).all()))
+        if self.is_admin:
+            with self.session() as session:
+                self.write(ujson.dumps(session.query(Client).all()))
+        else:
+            self._set_401("Unauthorized to view all clients")
 
     @tornado.gen.coroutine
     def post(self):

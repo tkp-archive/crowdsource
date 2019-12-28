@@ -89,7 +89,7 @@ class ServerHandler(tornado.web.RequestHandler):
             self._set_login_cookie(client)
             return {'client_id': str(client.client_id), 'username': client.username}
 
-        elif client and client.id:
+        elif client and client.client_id:
             self._clients[client.client_id] = client
             self._set_login_cookie(client)
             return {'client_id': str(client.client_id), 'username': client.username}
