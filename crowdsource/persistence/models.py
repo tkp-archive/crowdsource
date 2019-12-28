@@ -1,71 +1,20 @@
 import pandas as pd
 import six
-import secrets
 import ujson
 import validators
 from datetime import datetime, timedelta
+from tkp_utils.sqla.models import Base, User, APIKey as APIKey  # noqa: F401
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-TOKEN_WIDTH = 64
-Base = declarative_base()
 
 
-class Client(Base):
-    __tablename__ = 'clients'
-    client_id = Column(Integer, primary_key=True)
-    username = Column(String(100), nullable=False, unique=True)
-    password = Column(String(100), nullable=False)
+class Client(User):
+    __mapper_args__ = {
+        'polymorphic_identity': 'client'
+    }
 
-    _email = Column("email", String, nullable=False, unique=True)
-
-    apikeys = relationship('APIKey', back_populates='client')
-    competitions = relationship('Competition', back_populates='client')
-    submissions = relationship('Submission', back_populates='client')
-    status = Column(String(10), default="normal")
-
-    @hybrid_property
-    def email(self):
-        return self._email
-
-    @email.setter
-    def email(self, email):
-        # TODO validate
-        self._email = email
-
-    def __repr__(self):
-        return "<User(id='{}', username='{}')>".format(self.client_id, self.username)
-
-    def to_dict(self):
-        ret = {}
-        for item in ("client_id", "username", "_email"):
-            ret[item] = getattr(self, item)
-        return ret
-
-
-class APIKey(Base):
-    __tablename__ = 'apikeys'
-    apikey_id = Column(Integer, primary_key=True)
-    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'))
-    client = relationship('Client', back_populates="apikeys")
-    key = Column(String(100), nullable=False, default=lambda: secrets.token_urlsafe(TOKEN_WIDTH))
-    secret = Column(String(100), nullable=False, default=lambda: secrets.token_urlsafe(TOKEN_WIDTH))
-
-    @staticmethod
-    def generateKey():
-        return {"key": secrets.token_urlsafe(TOKEN_WIDTH),
-                "secret": secrets.token_urlsafe(TOKEN_WIDTH)}
-
-    def __repr__(self):
-        return "<Key(id='{}', key='{}', secret='***')>".format(self.apikey_id, self.key)
-
-    def to_dict(self):
-        ret = {}
-        for item in ("apikey_id", "client_id", "key", "secret"):
-            ret[item] = getattr(self, item)
-        return ret
+    competitions = relationship('Competition', back_populates='user')
+    submissions = relationship('Submission', back_populates='user')
 
 
 class Competition(Base):
@@ -74,8 +23,8 @@ class Competition(Base):
     title = Column(String(500), nullable=False)
     subtitle = Column(String(500), nullable=False)
 
-    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'))
-    client = relationship('Client', back_populates="competitions")
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='cascade'))
+    user = relationship(Client, back_populates="competitions")
 
     type = Column(String(10), nullable=False)
     expiration = Column(DateTime, nullable=False)
@@ -104,11 +53,11 @@ class Competition(Base):
     submissions = relationship('Submission', back_populates='competition')
 
     def __repr__(self):
-        return "<Competition(id='%s', clientId='%s')>" % (self.id, self.clientId)
+        return "<Competition(id='%s', userId='%s')>" % (self.id, self.userId)
 
     def to_dict(self, private=False):
         ret = {}
-        for item in ("competition_id", "title", "client_id", "type", "expiration", "prize", "metric", "targets", "dataset",
+        for item in ("competition_id", "title", "user_id", "type", "expiration", "prize", "metric", "targets", "dataset",
                      "dataset_url", "dataset_type", "dataset_kwargs", "num_classes", "when", "timestamp"):
             ret[item] = getattr(self, item)
         if private:
@@ -117,8 +66,8 @@ class Competition(Base):
         return ret
 
     @staticmethod
-    def from_spec(client_id, spec):
-        c = Competition(client_id=client_id,
+    def from_spec(user_id, spec):
+        c = Competition(user_id=user_id,
                         title=spec.title,
                         subtitle=spec.subtitle,
                         expiration=spec.expiration + timedelta(seconds=spec.answer_delay),
@@ -147,11 +96,11 @@ class Submission(Base):
     __tablename__ = 'submissions'
     submission_id = Column(Integer, primary_key=True)
 
-    client_id = Column(Integer, ForeignKey('clients.client_id', ondelete='cascade'), nullable=False, )
-    client = relationship(Client, back_populates='submissions')
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='cascade'), nullable=False, )
+    user = relationship(Client, back_populates='submissions')
 
     competition_id = Column(Integer, ForeignKey('competitions.competition_id', ondelete='cascade'), nullable=False, )
-    competition = relationship('Competition', back_populates='submissions')
+    competition = relationship(Competition, back_populates='submissions')
 
     score = Column(Integer)
 
@@ -162,11 +111,11 @@ class Submission(Base):
     timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return "<Submission(id='%s', clientId='%s', competitionId='%s')>" % (self.id, self.clientId, self.competitionId)
+        return "<Submission(id='%s', userId='%s', competitionId='%s')>" % (self.id, self.userId, self.competitionId)
 
     def to_dict(self, private=False):
         ret = {}
-        for item in ("submission_id", "client_id", "competition_id", "score", "timestamp"):
+        for item in ("submission_id", "user_id", "competition_id", "score", "timestamp"):
             ret[item] = getattr(self, item)
         if private:
             for item in ("answer", "answer_url", "answer_type",):
@@ -174,8 +123,8 @@ class Submission(Base):
         return ret
 
     @staticmethod
-    def from_spec(client_id, competition_id, competition, spec):
-        c = Submission(client_id=client_id,
+    def from_spec(user_id, competition_id, competition, spec):
+        c = Submission(user_id=user_id,
                        competition_id=competition_id,
                        score=-1,
                        competition=competition,

@@ -7,19 +7,12 @@ import tornado.web
 from perspective import Table, PerspectiveManager, PerspectiveTornadoHandler
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from tornado_sqlalchemy_login import SQLAlchemyLoginManagerOptions, SQLAlchemyLoginManager, LoginHandler, LogoutHandler, RegisterHandler, APIKeyHandler
 from traitlets.config.application import Application
 from traitlets import Int, Unicode, List, Bool
-from .handlers import HTMLOpenHandler, \
-    LoginHandler, \
-    LogoutHandler, \
-    RegisterHandler, \
-    AdminHandler, \
-    APIKeyHandler, \
-    CompetitionHandler, \
-    SubmissionHandler, \
-    LeaderboardHandler
-from .persistence.models import Base, Client, Competition, Submission
-
+from .handlers import RegisterHandler, CompetitionHandler, \
+    SubmissionHandler, LeaderboardHandler
+from .persistence.models import Base, User, Competition, Submission, APIKey
 
 class Crowdsource(Application):
     name = 'crowdsource'
@@ -35,7 +28,6 @@ class Crowdsource(Application):
     handlers = List(default_value=[])
     debug = Bool(default_value=True).tag(config=True)
     cookie_secret = Unicode(default_value="61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=")
-    sql = Bool(default_value=True).tag(config=True)
 
     aliases = {
         'port': 'Crowdsource.port',
@@ -60,16 +52,16 @@ class Crowdsource(Application):
         # Set websocket path
         self.wspath = self.wspath.format(self.port)
 
-        self._stash = []
+        # Sqlalchemy
         engine = create_engine(self.sql_url, echo=False)
         Base.metadata.create_all(engine)
 
-        # fetch clients
+        # fetch users
         self.sessionmaker = sessionmaker(bind=engine)
         session = self.sessionmaker()
-        clients = session.query(Client).all()
+        users = session.query(User).all()
 
-        self._clients = {c.client_id: c for c in clients}
+        self._users = {c.id: c for c in users}
 
         # Perspective managers
         self._manager = PerspectiveManager()
@@ -84,11 +76,11 @@ class Crowdsource(Application):
         self._manager.host_table("leaderboards", self._leaderboards)
 
         # Private perspective tables
-        self._all_clients = Table(list(s.to_dict() for s in session.query(Client).all()))
+        self._all_users = Table(list(s.to_dict() for s in session.query(User).all()))
         self._all_competitions = Table(list(c.to_dict() for c in session.query(Competition).all()))
         self._all_submissions = Table(list(s.to_dict() for s in session.query(Submission).all()))
 
-        self._admin_manager.host_table("clients", self._all_clients)
+        self._admin_manager.host_table("users", self._all_users)
         self._admin_manager.host_table("competitions", self._all_competitions)
         self._admin_manager.host_table("submissions", self._all_submissions)
 
@@ -98,12 +90,8 @@ class Crowdsource(Application):
         # for offline storage
         self._stash = []
 
-        root = os.path.join(os.path.dirname(__file__), 'assets')
-        static = os.path.join(root, 'static')
-
-        context = {'sessionmaker': self.sessionmaker,
-                   'clients': self._clients,
-                   'all_clients': self._all_clients,
+        context = {'users': self._users,
+                   'all_users': self._all_users,
                    'competitions': self._competitions,
                    'all_competitions': self._all_competitions,
                    'submissions': self._submissions,
@@ -114,15 +102,8 @@ class Crowdsource(Application):
                    'wspath': self.wspath,
                    'proxies': 'test'}
 
-        default_handlers = [
-            (r"/", HTMLOpenHandler, {'template': 'index.html', 'context': context}),
-            (r"/index.html", HTMLOpenHandler, {'template': 'index.html', 'context': context, 'template_kwargs': {}}),
+        handlers = [
             (r"/home", HTMLOpenHandler, {'template': 'home.html', 'context': context}),
-        ]
-
-        default_handlers.extend([
-            (r"/api/v1/login", LoginHandler, context),
-            (r"/api/v1/logout", LogoutHandler, context),
             (r"/api/v1/register", RegisterHandler, context),
             (r"/api/v1/admin", AdminHandler, context),
             (r"/api/v1/apikeys", APIKeyHandler, context),
@@ -131,8 +112,8 @@ class Crowdsource(Application):
             (r"/api/v1/submission", SubmissionHandler, context),
             (r"/api/v1/leaderboard", LeaderboardHandler, context),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": static}),
-            (r"/(.*)", HTMLOpenHandler, {'template': '404.html', 'context': context})
-        ])
+            (r"/(.*)", HTMLHandler, {'template': '404.html', 'basepath': self.basepath, 'wspath': self.wspath})
+        ]
 
         for handler in self.handlers:
             for i, default in enumerate(default_handlers):
@@ -142,6 +123,24 @@ class Crowdsource(Application):
                     d.update(handler[2])
                     default_handlers[i] = (handler[0], handler[1], d)
 
+        # SQLAlchemy Login Configuration
+        sqlalchemy_login_config = SQLAlchemyLoginManagerOptions(
+            basepath=self.basepath,
+            apipath=self.apipath,
+            wspath=self.wspath,
+            sqlalchemy_sessionmaker=self.sessionmaker,
+            UserSQLClass=User,
+            APIKeySQLClass=APIKey,
+            user_id_field='id',
+            apikey_id_field='id',
+            user_apikeys_field='apikeys',
+            apikey_user_field='user',
+            user_admin_field='admin',
+            user_admin_value=True,
+            extra_handlers=handlers,
+            extra_context=context,
+        )
+
         settings = {
             "cookie_secret": self.cookie_secret,
             "login_url": self.basepath + "login",
@@ -149,7 +148,7 @@ class Crowdsource(Application):
             "template_path": os.path.join(root, 'templates'),
         }
 
-        application = tornado.web.Application(default_handlers, **settings)
+        application = tornado.web.Application(default_handlers, login_manager=SQLAlchemyLoginManager(self.sessionmaker, sqlalchemy_login_config), **settings)
 
         logging.critical('LISTENING: %d', self.port)
         application.listen(self.port)

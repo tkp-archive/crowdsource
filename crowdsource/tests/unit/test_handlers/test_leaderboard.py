@@ -12,12 +12,12 @@ class TestLeaderboard:
     def test_LeaderboardHandler(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {1234: ''},
+        context = {'users': {1234: ''},
                    'competitions': {1234: ''},
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'all_clients': MagicMock(),
+                   'all_users': MagicMock(),
                    'all_competitions': MagicMock(),
                    'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
@@ -26,7 +26,7 @@ class TestLeaderboard:
         x._transforms = []
         x.get_current_user = lambda: True
 
-        # requires client id
+        # requires user id
         x.get()
 
     def test_leaderboard(self):
@@ -45,11 +45,11 @@ class TestLeaderboard:
         x[3].competitionId = 1
         x[4].competitionId = 2
 
-        x[0].clientId = 0
-        x[1].clientId = 0
-        x[2].clientId = 0
-        x[3].clientId = 2
-        x[4].clientId = 2
+        x[0].userId = 0
+        x[1].userId = 0
+        x[2].userId = 0
+        x[3].userId = 2
+        x[4].userId = 2
 
         x[0].competition.spec.type = CompetitionType.CLASSIFY
         x[1].competition.spec.type = CompetitionType.CLASSIFY
@@ -63,12 +63,12 @@ class TestLeaderboard:
         x[3].to_dict = lambda *args, **kwargs: {'score': 1}
         x[4].to_dict = lambda *args, **kwargs: {'score': 1}
 
-        context = {'clients': {1234: ''},
+        context = {'users': {1234: ''},
                    'competitions': {1234: ''},
                    'leaderboards': {0: x},
                    'submissions': {0: x},
                    'stash': [],
-                   'all_clients': MagicMock(),
+                   'all_users': MagicMock(),
                    'all_competitions': MagicMock(),
                    'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
@@ -76,5 +76,5 @@ class TestLeaderboard:
         x = LeaderboardHandler(self.app, req, **context)
         x._transforms = []
         x.get_current_user = lambda: True
-        x._validate = lambda *args, **kwargs: {'id': (1, 2), 'competition_id': (1, 2), 'client_id': (1, 2), 'type': CompetitionType.PREDICT}
+        x._validate = lambda *args, **kwargs: {'id': (1, 2), 'competition_id': (1, 2), 'user_id': (1, 2), 'type': CompetitionType.PREDICT}
         x.get()

@@ -3,13 +3,13 @@ import tornado.web
 import ujson
 from datetime import datetime
 from tornado.concurrent import run_on_executor
-from .base import ServerHandler
+from .base import AuthenticatedHandler
 from .validate import validate_competition_get, validate_competition_post
 from ..types.competition import CompetitionSpec
 from ..persistence.models import Competition
 
 
-class CompetitionHandler(ServerHandler):
+class CompetitionHandler(AuthenticatedHandler):
     @tornado.gen.coroutine
     def get(self, *args, **kwargs):
         yield self._get()
@@ -23,17 +23,17 @@ class CompetitionHandler(ServerHandler):
             competitions = session.query(Competition).all()
             for c in competitions:
                 competition_id = data.get('competition_id', ())
-                clid = data.get('client_id', ())
-                client_username = data.get('client_username', ())
+                clid = data.get('user_id', ())
+                user_username = data.get('user_username', ())
                 t = data.get('type', ())
 
                 if competition_id and c.competition_id not in competition_id:
                     continue
-                if clid and c.client_id not in clid:
+                if clid and c.user_id not in clid:
                     continue
                 if t and c.spec.type not in t:
                     continue
-                if client_username and c.client.username != client_username:
+                if user_username and c.user.username != user_username:
                     continue
 
                 # check if expired and turn off if necessary
@@ -58,10 +58,10 @@ class CompetitionHandler(ServerHandler):
 
         # generate a new ID
         with self.session() as session:
-            client_id = int(self.current_user)
+            user_id = int(self.current_user)
             try:
                 spec = CompetitionSpec.from_dict(data["spec"])
-                comp = Competition.from_spec(client_id=client_id, spec=spec)
+                comp = Competition.from_spec(user_id=user_id, spec=spec)
             except (KeyError, ValueError):
                 self._set_400("Competition malformed")
                 return
@@ -74,6 +74,6 @@ class CompetitionHandler(ServerHandler):
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
                 self._all_competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong %s for client %s", comp.competition_id, comp.client_id)
+                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong %s for user %s", comp.competition_id, comp.user_id)
             else:
                 self._set_400("Competition malformed")

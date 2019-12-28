@@ -11,35 +11,6 @@ class TestCompetitions:
         self.app = tornado.web.Application(cookie_secret='test')
         self.app._transforms = []
 
-    def test_CompetitionHandler(self):
-        req = MagicMock()
-        req.body = ''
-        context = {'clients': {1234: ''},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'all_clients': MagicMock(),
-                   'all_competitions': MagicMock(),
-                   'all_submissions': MagicMock(),
-                   'sessionmaker': MagicMock()}
-
-        x = CompetitionHandler(self.app, req, **context)
-        x._transforms = []
-        x.get_current_user = lambda: True
-
-        # malformed competition
-        req.body = '{"id":1234}'
-        x = CompetitionHandler(self.app, req, **context)
-        x._transforms = []
-        x.get_current_user = lambda: True
-        try:
-            x.post()
-        except HTTPError:
-            pass
-
-        assert(x.get_status() == 401)
-
     def test_competitions2(self):
         req = MagicMock()
         req.body = ''
@@ -51,12 +22,12 @@ class TestCompetitions:
         x[4].id = 2
         x[5].id = 2
 
-        x[0].clientId = 0
-        x[1].clientId = 0
-        x[2].clientId = 1
-        x[3].clientId = 2
-        x[4].clientId = 2
-        x[5].clientId = 2
+        x[0].userId = 0
+        x[1].userId = 0
+        x[2].userId = 1
+        x[3].userId = 2
+        x[4].userId = 2
+        x[5].userId = 2
 
         x[0].spec.type = CompetitionType.PREDICT
         x[1].spec.type = CompetitionType.PREDICT
@@ -72,12 +43,12 @@ class TestCompetitions:
         x[4].expiration = datetime(2017, 1, 1)
         x[5].expiration = datetime(2019, 1, 1)
 
-        context = {'clients': {1234: ''},
+        context = {'users': {1234: ''},
                    'competitions': x,
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
-                   'all_clients': MagicMock(),
+                   'all_users': MagicMock(),
                    'all_competitions': MagicMock(),
                    'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
@@ -86,5 +57,5 @@ class TestCompetitions:
         x._transforms = []
         x.get_current_user = lambda: True
         x.get_argument = lambda *args: True
-        x._validate = lambda *args: {'id': (1, 2), 'client_id': (1, 2), 'type': [CompetitionType.CLASSIFY]}
+        x._validate = lambda *args: {'id': (1, 2), 'user_id': (1, 2), 'type': [CompetitionType.CLASSIFY]}
         x.get()

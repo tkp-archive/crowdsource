@@ -1,13 +1,13 @@
 import tornado.web
 import tornado.gen
 from tornado.concurrent import run_on_executor
-from .base import ServerHandler
+from .base import AuthenticatedHandler
 
 
-class AdminHandler(ServerHandler):
+class AdminHandler(AuthenticatedHandler):
     @tornado.gen.coroutine
     def get(self):
-        '''Get the current list of client ids'''
+        '''Get the current list of user ids'''
         yield self._get()
 
     @run_on_executor

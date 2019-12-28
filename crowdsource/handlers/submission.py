@@ -5,7 +5,7 @@ import tornado.web
 import ujson
 from datetime import datetime
 from tornado.concurrent import run_on_executor
-from .base import ServerHandler
+from .base import AuthenticatedHandler
 from .validate import validate_submission_get, validate_submission_post
 from ..persistence.models import Submission, Competition
 from ..types.submission import SubmissionSpec
@@ -13,7 +13,7 @@ from ..types.utils import fetchDataset, checkAnswer
 from ..enums import CompetitionType
 
 
-class SubmissionHandler(ServerHandler):
+class SubmissionHandler(AuthenticatedHandler):
     @tornado.web.authenticated
     @tornado.gen.coroutine
     def get(self):
@@ -33,23 +33,23 @@ class SubmissionHandler(ServerHandler):
             for c in submissions:
                 submission_id = data.get('submission_id', ())
                 cpid = data.get('competition_id', ())
-                clid = data.get('client_id', ())
-                client_username = data.get('client_username', ())
+                clid = data.get('user_id', ())
+                user_username = data.get('user_username', ())
                 t = data.get('type', '')
 
                 if submission_id and c.submission_id not in submission_id:
                     continue
                 if cpid and c.competition_id not in cpid:
                     continue
-                if clid and c.client_id not in clid:
+                if clid and c.user_id not in clid:
                     continue
                 if t and CompetitionType(t) != c.competition.spec.type:
                     continue
-                if client_username and c.client.username != client_username:
+                if user_username and c.user.username != user_username:
                     continue
 
                 # only allow if im the submitter or the competition owner
-                if (int(self.current_user) != c.client_id) and (int(self.current_user) != c.competition.client_id):
+                if (int(self.current_user) != c.user_id) and (int(self.current_user) != c.competition.user_id):
                     continue
 
                 # check if expired and turn off if necessary
@@ -74,7 +74,7 @@ class SubmissionHandler(ServerHandler):
         data = self._validate(validate_submission_post)
 
         submission = data['submission']
-        client_id = int(self.current_user)
+        user_id = int(self.current_user)
         competition_id = data['competition_id']
 
         with self.session() as session:
@@ -90,7 +90,7 @@ class SubmissionHandler(ServerHandler):
 
             try:
                 spec = SubmissionSpec.from_dict(submission)
-                submission = Submission.from_spec(client_id=client_id,
+                submission = Submission.from_spec(user_id=user_id,
                                                   competition_id=competition_id,
                                                   competition=competition,
                                                   spec=spec)
@@ -116,7 +116,7 @@ class SubmissionHandler(ServerHandler):
                 self.score_later(submission)
                 score = {'submission_id': submission_id}
 
-            self._writeout(ujson.dumps(score), 'Registering submission %s from %s', submission_id, submission.client_id)
+            self._writeout(ujson.dumps(score), 'Registering submission %s from %s', submission_id, submission.user_id)
 
     def score(self, submission, session):
         logging.info("SCORING %s FOR %s", str(submission.submission_id), submission.competition_id)

@@ -1,7 +1,8 @@
-import {IRequestResult, request} from "requests-helper";
-import {REGISTER} from "../define";
-import {basepath} from "../utils";
-import {BaseWidget} from "./base";
+import {IRequestResult, request} from 'requests-helper';
+import {BaseWidget, basepath} from 'tkp_utils';
+
+import {REGISTER} from '../define';
+
 // tslint:disable no-namespace object-literal-sort-keys no-console
 
 export

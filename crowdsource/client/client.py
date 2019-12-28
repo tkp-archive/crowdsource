@@ -3,11 +3,11 @@ import pandas as pd
 import threading
 import time
 import ujson
+from tornado_sqlalchemy_login.utils import safe_get, safe_post_cookies, construct_path
 from traitlets import HasTraits
 from .samples_mixin import SamplesMixin
 from ..types.competition import CompetitionSpec
 from ..types.submission import SubmissionSpec
-from ..utils import safe_get, safe_post_cookies, construct_path
 from ..enums import DatasetFormat
 from ..exceptions import MalformedCompetitionSpec
 
