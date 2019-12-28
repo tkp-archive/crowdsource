@@ -47,7 +47,8 @@ fixtures:  ## make db fixtures
 # 	python3 crowdsource/persistence/migrations/0002.py
 
 clean: ## clean the repository
-	find . -name "__pycache__" | xargs  rm -rf 
+	find . -name "__pycache__" | xargs  rm -rf
+	rm -rf .pytest_cache 
 	find . -name "*.pyc" | xargs rm -rf 
 	rm -rf .coverage cover htmlcov logs build dist *.egg-info
 	make -C ./docs clean
