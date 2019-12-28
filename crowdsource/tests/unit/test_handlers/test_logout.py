@@ -24,6 +24,9 @@ class TestLogout:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = LogoutHandler(self.app, req, **context)

@@ -1,6 +1,17 @@
+import copy
 from crowdsource.handlers.base import ServerHandler
 from mock import MagicMock
 from tornado.web import HTTPError
+
+CONTEXT = {'clients': {},
+           'competitions': {},
+           'leaderboards': {},
+           'submissions': {},
+           'stash': [],
+           'all_clients': MagicMock(),
+           'all_competitions': MagicMock(),
+           'all_submissions': MagicMock(),
+           'sessionmaker': MagicMock()}
 
 
 class TestBase:
@@ -11,27 +22,17 @@ class TestBase:
     def test_get_current_user(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'sessionmaker': MagicMock()}
+        context = copy.deepcopy(CONTEXT)
 
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
-        x.get_secure_cookie = MagicMock(return_value=5)
-        assert x.get_current_user() == 5
+        x.get_secure_cookie = MagicMock(return_value=b'5')
+        assert x.get_current_user() == '5'
 
     def test_set_401(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'sessionmaker': MagicMock()}
+        context = copy.deepcopy(CONTEXT)
 
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
@@ -44,12 +45,7 @@ class TestBase:
     def test_set_403(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'sessionmaker': MagicMock()}
+        context = copy.deepcopy(CONTEXT)
 
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
@@ -62,12 +58,7 @@ class TestBase:
     def test_validate(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'sessionmaker': MagicMock()}
+        context = copy.deepcopy(CONTEXT)
 
         x = ServerHandler(self.app, req, **context)
         x._transforms = []
@@ -76,12 +67,7 @@ class TestBase:
     def test_writeout(self):
         req = MagicMock()
         req.body = ''
-        context = {'clients': {},
-                   'competitions': {},
-                   'leaderboards': {},
-                   'submissions': {},
-                   'stash': [],
-                   'sessionmaker': MagicMock()}
+        context = copy.deepcopy(CONTEXT)
 
         x = ServerHandler(self.app, req, **context)
         x._transforms = []

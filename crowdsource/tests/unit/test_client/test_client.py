@@ -38,7 +38,7 @@ class TestClient:
             m.return_value = MagicMock()
             m.return_value.text = '{}'
             c.register()
-            assert(not c._am_registered())
+            assert(not c._am_registered)
 
     def test_users(self):
         with patch('requests.post') as m:

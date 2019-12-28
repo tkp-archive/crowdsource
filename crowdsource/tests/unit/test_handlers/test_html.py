@@ -10,6 +10,9 @@ context = {'clients': {},
            'leaderboards': {},
            'submissions': {},
            'stash': [],
+           'all_clients': MagicMock(),
+           'all_competitions': MagicMock(),
+           'all_submissions': MagicMock(),
            'sessionmaker': MagicMock()}
 
 

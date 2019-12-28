@@ -24,6 +24,9 @@ class TestLogin:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = LoginHandler(self.app, req, **context)

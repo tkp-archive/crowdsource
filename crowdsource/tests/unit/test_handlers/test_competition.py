@@ -19,21 +19,14 @@ class TestCompetitions:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = CompetitionHandler(self.app, req, **context)
         x._transforms = []
         x.get_current_user = lambda: True
-
-        # requires client id
-        x.get()
-        try:
-            x.post()
-            assert False
-        except HTTPError:
-            pass
-
-        assert(x.get_status() == 400)
 
         # malformed competition
         req.body = '{"id":1234}'
@@ -42,11 +35,10 @@ class TestCompetitions:
         x.get_current_user = lambda: True
         try:
             x.post()
-            assert False
         except HTTPError:
             pass
 
-        assert(x.get_status() == 400)
+        assert(x.get_status() == 401)
 
     def test_competitions2(self):
         req = MagicMock()
@@ -85,6 +77,9 @@ class TestCompetitions:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = CompetitionHandler(self.app, req, **context)

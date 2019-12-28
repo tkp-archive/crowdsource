@@ -17,6 +17,9 @@ class TestLeaderboard:
                    'leaderboards': {},
                    'submissions': {},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = LeaderboardHandler(self.app, req, **context)
@@ -65,6 +68,9 @@ class TestLeaderboard:
                    'leaderboards': {0: x},
                    'submissions': {0: x},
                    'stash': [],
+                   'all_clients': MagicMock(),
+                   'all_competitions': MagicMock(),
+                   'all_submissions': MagicMock(),
                    'sessionmaker': MagicMock()}
 
         x = LeaderboardHandler(self.app, req, **context)
