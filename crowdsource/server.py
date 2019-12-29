@@ -35,7 +35,6 @@ class Crowdsource(Application):
     handlers = List(default_value=[])
     debug = Bool(default_value=True).tag(config=True)
     cookie_secret = Unicode(default_value="61oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=")
-    sql = Bool(default_value=True).tag(config=True)
 
     aliases = {
         'port': 'Crowdsource.port',
