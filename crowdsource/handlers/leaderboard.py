@@ -1,13 +1,13 @@
 import tornado.gen
 import ujson
 from tornado.concurrent import run_on_executor
-from .base import ServerHandler
+from .base import AuthenticatedHandler
 from .validate import validate_leaderboard_get
 from ..persistence.models import Submission
 from ..enums import CompetitionType
 
 
-class LeaderboardHandler(ServerHandler):
+class LeaderboardHandler(AuthenticatedHandler):
     @tornado.gen.coroutine
     def get(self):
         '''Get the current list of competition ids'''
@@ -24,19 +24,19 @@ class LeaderboardHandler(ServerHandler):
                 for c in x:
                     submission_id = data.get('submission_id', ())
                     cpid = data.get('competition_id', ())
-                    clid = data.get('client_id', ())
-                    client_username = data.get('client_username', ())
+                    clid = data.get('user_id', ())
+                    user_username = data.get('user_username', ())
                     t = data.get('type', '')
 
                     if submission_id and c.submission_id not in submission_id:
                         continue
                     if cpid and c.competition_id not in cpid:
                         continue
-                    if clid and c.client_id not in clid:
+                    if clid and c.user_id not in clid:
                         continue
                     if t and CompetitionType(t) != c.competition.spec.type:
                         continue
-                    if client_username and c.client.username != client_username:
+                    if user_username and c.user.username != user_username:
                         continue
 
                     d = c.to_dict(private=True)

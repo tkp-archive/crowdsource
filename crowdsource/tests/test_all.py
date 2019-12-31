@@ -8,4 +8,3 @@ from crowdsource.persistence.models import *
 from crowdsource.enums import *
 from crowdsource.exceptions import *
 from crowdsource.server import *
-from crowdsource.utils import *

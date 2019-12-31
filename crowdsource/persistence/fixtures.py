@@ -1,7 +1,7 @@
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, Client, APIKey
+from .models import Base, User, APIKey
 
 
 def main(sql_url):
@@ -11,16 +11,16 @@ def main(sql_url):
     sm = sessionmaker(bind=engine)
 
     session = sm()
-    admin = Client(username='admin',
-                   password='admin',
-                   email='test@test.com',
-                   status="admin")
+    admin = User(username='admin',
+                 password='admin',
+                 email='test@test.com',
+                 admin=True)
     try:
         session.add(admin)
         session.commit()
         session.refresh(admin)
         print('added admin: {}'.format(admin))
-        key = APIKey(client=admin)
+        key = APIKey(user=admin)
         session.add(key)
         session.commit()
         session.refresh(key)
@@ -31,7 +31,7 @@ def main(sql_url):
             fp.write("export CROWDSOURCE_SECRET={}\n".format(key.secret))
     except BaseException:
         session.rollback()
-        admin = session.query(Client).filter_by(username='test').first()
+        admin = session.query(User).filter_by(username='test').first()
         print('admin exists: {}'.format(admin))
 
 

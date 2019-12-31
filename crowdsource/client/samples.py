@@ -4,8 +4,8 @@ import time
 import ujson
 from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
+from tornado_sqlalchemy_login.utils import safe_post, construct_path
 from ..types.competition import CompetitionSpec
-from ..utils import safe_post, construct_path
 from ..enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 

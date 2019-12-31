@@ -31,6 +31,7 @@ requires = [
     'scikit-learn>=0.21.3',
     'scipy>=1.2.1',
     'sqlalchemy>=1.3.0',
+    'tornado-sqlalchemy-login>=0.1.0',
     'tornado>=6.0.3',
     'ujson>=1.35',
     'validators>=0.12.4',

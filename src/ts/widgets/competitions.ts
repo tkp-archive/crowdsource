@@ -1,8 +1,8 @@
 import {PerspectiveWidget} from "@finos/perspective-phosphor";
 import {SplitPanel} from "@phosphor/widgets";
 import {IRequestResult, request} from "requests-helper";
+import {basepath, loggedIn} from "tkp_utils";
 import {COMPETITIONS} from "../define";
-import {basepath, loggedIn} from "../utils";
 // tslint:disable no-namespace no-console
 
 export

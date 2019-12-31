@@ -1,4 +1,4 @@
-import {BaseWidget} from "./base";
+import {BaseWidget} from "tkp_utils";
 
 // tslint:disable no-namespace
 
