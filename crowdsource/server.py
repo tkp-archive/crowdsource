@@ -10,8 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from tornado_sqlalchemy_login import SQLAlchemyLoginManagerOptions, SQLAlchemyLoginManager, LoginHandler, LogoutHandler, RegisterHandler, APIKeyHandler
 from traitlets.config.application import Application
 from traitlets import Int, Unicode, List, Bool
-from .handlers import RegisterHandler, CompetitionHandler, \
-    SubmissionHandler, LeaderboardHandler
+from .handlers import HTMLHandler, AdminHandler, UserHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, User, Competition, Submission, APIKey
 
 class Crowdsource(Application):
@@ -57,7 +56,7 @@ class Crowdsource(Application):
         Base.metadata.create_all(engine)
 
         # fetch users
-        self.sessionmaker = sessionmaker(bind=engine)
+        self.sessionmaker = sessionmaker(bind=engine, expire_on_commit=False)
         session = self.sessionmaker()
         users = session.query(User).all()
 
@@ -90,6 +89,9 @@ class Crowdsource(Application):
         # for offline storage
         self._stash = []
 
+        root = os.path.join(os.path.dirname(__file__), 'assets')
+        static = os.path.join(root, 'static')
+
         context = {'users': self._users,
                    'all_users': self._all_users,
                    'competitions': self._competitions,
@@ -102,8 +104,12 @@ class Crowdsource(Application):
                    'wspath': self.wspath,
                    'proxies': 'test'}
 
-        handlers = [
-            (r"/home", HTMLOpenHandler, {'template': 'home.html', 'context': context}),
+        default_handlers = [
+            (r"/", HTMLHandler, {'template': 'index.html', 'basepath': self.basepath, 'wspath': self.wspath}),
+            (r"/index.html", HTMLHandler, {'template': 'index.html', 'basepath': self.basepath, 'wspath': self.wspath}),
+            (r"/home", HTMLHandler, {'template': 'home.html', 'basepath': self.basepath, 'wspath': self.wspath}),
+            (r"/api/v1/login", LoginHandler, context),
+            (r"/api/v1/logout", LogoutHandler, context),
             (r"/api/v1/register", RegisterHandler, context),
             (r"/api/v1/admin", AdminHandler, context),
             (r"/api/v1/apikeys", APIKeyHandler, context),
@@ -128,17 +134,9 @@ class Crowdsource(Application):
             basepath=self.basepath,
             apipath=self.apipath,
             wspath=self.wspath,
-            sqlalchemy_sessionmaker=self.sessionmaker,
-            UserSQLClass=User,
-            APIKeySQLClass=APIKey,
-            user_id_field='id',
-            apikey_id_field='id',
-            user_apikeys_field='apikeys',
-            apikey_user_field='user',
-            user_admin_field='admin',
-            user_admin_value=True,
-            extra_handlers=handlers,
-            extra_context=context,
+            port=self.port,
+            UserClass=User,
+            APIKeyClass=APIKey,
         )
 
         settings = {

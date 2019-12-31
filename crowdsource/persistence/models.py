@@ -3,7 +3,7 @@ import six
 import ujson
 import validators
 from datetime import datetime, timedelta
-from tkp_utils.sqla.models import Base, User, APIKey as APIKey  # noqa: F401
+from tornado_sqlalchemy_login.sqla.models import Base, User, APIKey as APIKey  # noqa: F401
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 
