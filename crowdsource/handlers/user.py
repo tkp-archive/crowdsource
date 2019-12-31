@@ -1,5 +1,6 @@
 from .base import AuthenticatedHandler
 
+
 class UserHandler(AuthenticatedHandler):
     pass
     # put in perspective

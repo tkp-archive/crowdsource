@@ -13,6 +13,7 @@ from traitlets import Int, Unicode, List, Bool
 from .handlers import HTMLHandler, AdminHandler, UserHandler, CompetitionHandler, SubmissionHandler, LeaderboardHandler
 from .persistence.models import Base, User, Competition, Submission, APIKey
 
+
 class Crowdsource(Application):
     name = 'crowdsource'
     description = 'crowdsource'
@@ -113,6 +114,7 @@ class Crowdsource(Application):
             (r"/api/v1/register", RegisterHandler, context),
             (r"/api/v1/admin", AdminHandler, context),
             (r"/api/v1/apikeys", APIKeyHandler, context),
+            (r"/api/v1/users", UserHandler, context),
             (r"/api/v1/competition", CompetitionHandler, context),
             (r"/api/v1/wscompetition", PerspectiveTornadoHandler, {"manager": self._manager, "check_origin": True}),
             (r"/api/v1/submission", SubmissionHandler, context),

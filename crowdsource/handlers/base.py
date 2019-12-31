@@ -1,5 +1,4 @@
-import copy
-from tornado_sqlalchemy_login.handlers import BaseHandler as _BaseHandler, AuthenticatedHandler
+from tornado_sqlalchemy_login.handlers import BaseHandler as _BaseHandler, AuthenticatedHandler  # noqa: F401
 
 
 class BaseHandler(_BaseHandler):
