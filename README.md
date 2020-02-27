@@ -15,4 +15,4 @@ Crowdsourcing answers
 ## Running the Server
 `python -m crowdsource.server`
 
-![](docs/img/screenshot.png)
+![](https://raw.githubusercontent.com/timkpaine/crowdsource/master/docs/img/screenshot.png)
