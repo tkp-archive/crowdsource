@@ -113,3 +113,9 @@ keys.sh
 examples/local/crowdsource
 examples/remote/crowdsource
 tornado_sqlalchemy_login
+
+
+docs/api
+docs/index.md
+
+

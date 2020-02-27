@@ -10,9 +10,9 @@ Crowdsourcing answers
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/crowd_source/Lobby)
 
 ## Installation
-`python setup.py install`
+`pip install crowdsource` or from source `python setup.py install`
 
 ## Running the Server
 `python -m crowdsource.server`
 
-![](https://raw.githubusercontent.com/timkpaine/crowdsource/master/docs/img/screenshot.png)
+![](docs/img/screenshot.png)
