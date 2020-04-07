@@ -38,6 +38,9 @@
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1"
   },
+  "resolutions": {
+    "kind-of": "^6.0.3"
+  },
   "scripts": {
     "build": "tsc && webpack && yarn copyassets",
     "copyassets": "cpx \"node_modules/@finos/perspective/dist/umd/*wasm*\" crowdsource/assets/static/js/",
