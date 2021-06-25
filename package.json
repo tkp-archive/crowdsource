@@ -41,7 +41,9 @@
   },
   "resolutions": {
     "acorn": "^6.4.1",
+    "braces": "^2.3.1",
     "browserslist": "^4.16.5",
+    "color-string": "^1.5.5",
     "glob-parent": "^5.1.2",
     "is-svg": "^4.2.2",
     "js-yaml": "^3.13.1",
