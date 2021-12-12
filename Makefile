@@ -10,9 +10,6 @@ answers:  ## run example answers
 bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
-tests: ## Clean and Make unit tests
-	CROWDSOURCE_KEY=TEST CROWDSOURCE_SECRET=TEST python3 -m pytest -vvv crowdsource/tests/ --cov=crowdsource
-
 fixtures:  ## make db fixtures
 	python3 -m crowdsource.persistence.fixtures sqlite:///crowdsource.db
 
@@ -32,7 +29,7 @@ example: ## run simple example
 	python3 crowdsource/example.py
 
 tests: ## Make unit tests
-	python -m pytest -v crowdsource --cov=crowdsource --junitxml=python_junit.xml --cov-report=xml --cov-branch
+	CROWDSOURCE_KEY=TEST CROWDSOURCE_SECRET=TEST python -m pytest -v crowdsource --cov=crowdsource --junitxml=python_junit.xml --cov-report=xml --cov-branch
 
 lint: ## run linter
 	python -m flake8 crowdsource setup.py docs/conf.py

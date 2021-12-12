@@ -1,17 +1,15 @@
-import six
-import pandas
-import ujson
 import time
-import validators
 from datetime import datetime
+
+import pandas
+import six
+import ujson
+import validators
 from traitlets import HasTraits
-from ..enums import CompetitionType, CompetitionMetric, DatasetFormat
-from ..exceptions import (
-    MalformedCompetition,
-    MalformedMetric,
-    MalformedDataset,
-    MalformedTargets,
-)
+
+from ..enums import CompetitionMetric, CompetitionType, DatasetFormat
+from ..exceptions import (MalformedCompetition, MalformedDataset,
+                          MalformedMetric, MalformedTargets)
 
 
 class CompetitionSpec(HasTraits):
@@ -115,7 +113,7 @@ class CompetitionSpec(HasTraits):
         ret["dataset_kwargs"] = self.dataset_kwargs
         ret["dataset_key"] = self.dataset_key
         ret["num_classes"] = self.num_classes
-        ret["targets"] = self.targets
+        ret["targets"] = list(self.targets) if self.targets is not None else None
         ret["when"] = (
             ""
             if self.when is None

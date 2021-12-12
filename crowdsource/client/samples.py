@@ -1,12 +1,14 @@
+import time
+from datetime import datetime, timedelta
+
 import cufflinks.datagen as cfdg
 import pandas
-import time
 import ujson
-from datetime import datetime, timedelta
 from sklearn.datasets import make_classification
-from tornado_sqlalchemy_login.utils import safe_post, construct_path
+from tornado_sqlalchemy_login.utils import construct_path, safe_post
+
+from ..enums import CompetitionMetric, CompetitionType, DatasetFormat
 from ..types.competition import CompetitionSpec
-from ..enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 
 def classify1(host, cookies=None, proxies=None):
@@ -155,6 +157,7 @@ def predictCorporateBonds(host, cookies=None, proxies=None):
 
 def answerPredictCorporateBonds(competitionSpec, *args, **kwargs):
     from random import normalvariate
+
     from crowdsource.types.utils import answerPrototype, fetchDataset
 
     dataset = fetchDataset(competitionSpec)
@@ -200,6 +203,7 @@ def predictCitibike(host, cookies=None, proxies=None):
 
 def answerPredictCitibike(competitionSpec, *args, **kwargs):
     from random import randint
+
     from crowdsource.types.utils import answerPrototype, fetchDataset
 
     dataset = fetchDataset(competitionSpec)

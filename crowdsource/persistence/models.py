@@ -6,11 +6,9 @@ import ujson
 import validators
 from sqlalchemy import JSON, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
-from tornado_sqlalchemy_login.sqla.models import (  # APIKey as APIKey,; noqa: F401
-    Base,
-    User,
-)
+from tornado_sqlalchemy_login.sqla.models import APIKey, Base, User
 
+APIKey = APIKey
 
 class Client(User):
     __mapper_args__ = {"polymorphic_identity": "client"}
