@@ -1,16 +1,18 @@
 import logging
+from datetime import datetime
+
 import six
 import tornado.gen
 import tornado.web
 import ujson
-from datetime import datetime
 from tornado.concurrent import run_on_executor
+
+from ..enums import CompetitionType
+from ..persistence.models import Competition, Submission
+from ..types.submission import SubmissionSpec
+from ..types.utils import checkAnswer, fetchDataset
 from .base import AuthenticatedHandler
 from .validate import validate_submission_get, validate_submission_post
-from ..persistence.models import Submission, Competition
-from ..types.submission import SubmissionSpec
-from ..types.utils import fetchDataset, checkAnswer
-from ..enums import CompetitionType
 
 
 class SubmissionHandler(AuthenticatedHandler):

@@ -1,12 +1,14 @@
+from datetime import datetime
+
 import tornado.gen
 import tornado.web
 import ujson
-from datetime import datetime
 from tornado.concurrent import run_on_executor
+
+from ..persistence.models import Competition
+from ..types.competition import CompetitionSpec
 from .base import AuthenticatedHandler
 from .validate import validate_competition_get, validate_competition_post
-from ..types.competition import CompetitionSpec
-from ..persistence.models import Competition
 
 
 class CompetitionHandler(AuthenticatedHandler):
