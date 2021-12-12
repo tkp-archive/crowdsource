@@ -1,5 +1,18 @@
-from .samples import classify1, predict1, predict2, predictCorporateBonds, predictCitibike
-from .samples import answerClassify1, answerClassify2, answerClassify3, answerPredict1, answerPredictCorporateBonds, answerPredictCitibike
+from .samples import (
+    classify1,
+    predict1,
+    predict2,
+    predictCorporateBonds,
+    predictCitibike,
+)
+from .samples import (
+    answerClassify1,
+    answerClassify2,
+    answerClassify3,
+    answerPredict1,
+    answerPredictCorporateBonds,
+    answerPredictCitibike,
+)
 
 
 class SamplesMixin:
@@ -9,13 +22,13 @@ class SamplesMixin:
         self._my_competitions.append(resp)
 
     def _sampleAnswerClassify1(self):
-        self.compete('classify', answerClassify1)
+        self.compete("classify", answerClassify1)
 
     def _sampleAnswerClassify2(self):
-        self.compete('classify', answerClassify2)
+        self.compete("classify", answerClassify2)
 
     def _sampleAnswerClassify3(self):
-        self.compete('classify', answerClassify3)
+        self.compete("classify", answerClassify3)
 
     def _samplePredict1(self):
         self.register()
@@ -23,7 +36,7 @@ class SamplesMixin:
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredict1(self):
-        self.compete('predict', answerPredict1)
+        self.compete("predict", answerPredict1)
 
     def _samplePredict2(self):
         self.register()
@@ -36,7 +49,7 @@ class SamplesMixin:
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredictCorporateBonds(self):
-        self.compete('predict', answerPredictCorporateBonds)
+        self.compete("predict", answerPredictCorporateBonds)
 
     def _samplePredictCitibike(self):
         self.register()
@@ -44,4 +57,4 @@ class SamplesMixin:
         self._my_competitions.append(resp)
 
     def _sampleAnswerPredictCitibike(self):
-        self.compete('predict', answerPredictCitibike)
+        self.compete("predict", answerPredictCitibike)

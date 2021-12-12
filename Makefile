@@ -10,27 +10,6 @@ answers:  ## run example answers
 bonds:  ## run bonds example
 	python3 examples/competitions/corporate_bonds.py
 
-tests: ## Clean and Make unit tests
-	CROWDSOURCE_KEY=TEST CROWDSOURCE_SECRET=TEST python3 -m pytest -vvv crowdsource/tests/ --cov=crowdsource
-
-annotate: ## MyPy type annotation check
-	mypy -s crowdsource  
-
-annotate_l: ## MyPy type annotation check - count only
-	mypy -s crowdsource | wc -l 
-
-lint: ## run linter
-	flake8 crowdsource
-	yarn lint
-
-fix:  ## run autopep8/tslint fix
-	autopep8 --in-place -r -a -a crowdsource/
-	./node_modules/.bin/tslint --fix src/ts/**/*.ts
-
-js:  ## build the js
-	yarn
-	yarn build
-
 fixtures:  ## make db fixtures
 	python3 -m crowdsource.persistence.fixtures sqlite:///crowdsource.db
 
@@ -46,31 +25,48 @@ fixtures:  ## make db fixtures
 # 	python3 crowdsource/persistence/migrations/0001.py
 # 	python3 crowdsource/persistence/migrations/0002.py
 
-clean: ## clean the repository
-	find . -name "__pycache__" | xargs  rm -rf
-	rm -rf .pytest_cache 
-	find . -name "*.pyc" | xargs rm -rf 
-	rm -rf .coverage cover htmlcov logs build dist *.egg-info
-	make -C ./docs clean
-
 example: ## run simple example
 	python3 crowdsource/example.py
 
-build:  ## build the repository
-	python3 setup.py build
+tests: ## Make unit tests
+	CROWDSOURCE_KEY=TEST CROWDSOURCE_SECRET=TEST python -m pytest -v crowdsource --cov=crowdsource --junitxml=python_junit.xml --cov-report=xml --cov-branch
 
-install:  ## install to site-packages
-	python3 setup.py install
+lint: ## run linter
+	python -m flake8 crowdsource setup.py docs/conf.py
+	yarn lint
+
+js:  ## build the js
+	yarn
+	yarn build
+
+fix:  ## run black fix
+	python -m black crowdsource/ setup.py docs/conf.py
+	./node_modules/.bin/tslint --fix src/ts/**/*.ts
+
+clean: ## clean the repository
+	find . -name "__pycache__" | xargs  rm -rf 
+	find . -name "*.pyc" | xargs rm -rf 
+	rm -rf .coverage cover htmlcov logs build dist *.egg-info
+	make -C ./docs clean
+	rm -rf ./docs/*.*.rst  # generated
 
 docs:  ## make documentation
-	make -C ./docs html && open docs/_build/html/index.html
+	make -C ./docs html
+	open ./docs/_build/html/index.html
 
-dist:  ## dist to pypi
+install:  ## install to site-packages
+	python -m pip install .
+
+dev:
+	python -m pip install .[dev]
+
+dist:  ## create dists
 	rm -rf dist build
-	python3 setup.py sdist
-	python3 setup.py bdist_wheel
-	twine check dist/* && twine upload dist/*
-
+	python setup.py sdist bdist_wheel
+	python -m twine check dist/*
+	
+publish: dist  ## dist to pypi
+	python -m twine upload dist/* --skip-existing
 
 # Thanks to Francoise at marmelab.com for this
 .DEFAULT_GOAL := help
@@ -80,4 +76,4 @@ help:
 print-%:
 	@echo '$*=$($*)'
 
-.PHONY: clean run test tests help annotate annotate_l docs server sqlserver questions answers  db migrations
+.PHONY: clean test tests help annotate annotate_l docs dist
