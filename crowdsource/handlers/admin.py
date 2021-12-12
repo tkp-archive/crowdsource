@@ -1,7 +1,7 @@
-import tornado.web
 import tornado.gen
+import tornado.web
 from tornado.concurrent import run_on_executor
-from .base import AuthenticatedHandler
+from tornado_sqlalchemy_login.handlers import AuthenticatedHandler
 
 
 class AdminHandler(AuthenticatedHandler):
