@@ -17,6 +17,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: [3.9]
+        node-version: [12.x]
         event-name: [push]
 
     steps:
@@ -27,10 +28,19 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install yarn
+      run: npm install -g yarn
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel twine
         python -m pip install -e .[dev]
+        yarn
 
     - name: Lint
       run: |
