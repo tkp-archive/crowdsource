@@ -1,16 +1,17 @@
 import tornado.gen
 import ujson
 from tornado.concurrent import run_on_executor
+
+from ..enums import CompetitionType
+from ..persistence.models import Submission
 from .base import AuthenticatedHandler
 from .validate import validate_leaderboard_get
-from ..persistence.models import Submission
-from ..enums import CompetitionType
 
 
 class LeaderboardHandler(AuthenticatedHandler):
     @tornado.gen.coroutine
     def get(self):
-        '''Get the current list of competition ids'''
+        """Get the current list of competition ids"""
         yield self._get()
 
     @run_on_executor
@@ -22,11 +23,11 @@ class LeaderboardHandler(AuthenticatedHandler):
             submissions = session.query(Submission).all()
             for x in submissions:
                 for c in x:
-                    submission_id = data.get('submission_id', ())
-                    cpid = data.get('competition_id', ())
-                    clid = data.get('user_id', ())
-                    user_username = data.get('user_username', ())
-                    t = data.get('type', '')
+                    submission_id = data.get("submission_id", ())
+                    cpid = data.get("competition_id", ())
+                    clid = data.get("user_id", ())
+                    user_username = data.get("user_username", ())
+                    t = data.get("type", "")
 
                     if submission_id and c.submission_id not in submission_id:
                         continue
@@ -40,8 +41,10 @@ class LeaderboardHandler(AuthenticatedHandler):
                         continue
 
                     d = c.to_dict(private=True)
-                    d['score'] = round(d['score'], 2)
+                    d["score"] = round(d["score"], 2)
                     res.append(d)
 
-            page = int(data.get('page', 0))
-            self.write(ujson.dumps(res[page * 100:(page + 1) * 100]))  # return top 100
+            page = int(data.get("page", 0))
+            self.write(
+                ujson.dumps(res[page * 100 : (page + 1) * 100])
+            )  # return top 100

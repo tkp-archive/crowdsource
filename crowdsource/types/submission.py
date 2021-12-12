@@ -7,10 +7,7 @@ from ..enums import DatasetFormat
 
 
 class SubmissionSpec(HasTraits):
-    def __init__(self,
-                 competition_id,
-                 answer,
-                 answer_type):
+    def __init__(self, competition_id, answer, answer_type):
         SubmissionSpec.validate(competition_id, answer, answer_type)
         self.competition_id = competition_id
         self.answer = answer
@@ -20,12 +17,12 @@ class SubmissionSpec(HasTraits):
 
     def to_dict(self):
         ret = {}
-        ret['competition_id'] = self.competition_id
+        ret["competition_id"] = self.competition_id
         if isinstance(self.answer, pandas.DataFrame):
-            ret['answer'] = self.answer.to_json()
+            ret["answer"] = self.answer.to_json()
         else:
-            ret['answer'] = self.answer
-        ret['answer_type'] = self.answer_type.value
+            ret["answer"] = self.answer
+        ret["answer_type"] = self.answer_type.value
         return ret
 
     def to_json(self):
@@ -35,9 +32,9 @@ class SubmissionSpec(HasTraits):
     def from_dict(cls, val):
         d = {}
         for k, v in val.items():
-            if k == 'answer_type':
+            if k == "answer_type":
                 d[k] = DatasetFormat(v)
-            elif k == 'answer':
+            elif k == "answer":
                 if isinstance(v, six.string_types):
                     if v in ("", "hidden") or validators.url(v):
                         d[k] = v

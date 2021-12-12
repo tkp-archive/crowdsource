@@ -7,7 +7,7 @@ from .base import AuthenticatedHandler
 class AdminHandler(AuthenticatedHandler):
     @tornado.gen.coroutine
     def get(self):
-        '''Get the current list of user ids'''
+        """Get the current list of user ids"""
         yield self._get()
 
     @run_on_executor

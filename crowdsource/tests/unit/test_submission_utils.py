@@ -14,15 +14,23 @@ from crowdsource.enums import CompetitionType, CompetitionMetric, DatasetFormat
 
 def foo3(competitionSpec, *args, **kwargs):
     import pandas
+
     # import time
     from sklearn import linear_model
+
     data = competitionSpec.dataset
 
     answers = []
 
     if isinstance(competitionSpec.targets, dict):
         return
-    targets = [competitionSpec.targets] if isinstance(competitionSpec.targets, six.string_types) else data.columns if competitionSpec.targets is None else competitionSpec.targets
+    targets = (
+        [competitionSpec.targets]
+        if isinstance(competitionSpec.targets, six.string_types)
+        else data.columns
+        if competitionSpec.targets is None
+        else competitionSpec.targets
+    )
 
     val = competitionSpec.when
     when = val.timestamp()
@@ -35,11 +43,11 @@ def foo3(competitionSpec, *args, **kwargs):
         y = data[col].values.reshape(len(data[col]), 1)
         reg.fit(x, y)
 
-        print('******************')
+        print("******************")
         answers.append(reg.predict([[when]])[0][0])
 
     answers.append(when)
-    return pandas.DataFrame([answers], columns=targets+['when']).set_index(['when'])
+    return pandas.DataFrame([answers], columns=targets + ["when"]).set_index(["when"])
 
 
 def foo5(competitionSpec, *args, **kwargs):
@@ -69,57 +77,83 @@ class TestUtils:
 
     def test_checkAnswer(self):
         dataset = make_classification()
-        competition = CompetitionSpec(title='',
-                                      type=CompetitionType.CLASSIFY,
-                                      expiration=datetime.now() + timedelta(minutes=1),
-                                      prize=1.0,
-                                      num_classes=2,
-                                      dataset=pd.DataFrame(dataset[0]),
-                                      metric=CompetitionMetric.LOGLOSS,
-                                      answer=pd.DataFrame(dataset[1]))
+        competition = CompetitionSpec(
+            title="",
+            type=CompetitionType.CLASSIFY,
+            expiration=datetime.now() + timedelta(minutes=1),
+            prize=1.0,
+            num_classes=2,
+            dataset=pd.DataFrame(dataset[0]),
+            metric=CompetitionMetric.LOGLOSS,
+            answer=pd.DataFrame(dataset[1]),
+        )
         c2 = Competition.from_spec(1, competition)
-        d2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': pd.DataFrame(dataset[1]).to_json(), 'answer_type': DatasetFormat.JSON})
+        d2 = SubmissionSpec.from_dict(
+            {
+                "competition_id": 2,
+                "answer": pd.DataFrame(dataset[1]).to_json(),
+                "answer_type": DatasetFormat.JSON,
+            }
+        )
         s = Submission.from_spec(1, 2, c2, d2)
 
         checkAnswer(s)
 
     def test_checkAnswer2(self):
         dataset = cfdg.ohlcv()
-        competition = CompetitionSpec(title='',
-                                      type=CompetitionType.PREDICT,
-                                      expiration=datetime.now() + timedelta(minutes=1),
-                                      prize=1.0,
-                                      dataset=dataset.iloc[:-1],
-                                      metric=CompetitionMetric.ABSDIFF,
-                                      targets=dataset.columns[-1],
-                                      answer=dataset.iloc[-1:],
-                                      when=datetime.utcfromtimestamp(dataset[-1:].index.values[0].astype(datetime)/1000000000))
+        competition = CompetitionSpec(
+            title="",
+            type=CompetitionType.PREDICT,
+            expiration=datetime.now() + timedelta(minutes=1),
+            prize=1.0,
+            dataset=dataset.iloc[:-1],
+            metric=CompetitionMetric.ABSDIFF,
+            targets=dataset.columns[-1],
+            answer=dataset.iloc[-1:],
+            when=datetime.utcfromtimestamp(
+                dataset[-1:].index.values[0].astype(datetime) / 1000000000
+            ),
+        )
 
         c2 = Competition.from_spec(1, competition)
         ans = foo3(competition)
         print(ans)
-        d2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': ans.to_json(), 'answer_type': DatasetFormat.JSON})
+        d2 = SubmissionSpec.from_dict(
+            {
+                "competition_id": 2,
+                "answer": ans.to_json(),
+                "answer_type": DatasetFormat.JSON,
+            }
+        )
         s = Submission.from_spec(1, 2, c2, d2)
 
         checkAnswer(s)
 
     def test_checkAnswer3(self):
         exp = datetime.now() + timedelta(minutes=2)
-        competition = CompetitionSpec(title='',
-                                      type=CompetitionType.PREDICT,
-                                      when=exp,
-                                      prize=1.0,
-                                      dataset='https://feeds.citibikenyc.com/stations/stations.json',
-                                      dataset_type=DatasetFormat.JSON,
-                                      dataset_key='id',
-                                      dataset_kwargs={'record_column': 'stationBeanList'},
-                                      metric=CompetitionMetric.ABSDIFF,
-                                      targets=['availableBikes', 'availableDocks'],
-                                      expiration=exp)
+        competition = CompetitionSpec(
+            title="",
+            type=CompetitionType.PREDICT,
+            when=exp,
+            prize=1.0,
+            dataset="https://feeds.citibikenyc.com/stations/stations.json",
+            dataset_type=DatasetFormat.JSON,
+            dataset_key="id",
+            dataset_kwargs={"record_column": "stationBeanList"},
+            metric=CompetitionMetric.ABSDIFF,
+            targets=["availableBikes", "availableDocks"],
+            expiration=exp,
+        )
 
         c2 = Competition.from_spec(1, competition)
         ans = foo5(competition)
-        s2 = SubmissionSpec.from_dict({'competition_id': 2, 'answer': ans.to_json(orient='records'), 'answer_type': DatasetFormat.JSON})
+        s2 = SubmissionSpec.from_dict(
+            {
+                "competition_id": 2,
+                "answer": ans.to_json(orient="records"),
+                "answer_type": DatasetFormat.JSON,
+            }
+        )
         s = Submission.from_spec(1, 2, c2, s2)
 
         checkAnswer(s)

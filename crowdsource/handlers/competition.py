@@ -16,16 +16,16 @@ class CompetitionHandler(AuthenticatedHandler):
 
     @run_on_executor
     def _get(self, *args, **kwargs):
-        '''Get the current list of competition ids'''
+        """Get the current list of competition ids"""
         data = self._validate(validate_competition_get)
         res = []
         with self.session() as session:
             competitions = session.query(Competition).all()
             for c in competitions:
-                competition_id = data.get('competition_id', ())
-                clid = data.get('user_id', ())
-                user_username = data.get('user_username', ())
-                t = data.get('type', ())
+                competition_id = data.get("competition_id", ())
+                clid = data.get("user_id", ())
+                user_username = data.get("user_username", ())
+                t = data.get("type", ())
 
                 if competition_id and c.competition_id not in competition_id:
                     continue
@@ -40,7 +40,7 @@ class CompetitionHandler(AuthenticatedHandler):
                 if datetime.now() > c.expiration:
                     c.active = False
 
-                    if self.get_argument('current', False):
+                    if self.get_argument("current", False):
                         continue
                 res.append(c.to_dict())
 
@@ -49,7 +49,7 @@ class CompetitionHandler(AuthenticatedHandler):
     @tornado.web.authenticated
     @tornado.gen.coroutine
     def post(self):
-        '''Register a competition. Competition will be assigned a session id'''
+        """Register a competition. Competition will be assigned a session id"""
         yield self._post()
 
     @run_on_executor
@@ -74,6 +74,11 @@ class CompetitionHandler(AuthenticatedHandler):
                 # put in perspective
                 self._competitions.update([comp.to_dict()])
                 self._all_competitions.update([comp.to_dict()])
-                self._writeout(ujson.dumps({'competition_id': str(comp.competition_id)}), "Registering competitiong %s for user %s", comp.competition_id, comp.user_id)
+                self._writeout(
+                    ujson.dumps({"competition_id": str(comp.competition_id)}),
+                    "Registering competitiong %s for user %s",
+                    comp.competition_id,
+                    comp.user_id,
+                )
             else:
                 self._set_400("Competition malformed")

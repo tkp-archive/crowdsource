@@ -2,32 +2,35 @@ from enum import Enum
 
 
 class DatasetType(Enum):
-    NONE = 'none'
-    PROVIDED = 'provided'
-    REMOTE = 'remote'
+    NONE = "none"
+    PROVIDED = "provided"
+    REMOTE = "remote"
 
 
 class DatasetFormat(Enum):
-    NONE = 'none'
-    CSV = 'csv'
-    JSON = 'json'
+    NONE = "none"
+    CSV = "csv"
+    JSON = "json"
 
 
 class CompetitionType(Enum):
-    '''Enumeration of possible competitions'''
-    PREDICT = 'predict'
-    CLASSIFY = 'classify'
-    CLUSTER = 'cluster'
+    """Enumeration of possible competitions"""
+
+    PREDICT = "predict"
+    CLASSIFY = "classify"
+    CLUSTER = "cluster"
 
 
 class CompetitionMetric(Enum):
-    '''Enumeration of competition metrics'''
-    LOGLOSS = 'logloss'
-    ABSDIFF = 'absdiff'
+    """Enumeration of competition metrics"""
+
+    LOGLOSS = "logloss"
+    ABSDIFF = "absdiff"
 
 
 class AnswerType(Enum):
-    '''Enumeration of the answer forms'''
+    """Enumeration of the answer forms"""
+
     ONE = 1  # Classify
     TWO = 2  # Predict 1
     THREE = 3  # Predict 2
