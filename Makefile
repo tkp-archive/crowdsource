@@ -32,7 +32,7 @@ example: ## run simple example
 	python3 crowdsource/example.py
 
 tests: ## Make unit tests
-	python -m pytest -v crowdsource --cov=crowdsource --junitxml=python_junit.xml --cov-report=xml --cov-branch --reruns 2 --reruns-delay 1
+	python -m pytest -v crowdsource --cov=crowdsource --junitxml=python_junit.xml --cov-report=xml --cov-branch
 
 lint: ## run linter
 	python -m flake8 crowdsource setup.py docs/conf.py
