@@ -4,12 +4,15 @@ import cufflinks.datagen as cfdg
 import numpy as np
 import pandas as pd
 from crowdsource.enums import CompetitionMetric, CompetitionType, DatasetFormat
-from crowdsource.exceptions import (MalformedCompetition, MalformedDataset,
-                                    MalformedDataType, MalformedMetric,
-                                    MalformedTargets)
+from crowdsource.exceptions import (
+    MalformedCompetition,
+    MalformedDataset,
+    MalformedDataType,
+    MalformedMetric,
+    MalformedTargets,
+)
 from crowdsource.types.competition import CompetitionSpec
-from crowdsource.types.utils import (_fetchDataset, answerPrototype,
-                                     fetchDataset)
+from crowdsource.types.utils import _fetchDataset, answerPrototype, fetchDataset
 from mock import MagicMock, patch
 from sklearn.datasets import make_classification
 

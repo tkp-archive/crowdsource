@@ -8,8 +8,12 @@ import validators
 from traitlets import HasTraits
 
 from ..enums import CompetitionMetric, CompetitionType, DatasetFormat
-from ..exceptions import (MalformedCompetition, MalformedDataset,
-                          MalformedMetric, MalformedTargets)
+from ..exceptions import (
+    MalformedCompetition,
+    MalformedDataset,
+    MalformedMetric,
+    MalformedTargets,
+)
 
 
 class CompetitionSpec(HasTraits):

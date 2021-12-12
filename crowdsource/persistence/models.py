@@ -10,6 +10,7 @@ from tornado_sqlalchemy_login.sqla.models import APIKey, Base, User
 
 APIKey = APIKey
 
+
 class Client(User):
     __mapper_args__ = {"polymorphic_identity": "client"}
 
