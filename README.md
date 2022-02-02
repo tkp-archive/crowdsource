@@ -6,7 +6,6 @@ Crowdsourcing answers
 [![GitHub issues](https://img.shields.io/github/issues/timkpaine/crowdsource.svg)]()
 [![PyPI](https://img.shields.io/pypi/l/crowdsource.svg)](https://pypi.python.org/pypi/crowdsource)
 [![PyPI](https://img.shields.io/pypi/v/crowdsource.svg)](https://pypi.python.org/pypi/crowdsource)
-[![Docs](https://readthedocs.org/projects/crowdsource/badge/?version=latest)](http://crowdsource.readthedocs.io/en/latest/?badge=latest)
 
 ## Installation
 `pip install crowdsource` or from source `python setup.py install`
