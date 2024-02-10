@@ -114,7 +114,6 @@ class Client(SamplesMixin, HasTraits):
                         if (competition_id, callback) not in self._competitions[
                             competitionType
                         ]:
-
                             # New competition or callback, run
                             t = Thread(
                                 target=callback, competitionSpec=c, **callbackArgs
@@ -133,7 +132,6 @@ class Client(SamplesMixin, HasTraits):
                     # attempt to join
                     ret = t.join(1)
                     if not t.isAlive():
-
                         # pop from thread list
                         competition_id, _ = threads[t]
                         if ret is None or ret.empty:

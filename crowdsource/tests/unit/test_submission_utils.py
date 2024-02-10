@@ -27,9 +27,9 @@ def foo3(competitionSpec, *args, **kwargs):
     targets = (
         [competitionSpec.targets]
         if isinstance(competitionSpec.targets, six.string_types)
-        else data.columns
-        if competitionSpec.targets is None
-        else competitionSpec.targets
+        else (
+            data.columns if competitionSpec.targets is None else competitionSpec.targets
+        )
     )
 
     val = competitionSpec.when

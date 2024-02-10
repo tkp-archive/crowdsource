@@ -5,7 +5,7 @@ import ujson
 import validators
 from sklearn.metrics import log_loss
 from six import StringIO, string_types
-from pandas.io.json import json_normalize
+from pandas import json_normalize
 from ..enums import CompetitionMetric, CompetitionType, DatasetFormat
 from ..exceptions import MalformedDataType, MalformedDataset
 
