@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 import crowdsource.client as ac
 
-c = ac.Client('http://crowdsourcedev.azurewebsites.net')
+c = ac.Client("http://crowdsourcedev.azurewebsites.net")
 
 c._sampleClassify1()
 
@@ -26,10 +26,10 @@ logging.debug(c.leaderboards())
 
 time.sleep(4)
 c._samplePredictCorporateBonds()
-df = pd.read_json('https://bonds.paine.nyc')
-tim = df[df['Name'] == 'ABC Corp'].Time.iloc[-1]
-cur = datetime.strptime(tim, '%H:%M:%S')
-logging.debug('Submitting new competition')
+df = pd.read_json("https://bonds.paine.nyc")
+tim = df[df["Name"] == "ABC Corp"].Time.iloc[-1]
+cur = datetime.strptime(tim, "%H:%M:%S")
+logging.debug("Submitting new competition")
 
 time.sleep(4)
 c._samplePredictCitibike()

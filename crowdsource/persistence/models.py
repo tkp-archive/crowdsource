@@ -95,32 +95,41 @@ class Competition(Base):
             type=spec.type.value,
             prize=spec.prize,
             metric=spec.metric.value,
-            dataset=spec.dataset
-            if isinstance(spec.dataset, six.string_types)
-            and validators.url(spec.dataset)
-            else spec.dataset.to_dict()
-            if isinstance(spec.dataset, pd.DataFrame)
-            else ""
-            if not spec.dataset
-            else ujson.loads(spec.dataset),
+            dataset=(
+                spec.dataset
+                if isinstance(spec.dataset, six.string_types)
+                and validators.url(spec.dataset)
+                else (
+                    spec.dataset.to_dict()
+                    if isinstance(spec.dataset, pd.DataFrame)
+                    else "" if not spec.dataset else ujson.loads(spec.dataset)
+                )
+            ),
             dataset_type=spec.dataset_type.value,
             dataset_kwargs=spec.dataset_kwargs,
             dataset_key=spec.dataset_key,
             num_classes=spec.num_classes,
-            targets=spec.targets
-            if isinstance(spec.targets, six.string_types)
-            else ujson.dumps(spec.targets),
+            targets=(
+                spec.targets
+                if isinstance(spec.targets, six.string_types)
+                else ujson.dumps(spec.targets)
+            ),
             when=spec.when,
-            answer=spec.answer
-            if isinstance(spec.answer, six.string_types) and validators.url(spec.answer)
-            else spec.answer.to_dict()
-            if isinstance(spec.answer, pd.DataFrame)
-            else ""
-            if not spec.answer
-            else ujson.loads(spec.answer),
-            answer_type=spec.dataset_type.value
-            if spec.answer_type.value == "none"
-            else spec.answer_type.value,
+            answer=(
+                spec.answer
+                if isinstance(spec.answer, six.string_types)
+                and validators.url(spec.answer)
+                else (
+                    spec.answer.to_dict()
+                    if isinstance(spec.answer, pd.DataFrame)
+                    else "" if not spec.answer else ujson.loads(spec.answer)
+                )
+            ),
+            answer_type=(
+                spec.dataset_type.value
+                if spec.answer_type.value == "none"
+                else spec.answer_type.value
+            ),
             answer_delay=spec.answer_delay,
             timestamp=datetime.now(),
         )
@@ -186,13 +195,16 @@ class Submission(Base):
             competition_id=competition_id,
             score=-1,
             competition=competition,
-            answer=spec.answer
-            if isinstance(spec.answer, six.string_types) and validators.url(spec.answer)
-            else spec.answer.to_json()
-            if isinstance(spec.answer, pd.DataFrame)
-            else ""
-            if not spec.answer
-            else ujson.loads(spec.answer),
+            answer=(
+                spec.answer
+                if isinstance(spec.answer, six.string_types)
+                and validators.url(spec.answer)
+                else (
+                    spec.answer.to_json()
+                    if isinstance(spec.answer, pd.DataFrame)
+                    else "" if not spec.answer else ujson.loads(spec.answer)
+                )
+            ),
             answer_type=spec.answer_type.value,
             timestamp=datetime.now(),
         )

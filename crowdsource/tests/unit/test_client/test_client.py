@@ -36,7 +36,6 @@ class TestClient:
             c = Client("test")
 
         with patch("requests.post") as m:
-
             m.return_value = MagicMock()
             m.return_value.text = "{}"
             c.register()

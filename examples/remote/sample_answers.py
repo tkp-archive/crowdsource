@@ -1,6 +1,6 @@
 import crowdsource.client as ac
 
-c = ac.Client('http://crowdsourcedev.azurewebsites.net')
+c = ac.Client("http://crowdsourcedev.azurewebsites.net")
 
 
 c._sampleAnswerClassify1()

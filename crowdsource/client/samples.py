@@ -122,10 +122,15 @@ def answerPredict1(competitionSpec, *args, **kwargs):
         ans.loc[when, col] = reg.predict(
             [
                 [
-                    when.timestamp()
-                    if hasattr(when, "timestamp")
-                    else float(
-                        (time.mktime(when.timetuple()) + when.microsecond / 1000000.0)
+                    (
+                        when.timestamp()
+                        if hasattr(when, "timestamp")
+                        else float(
+                            (
+                                time.mktime(when.timetuple())
+                                + when.microsecond / 1000000.0
+                            )
+                        )
                     )
                 ]
             ]

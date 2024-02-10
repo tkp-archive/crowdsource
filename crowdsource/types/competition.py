@@ -121,18 +121,25 @@ class CompetitionSpec(HasTraits):
         ret["when"] = (
             ""
             if self.when is None
-            else self.when.timestamp()
-            if hasattr(self.when, "timestamp")
-            else float(
-                (time.mktime(self.when.timetuple()) + self.when.microsecond / 1000000.0)
+            else (
+                self.when.timestamp()
+                if hasattr(self.when, "timestamp")
+                else float(
+                    (
+                        time.mktime(self.when.timetuple())
+                        + self.when.microsecond / 1000000.0
+                    )
+                )
             )
         )
         ret["answer"] = (
             self.answer
             if isinstance(self.answer, six.string_types)
-            else self.answer.to_json()
-            if isinstance(self.answer, pandas.DataFrame)
-            else self.dataset
+            else (
+                self.answer.to_json()
+                if isinstance(self.answer, pandas.DataFrame)
+                else self.dataset
+            )
         )
         ret["answer_delay"] = self.answer_delay
         return ret
