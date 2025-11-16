@@ -13,7 +13,7 @@
     "@phosphor/messaging": "^1.2.2",
     "@phosphor/widgets": "^1.6.0",
     "es6-promise": "^4.0.5",
-    "js-yaml": "^3.13.1",
+    "js-yaml": "^4.1.1",
     "requests-helper": "^0.1.3",
     "tkp_utils": "^0.1.10"
   },
